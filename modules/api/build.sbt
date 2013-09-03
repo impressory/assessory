@@ -1,0 +1,1 @@
+libraryDependencies += "com.wbillingsley" %% "handy" % "0.4-SNAPSHOT"
