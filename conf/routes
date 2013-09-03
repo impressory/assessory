@@ -1,0 +1,12 @@
+
+# Angular.js Partials
+GET     /partials/*template         com.assessory.play.controllers.Application.partial(template:String)
+
+# Index
+GET     /                           com.assessory.play.controllers.Application.index
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
+
+# Default route
+GET     /*path                      com.assessory.play.controllers.Application.defaultRoute(path)

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+	<!-- Pure CSS. Used in a couple of places where Bootstrap was being problematic. -->
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.2.1/pure-min.css">
+    
+    <!-- Boostrap 3 -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">    
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">    
+
+    <link href="@routes.Assets.at("stylesheets/main.css")" rel="stylesheet">
+    
+    <title>Assessory</title>
+    <div class="full-height" ng-controller="ErrorController">
+      <div ng-show="false">
+        This site requires Javascript.
+      </div>
+      
+      <div ng-show="error">
+        <ng-include src="'client-error-template'"></ng-include>
+      </div>
+      <div ng-hide="error" class="full-height">
+	    <div ng-view class="full-height"></div>      
+      </div>
+    </div>
+    
+    <!-- JQuery, required for Bootstrap -->
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    
+    <!-- Bootstrap -->
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+
+    <!-- Angular.js -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.4/angular.min.js"></script>    
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.4/angular-sanitize.min.js"></script>
+    
+    <!-- The client-side custom error pages -->
+    <script type="text/ng-template" id="client-error-template">
+      <div ng-switch="error.status">
+        <div ng-switch-when="404">
+          @views.html.partials.xErrorNotFound()
+        </div>
+        <div ng-switch-when="403">
+          @views.html.partials.xErrorNotFound()
+        </div>
+        <div ng-switch-default>
+          @views.html.partials.xErrorInternalError()
+        </div>
+      </div>
+    </script>
+    
+    <!-- Preload directive templates -->
+    @includeDirectives()
+    
+    <!-- Impressory, via require.js -->
+    @helper.requireJs(core = routes.Assets.at("javascripts/require.js").url, module = routes.Assets.at("javascripts/main").url)    
+    
+</html>
