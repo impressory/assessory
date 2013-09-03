@@ -1,1 +1,1 @@
-libraryDependencies += "com.wbillingsley" %% "handy" % "0.4-SNAPSHOT"
+libraryDependencies += "com.wbillingsley" %% "handy-appbase-core" % "0.4-SNAPSHOT"
