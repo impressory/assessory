@@ -18,6 +18,8 @@ case class User(
     
     identities:Seq[Identity] = Seq.empty,
     
+    activeSessions:Seq[ActiveSession] = Seq.empty,
+    
     created: Long = defaultCreated
     
 ) extends com.wbillingsley.handy.appbase.User[Identity, PasswordLogin] with HasStringId {
