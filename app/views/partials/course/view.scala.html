@@ -7,6 +7,17 @@
     <p>{{ course.shortDescription }}</p>
   
   
+    <div ng-show="course.permissions.edit">
+      <h3>Pre-enrol</h3>
+      
+      <div ng-repeat="pe in preenrols">
+        <p>
+          <a href="/preenrol/{{ pe.id }}">{{ pe.name || 'Untitled '}}</a>
+        </p>
+      </div>
+      <a href="/course/{{ course.id }}/createPreenrol" class="btn btn-default">Create pre-enrol</a>
+    </div>
+  
     <h3>Group sets</h3>
   
     <div ng-repeat="gs in groupSets">

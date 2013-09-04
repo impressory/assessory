@@ -43,6 +43,8 @@ object Application extends Controller {
       
       case "course/create.html" => Ok(views.html.partials.course.create())
       case "course/view.html" => Ok(views.html.partials.course.view())
+      case "course/createPreenrol.html" => Ok(views.html.partials.course.createPreenrol())
+      case "course/viewPreenrol.html" => Ok(views.html.partials.course.viewPreenrol())
 
       case "group/createGroupSet.html" => Ok(views.html.partials.group.createGroupSet())
       case "group/viewGroupSet.html" => Ok(views.html.partials.group.viewGroupSet())

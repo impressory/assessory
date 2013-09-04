@@ -1,0 +1,23 @@
+<site-header></site-header>
+
+<div class="container">
+
+  <a class="btn btn-default" href="/course/{{ preenrol.course }}">Return to course</a>
+  
+  <h2>{{ preenrol.name || 'Unnamed pre-enrolment' }}</h2>
+
+
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr><td>service</td><td>id</td><td>username</td></tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="identity in preenrol.identities">
+        <td>{{identity.service}}</td>
+        <td>{{identity.value}}</td>
+        <td>{{identity.username}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>

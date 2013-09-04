@@ -3,6 +3,7 @@ define(["./UserService"], () ->
   Assessory.services.CourseService = Assessory.angularApp.service('CourseService', ['$http', '$cacheFactory', 'UserService', ($http, $cacheFactory, UserService) ->
       
     cache = $cacheFactory("courseCache")
+    preenrolCache = $cacheFactory("preenrolCache")
     
     {
     
@@ -34,6 +35,24 @@ define(["./UserService"], () ->
           else
             []
         )
+        
+      createPreenrol: (courseId, preenrol) -> $http.post("/course/#{courseId}/createPreenrol", preenrol).then((res) -> 
+        d = res.data
+        preenrolCache.put(d.id, d)
+        d
+      )
+
+      getPreenrol: (id) ->         
+        preenrolCache.get(id) || ( 
+          prom = $http.get("/preenrol/#{id}").then(
+            (successRes) -> successRes.data
+          )
+          preenrolCache.put(id, prom)
+          prom
+        )
+
+      coursePreenrols: (courseId) -> 
+        $http.get("/course/#{courseId}/preenrols").then((res) -> res.data)
     }
   ])
 

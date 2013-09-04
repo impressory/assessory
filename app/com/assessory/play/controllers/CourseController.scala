@@ -14,10 +14,12 @@ import com.wbillingsley.handy.appbase.DataAction
 object CourseController extends Controller {
   
   implicit val courseToJson = CourseToJson
+  implicit val preenrolToJson = PreenrolToJson
   
   val dataAction = new DataAction
   
   def refCourse(id:String) = new LazyId(classOf[Course], id)
+  def refPreenrol(id:String) = new LazyId(classOf[Preenrol], id)
   
   /**
    * Retrieves a course
@@ -56,4 +58,30 @@ object CourseController extends Controller {
       approved <- request.approval ask Permissions.ViewCourse(course.itself)
     ) yield course
   }
+  
+  def preenrol(preenrolId:String) = dataAction.one { implicit request => 
+    for (
+      preenrol <- request.approval.cache(refPreenrol(preenrolId));
+      approved <- request.approval ask Permissions.EditCourse(preenrol.course)
+    ) yield preenrol
+  }
+  
+  def coursePreenrols(courseId:String) = dataAction.many { implicit request => 
+    for (
+      course <- request.approval.cache(refCourse(courseId));
+      approved <- request.approval ask Permissions.ViewCourse(course.itself);
+      preenrol <- PreenrolDAO.byCourse(course.itself)
+    ) yield preenrol
+  }
+  
+  def createPreenrol(courseId:String) = dataAction.one(parse.json) { implicit request =>
+    val cache = request.approval.cache
+    for (
+      course <- refCourse(courseId);
+      approved <- request.approval ask Permissions.EditCourse(course.itself);
+      unsaved <- PreenrolToJson.updateWithCsv(PreenrolDAO.unsaved.copy(course=course.itself), request.body);
+      saved <- PreenrolDAO.saveNew(unsaved)
+    ) yield saved
+  }  
+  
 }

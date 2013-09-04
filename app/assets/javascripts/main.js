@@ -18,6 +18,8 @@ require([
     
   "controllers/course/Create",
   "controllers/course/View",
+  "controllers/course/CreatePreenrol",
+  "controllers/course/ViewPreenrol",
 
   "controllers/group/CreateGroupSet",
   "controllers/group/ViewGroupSet",
