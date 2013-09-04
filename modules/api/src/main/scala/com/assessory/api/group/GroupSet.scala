@@ -9,6 +9,8 @@ case class GroupSet (
     
     name:Option[String] = None,
     
-    course: Ref[Course] = RefNone
+    course: Ref[Course] = RefNone,
+    
+    created: Long = System.currentTimeMillis
     
 ) extends HasStringId

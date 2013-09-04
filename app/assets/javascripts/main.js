@@ -7,6 +7,7 @@ require([
   
   "services/UserService",
   "services/CourseService",
+  "services/GroupService",
   
   "components/SiteHeader",
   "components/MyCourses",
@@ -17,6 +18,9 @@ require([
     
   "controllers/course/Create",
   "controllers/course/View",
+
+  "controllers/group/CreateGroupSet",
+  "controllers/group/ViewGroupSet",
 
   "modules/app"
   

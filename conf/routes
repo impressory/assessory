@@ -1,4 +1,10 @@
 
+# GroupSets
+GET     /course/:courseId/groupSets           com.assessory.play.controllers.GroupController.courseGroupSets(courseId)
+GET     /groupSet/:gsId                       com.assessory.play.controllers.GroupController.groupSet(gsId)
+POST    /groupSet/:gsId                       com.assessory.play.controllers.GroupController.editGroupSet(gsId)
+POST    /course/:courseId/createGroupSet      com.assessory.play.controllers.GroupController.createGroupSet(courseId)
+
 # Courses
 GET     /course/:id                 com.assessory.play.controllers.CourseController.get(id)
 POST    /course/create              com.assessory.play.controllers.CourseController.create

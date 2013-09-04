@@ -5,6 +5,31 @@
   <div class="container">
     <h2>{{ course.title }} <small>{{ course.shortName }}</small></h2>
     <p>{{ course.shortDescription }}</p>
+  
+  
+    <h3>Group sets</h3>
+  
+    <div ng-repeat="gs in groupSets">
+      <p>
+        <a href="/groupSet/{{ gs.id }}">{{ gs.name || 'Untitled '}}</a>
+      </p>
+    </div>
+
+    <div ng-show="course.permissions.edit">
+      <a href="/course/{{ course.id }}/createGroupSet" class="btn btn-default">Create group set</a>
+    </div>
+
+    <h3>Tasks</h3>
+  
+    <div ng-repeat="gs in groupSets">
+      <h4>asd</h4>
+    </div>
+
+    <div ng-show="course.permissions.edit">
+      <a href="/course/{{ course.id }}/createCritTask" class="btn btn-default">Create crit task</a>
+    </div>
+
+    
   </div>
 
 
