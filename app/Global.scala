@@ -20,7 +20,10 @@ object Global extends GlobalSettings with AcceptExtractors {
     RefFuture.executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
     // Set the completion action for OAuth
-    //com.wbillingsley.handy.playoauth.PlayAuth.onAuth = com.impressory.auth.controllers.InterstitialController.onOAuth
+    com.wbillingsley.handy.playoauth.PlayAuth.onAuth = { r =>
+      println("Calling onAuth inside assessory with " + r)
+      com.assessory.auth.controllers.InterstitialController.onOAuth(r)
+    }
     
     val lookupPf = UserDAO.lookupPf
     

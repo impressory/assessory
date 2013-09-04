@@ -32,7 +32,7 @@ object UserController extends Controller {
         val u = UserDAO.unsaved  
         val set = u.copy(
             pwlogin=u.pwlogin.copy(email=Some(email), pwhash=u.pwlogin.hash(password)),
-            activeSessions=Seq(ActiveSession(request.sessionKey))
+            activeSessions=Seq(ActiveSession(request.sessionKey, ip=request.remoteAddress))
         )
         UserDAO.saveNew(set)
       }      
@@ -48,8 +48,8 @@ object UserController extends Controller {
       email <- Ref((request.body \ "email").asOpt[String]) orIfNone UserError("Email must not be blank");
       password <- Ref((request.body \ "password").asOpt[String]) orIfNone UserError("Password must not be blank");
       user <- UserDAO.byEmailAndPassword(email, password);
-      updated <- UserDAO.pushSession(user.itself, ActiveSession(request.sessionKey))
-    ) yield user     
+      updated <- UserDAO.pushSession(user.itself, ActiveSession(request.sessionKey, ip=request.remoteAddress))
+    ) yield updated     
   }
     
   /**
@@ -58,10 +58,8 @@ object UserController extends Controller {
   def logOut = dataAction.one { implicit request =>     
     for (      
       u <- request.user;  
-      user <- UserDAO.deleteSession(u.itself, ActiveSession(request.sessionKey))
+      user <- UserDAO.deleteSession(u.itself, ActiveSession(request.sessionKey, ip=request.remoteAddress))
     ) yield {
-      println("user was " + u.id)
-      println("as was " + request.sessionKey)
       user     
     }
   }

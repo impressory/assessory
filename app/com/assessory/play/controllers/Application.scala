@@ -39,6 +39,7 @@ object Application extends Controller {
       case "main.html" => Ok(views.html.partials.main())
       case "signUp.html" => Ok(views.html.partials.signUp())
       case "logIn.html" => Ok(views.html.partials.logIn())
+      case "self.html" => Ok(views.html.partials.self())
       
       case _ => NotFound(s"No such partial template: $templ")
     }

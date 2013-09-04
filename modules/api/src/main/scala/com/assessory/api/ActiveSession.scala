@@ -1,3 +1,9 @@
 package com.assessory.api
 
-case class ActiveSession(key:String, since:Long = System.currentTimeMillis)
+case class ActiveSession(
+    key:String, 
+    
+    ip:String,
+    
+    since:Long = System.currentTimeMillis
+)

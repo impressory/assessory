@@ -1,0 +1,43 @@
+@(serviceName:Option[String], mem:com.wbillingsley.handy.playoauth.UserRecord)
+
+@template {
+
+<div class="container">
+
+  <div class="row">
+
+    <h1>New around here?</h1>
+  
+	<p>
+	That account on @serviceName.getOrElse("this service") isn't connected to an account here. 
+	Would you like to create a <strong>new account</strong> using that identity here?
+
+	(If you'd rather add this identity to an existing account, cancel and log in to that account first)
+	</p>
+	
+  </div>	
+	
+  <div class="row">
+    <div class="pull-left" style="margin-right: 30px;">
+      <h4>@serviceName</h4>
+      <img class="media-object" src='@mem.avatar.getOrElse("")' />
+      <label>@mem.username</label>
+    </div>
+	  
+    <div class="pull-left" >
+      <h4>Impressory</h4>
+      <label>New account</label>
+    </div>
+  </div>
+	
+  <hr />
+  <div class="row">
+    <form method="POST" action="@com.assessory.auth.controllers.routes.InterstitialController.registerUser">
+      <div class="form-group">
+        <a class="btn btn-default" href="/" target="_self">Cancel</a>
+        <button type="submit" class="btn btn-primary">Create account using this login</button>
+      </div>		
+    </form>
+  </div>
+</div>	
+}

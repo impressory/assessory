@@ -11,6 +11,7 @@ require([
   
   "controllers/login/LogIn",
   "controllers/login/SignUp",
+  "controllers/login/Self",
     
   "modules/app"
   

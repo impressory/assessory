@@ -25,7 +25,7 @@ define(["./base" ], () ->
           when('/', { templateUrl: '/partials/main.html' }).
           when('/logIn', { templateUrl: '/partials/logIn.html' }).
           when('/signUp', { templateUrl: '/partials/signUp.html' }).
-          when('/self', { templateUrl: '/partials/self.html' }).
+          when('/self', { templateUrl: '/partials/self.html', controller: Assessory.controllers.login.Self }).
           when('/createCourse', { templateUrl: '/partials/course/create.html' }).
           otherwise({ redirectTo: '/' })
       ])
