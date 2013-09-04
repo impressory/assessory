@@ -3,7 +3,11 @@
  * (At the moment we're just including everything!)
  */
 require([
+  "modules/base",
   
+  "components/SiteHeader",
+  
+  "modules/app"
   
 ], function(l) {
 	console.log("required scripts have loaded")
