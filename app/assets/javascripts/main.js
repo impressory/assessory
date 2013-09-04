@@ -3,10 +3,15 @@
  * (At the moment we're just including everything!)
  */
 require([
-  "modules/base",
+  "modules/base",  
+  
+  "services/UserService",
   
   "components/SiteHeader",
   
+  "controllers/login/LogIn",
+  "controllers/login/SignUp",
+    
   "modules/app"
   
 ], function(l) {

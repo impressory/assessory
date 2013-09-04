@@ -98,7 +98,7 @@ object UserDAO extends DAO[User] with UserProvider[User] {
   
   def deleteSession(ru:Ref[User], as:ActiveSession) = updateAndFetch(
     query = BSONDocument("_id" -> ru), 
-    update = BSONDocument("$pull" -> BSONDocument("activeSessions.key" -> as.key)) 
+    update = BSONDocument("$pull" -> BSONDocument("activeSessions" -> BSONDocument("key" -> as.key))) 
   )
   
   def bySessionKey(sessionKey:String):Ref[User] = {

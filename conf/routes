@@ -1,4 +1,11 @@
 
+# Logged in user
+GET		/self						com.assessory.play.controllers.UserController.self
+
+POST	/signUp						com.assessory.play.controllers.UserController.signUp
+POST	/logIn 						com.assessory.play.controllers.UserController.logIn
+POST	/logOut						com.assessory.play.controllers.UserController.logOut
+
 # Angular.js Partials
 GET     /partials/*template         com.assessory.play.controllers.Application.partial(template:String)
 

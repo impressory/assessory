@@ -6,10 +6,17 @@
 	    <ul class="nav navbar-nav">
 	    </ul> 
 	
-	    <ul class="nav navbar-nav pull-right">
-	        <li><a href="">Sign in</a></li>
-	        <li><a href="">Sign up</a></li>
+	    <ul class="nav navbar-nav pull-right" ng-hide="user">
+	        <li><a href="/logIn">Log in</a></li>
+	        <li><a href="/signUp">Sign up</a></li>
+	    </ul>
+	    
+	    <ul class="nav navbar-nav pull-right" ng-show="user">
+	        <li><a href="#" ng-click="logOut()">Log out</a></li>
+	        <li><a href="/self">{{ user.nickname || 'Anonymous' }}</a></li>
+	        <li>{{ user.error }}</li>
 	    </ul> 
+	     
 	  </div>
 	</div>
 </div>

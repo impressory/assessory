@@ -7,12 +7,6 @@ import com.assessory.reactivemongo.UserDAO
 object Application extends Controller {
   
   /**
-   * DataAction should retrieve user information using the UserDAO
-   * from our database classes. (It includes methods for bySessionKey, etc) 
-   */
-  implicit val userProvider = UserDAO
-  
-  /**
    * The HTML and Javascript for the client side of the app.
    * This also ensures the user's Play session cookie includes
    * a value for sessionKey.
@@ -42,6 +36,9 @@ object Application extends Controller {
    */
   def partial(templ:String) = Action { 
     templ match {
+      case "main.html" => Ok(views.html.partials.main())
+      case "signUp.html" => Ok(views.html.partials.signUp())
+      case "logIn.html" => Ok(views.html.partials.logIn())
       
       case _ => NotFound(s"No such partial template: $templ")
     }
