@@ -6,16 +6,19 @@
   
   <h2>{{ preenrol.name || 'Unnamed pre-enrolment' }}</h2>
 
+  <label>Roles</label>
+  {{ preenrol.roles }}
 
   <table class="table table-bordered table-striped">
     <thead>
-      <tr><td>service</td><td>id</td><td>username</td></tr>
+      <tr><td>service</td><td>id</td><td>username</td><td>used</td></tr>
     </thead>
     <tbody>
       <tr ng-repeat="identity in preenrol.identities">
         <td>{{identity.service}}</td>
         <td>{{identity.value}}</td>
         <td>{{identity.username}}</td>
+        <td>{{identity.used}}</td>
       </tr>
     </tbody>
   </table>

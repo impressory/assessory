@@ -16,6 +16,8 @@ define(["modules/base"], () ->
           prom
         )
         
+      forgetSelf: () -> cache.remove("self")
+        
       signUp: (json) -> $http.post("/signUp", json).then((res) -> 
         user = res.data
         cache.put("self", user)

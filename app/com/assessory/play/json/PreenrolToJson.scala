@@ -47,6 +47,7 @@ object PreenrolToJson extends JsonConverter[Preenrol, User] {
     Preenrol.fromCsv(
       id = p.id, 
       name = (json \ "name").asOpt[String], 
+      roles = (json \ "roles").asOpt[Seq[String]].getOrElse(Seq.empty).toSet,
       course = p.course, 
       csv = (json \ "csv").asOpt[String].get
     )

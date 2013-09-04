@@ -2,7 +2,7 @@
 GET     /course/:courseId/preenrols           com.assessory.play.controllers.CourseController.coursePreenrols(courseId)
 GET     /preenrol/:gsId                       com.assessory.play.controllers.CourseController.preenrol(gsId)
 POST    /course/:courseId/createPreenrol      com.assessory.play.controllers.CourseController.createPreenrol(courseId)
-
+POST    /preenrol/doPreenrolments             com.assessory.play.controllers.CourseController.doPreenrolments
 
 # GroupSets
 GET     /course/:courseId/groupSets           com.assessory.play.controllers.GroupController.courseGroupSets(courseId)

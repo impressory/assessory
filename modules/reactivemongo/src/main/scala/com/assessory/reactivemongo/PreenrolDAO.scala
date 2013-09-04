@@ -27,6 +27,7 @@ object PreenrolDAO extends DAO[Preenrol] {
       new Preenrol(
         id = doc.getAs[BSONObjectID]("_id").get.stringify,
         course = doc.getAs[Ref[Course]]("course").getOrElse(RefNone),
+        roles = doc.getAs[Set[CourseRole.T]]("roles").getOrElse(Set.empty),
         name = doc.getAs[String]("name"),
         identities = doc.getAs[Seq[PreenrolPair]]("identities").getOrElse(Seq.empty),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis())
@@ -43,6 +44,7 @@ object PreenrolDAO extends DAO[Preenrol] {
       idIs(p.id),
       "name" -> p.name,
       "course" -> p.course,
+      "roles" -> p.roles,
       "identities" -> p.identities,
       "created" -> p.created
     ),
@@ -51,5 +53,24 @@ object PreenrolDAO extends DAO[Preenrol] {
   
   def byCourse(c:Ref[Course]) = findMany(BSONDocument("course" -> c))
   
+  def byIdentity(service:String, value:String, username:Option[String]) = findMany(
+    username match {
+      case Some(u) => BSONDocument("$or" -> Seq(
+          BSONDocument("identities.service" -> service, "identities.value" -> value, "identities.used" -> false),
+          BSONDocument("identities.service" -> service, "identities.username" -> username, "identities.used" -> false)
+      ))
+      case None => BSONDocument("service" -> service, "value" -> value)
+    }
+  )
   
+  def markUsed(p:Preenrol, service:String, value:String, username:Option[String]) = updateAndFetch(
+    query = username match {
+      case Some(u) => BSONDocument(idIs(p.id), "$or" -> Seq(
+          BSONDocument("identities.service" -> service, "identities.value" -> value, "identities.used" -> false),
+          BSONDocument("identities.service" -> service, "identities.username" -> username, "identities.used" -> false)
+      ))
+      case None => BSONDocument("service" -> service, "value" -> value)
+    },
+    update = BSONDocument("$set" -> BSONDocument("identities.$.used" -> "true"))
+  )  
 }

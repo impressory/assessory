@@ -84,4 +84,16 @@ object CourseController extends Controller {
     ) yield saved
   }  
   
+  def doPreenrolments = dataAction.many { implicit request =>
+    
+    for (
+      u <- request.user;
+      i <- u.identities.toRefMany;
+      p <- PreenrolDAO.byIdentity(service=i.service, value=i.value, username=i.username);
+      pushed <- UserDAO.pushRegistration(u.itself, Registration(course=p.course, roles=p.roles.toSeq));
+      pp <- PreenrolDAO.markUsed(p, service=i.service, value=i.value, username=i.username)
+    ) yield pp
+    
+  }
+  
 }

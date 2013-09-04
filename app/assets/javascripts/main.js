@@ -20,6 +20,7 @@ require([
   "controllers/course/View",
   "controllers/course/CreatePreenrol",
   "controllers/course/ViewPreenrol",
+  "controllers/course/FindMyCourses",
 
   "controllers/group/CreateGroupSet",
   "controllers/group/ViewGroupSet",

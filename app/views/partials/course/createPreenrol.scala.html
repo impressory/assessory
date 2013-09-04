@@ -10,6 +10,12 @@
         <input ng-model="preenrol.name" type="text" class="form-control" placeholder="eg, project group" />
       </div>
       <div class="form-group">
+        <label>Roles</label>
+        <span ng-repeat="choice in roleChoices">
+          <label class="checkbox-inline"><input type="checkbox" ng-model="choice.chosen" /> {{ choice.role }}</label>
+        </span>
+      </div>
+      <div class="form-group">
         <label>CSV data</label>
         <textarea ng-model="preenrol.csv" class="form-control" placeholder="service,id,name"></textarea>
       </div>
