@@ -26,7 +26,13 @@ define(["./base" ], () ->
           when('/logIn', { templateUrl: '/partials/logIn.html' }).
           when('/signUp', { templateUrl: '/partials/signUp.html' }).
           when('/self', { templateUrl: '/partials/self.html', controller: Assessory.controllers.login.Self }).
-          when('/createCourse', { templateUrl: '/partials/course/create.html' }).
+          when('/course/create', { templateUrl: '/partials/course/create.html' }).
+          when('/course/:courseId', {
+              templateUrl: '/partials/course/view.html'
+              controller: Assessory.controllers.course.View
+              resolve: Assessory.controllers.course.View.resolve
+            }
+          ).
           otherwise({ redirectTo: '/' })
       ])
 

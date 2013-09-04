@@ -1,7 +1,7 @@
-define(["modules/base"], (l) -> 
+define(["./base"], (l) -> 
 
 
-  Assessory.controllers.SiteHeader = ['$scope', 'UserService', '$location', "$route", ($scope, UserService, $location, $route) ->
+  Assessory.controllers.components.SiteHeader = ['$scope', 'UserService', '$location', "$route", ($scope, UserService, $location, $route) ->
   
     $scope.user = UserService.self()
     
@@ -18,7 +18,7 @@ define(["modules/base"], (l) ->
 
   Assessory.angularApp.directive("siteHeader", ["UserService", (UserService) -> 
     {
-      controller: Assessory.controllers.SiteHeader
+      controller: Assessory.controllers.components.SiteHeader
       restrict: 'E'
       templateUrl: "directive_siteHeader.html"
     }

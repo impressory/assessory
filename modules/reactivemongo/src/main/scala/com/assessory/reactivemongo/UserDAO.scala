@@ -7,6 +7,7 @@ import reactivemongo.bson._
 import com.wbillingsley.handy.{Ref, RefNone}
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.appbase.UserProvider
+import com.assessory.api.course.Registration
 
 object UserDAO extends DAO[User] with UserProvider[User] {
   
@@ -28,6 +29,9 @@ object UserDAO extends DAO[User] with UserProvider[User] {
   /** Converts ActiveSession to and from BSON */
   implicit val activeSessionFormat = Macros.handler[ActiveSession]  
   
+  /** Converts Registration to and from BSON */
+  implicit val registrationFormat = Macros.handler[Registration]
+  
   /**
    * Understands how to read Users. 
    * 
@@ -44,6 +48,7 @@ object UserDAO extends DAO[User] with UserProvider[User] {
         pwlogin = doc.getAs[PasswordLogin]("pwlogin").getOrElse(PasswordLogin()),
         identities = doc.getAs[Seq[Identity]]("identities").getOrElse(Seq.empty),
         activeSessions = doc.getAs[Seq[ActiveSession]]("activeSessions").getOrElse(Seq.empty),
+        registrations = doc.getAs[Seq[Registration]]("registrations").getOrElse(Seq.empty),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis())
       )
     }
@@ -130,5 +135,10 @@ object UserDAO extends DAO[User] with UserProvider[User] {
       }      
     ) yield user
   }
-      
+  
+  def pushRegistration(ru:Ref[User], r:Registration) = updateAndFetch(
+    query = BSONDocument("_id" -> ru), 
+    update = BSONDocument("$push" -> BSONDocument("registrations" -> r))
+  )
+  
 }

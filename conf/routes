@@ -1,4 +1,9 @@
 
+# Courses
+GET     /course/:id                 com.assessory.play.controllers.CourseController.get(id)
+POST    /course/create              com.assessory.play.controllers.CourseController.create
+POST    /course/findMany            com.assessory.play.controllers.CourseController.findMany
+
 # Logged in user
 GET		/self						com.assessory.play.controllers.UserController.self
 

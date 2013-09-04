@@ -43,7 +43,7 @@ class UserDAOSpec extends Specification with BeforeExample {
       
       val returnedName = for (
         saved <- UserDAO.saveNew(u);      
-        pushed <- UserDAO.pushSession(saved.itself, ActiveSession(key="mysession"));
+        pushed <- UserDAO.pushSession(saved.itself, ActiveSession(key="mysession", ip="local"));
         fetched <- UserDAO.bySessionKey("mysession"); name <- fetched.name
       ) yield name      
       

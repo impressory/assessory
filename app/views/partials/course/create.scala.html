@@ -1,0 +1,29 @@
+<site-header></site-header>
+
+<div class="course-create" ng-controller="Assessory.controllers.course.Create">
+
+  <div class="container">
+    <h2>Create a course</h2>
+    <div class="form">
+      <div class="form-group">
+        <label>Title</label>
+        <input ng-model="course.title" type="text" class="form-control" placeholder="eg, Design Computing Studio 2" />
+      </div>
+      <div class="form-group">
+        <label>Short name</label>
+        <input ng-model="course.shortName" type="text" class="form-control" placeholder="eg, DECO2800" />
+      </div>
+      <div class="form-group">
+        <label>Short description</label>
+        <textarea class="form-control" ng-model="course.shortDescription"></textarea>
+      </div>
+      <div class="form-group">
+        <a class="btn btn-default" href="/">Cancel</a>
+        <button class="btn btn-primary" ng-click="submit(course)">Create</button>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+

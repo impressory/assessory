@@ -1,0 +1,40 @@
+define(["./UserService"], () ->
+
+  Assessory.services.CourseService = Assessory.angularApp.service('CourseService', ['$http', '$cacheFactory', 'UserService', ($http, $cacheFactory, UserService) ->
+      
+    cache = $cacheFactory("courseCache")
+    
+    {
+    
+      create: (course) -> $http.post("/course/create", course).then((res) -> 
+        course = res.data
+        cache.put(course.id, course)
+        course
+      )
+    
+      get: (id) ->         
+        cache.get(id) || ( 
+          prom = $http.get("/course/#{id}").then(
+            (successRes) -> successRes.data
+          )
+          cache.put(id, prom)
+          prom
+        )
+        
+      findMany: (ids) -> 
+        $http.post("/course/findMany", { ids: ids }).then(
+            (successRes) -> successRes.data
+          )
+        
+      my: () -> 
+        UserService.self().then((user) =>
+          if user.registrations?.length > 0
+            ids = (reg.course for reg in user.registrations)
+            @findMany(ids)
+          else
+            []
+        )
+    }
+  ])
+
+)

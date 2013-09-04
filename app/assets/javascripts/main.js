@@ -6,13 +6,18 @@ require([
   "modules/base",  
   
   "services/UserService",
+  "services/CourseService",
   
   "components/SiteHeader",
+  "components/MyCourses",
   
   "controllers/login/LogIn",
   "controllers/login/SignUp",
   "controllers/login/Self",
     
+  "controllers/course/Create",
+  "controllers/course/View",
+
   "modules/app"
   
 ], function(l) {

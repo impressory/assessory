@@ -4,6 +4,24 @@
 
   <h2>My courses</h2>
 
+  <div ng-controller="Assessory.controllers.components.MyCourses">
+    <div ng-repeat="course in courses">
+      <h3>
+        <a href="/course/{{ course.id }}">
+          <small>{{ course.shortName }}</small> {{ course.title || 'Untitled' }}
+        </a>
+      </h3>
+      <p>
+      {{ course.shortDescription }}
+      </p>
+      <a class="btn btn-default btn-sm" href="/course/{{ course.id }}">go to course</a>
+    </div>
+  </div>
+
+  <hr />
+
+  <h2>Create a course</h2>
+  <a class="btn btn-default" href="/course/create">Create a course</a>
 
 </div>
 
@@ -15,6 +33,7 @@
   <p>
     You'll need to log in.
   </p>
+
 
 </div>
 
