@@ -1,3 +1,6 @@
+# Groups
+POST    /groupSet/:gsId/groups                com.assessory.play.controllers.GroupController.groupSetGroups(gsId)
+
 # Group Preenrols
 POST    /groupSet/:gsId/createGPreenrol       com.assessory.play.controllers.GroupController.createGroupSetPreenrol(gsId)   
 

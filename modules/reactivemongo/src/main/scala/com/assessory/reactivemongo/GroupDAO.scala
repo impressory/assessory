@@ -55,4 +55,8 @@ object GroupDAO extends DAO[Group] {
   def byCourse(c:Ref[Course]) = findMany(BSONDocument("course" -> c))
   
   def byCourseAndUser(c:Ref[Course], u:Ref[User]) = findMany(BSONDocument("course" -> c, "members" -> u))
+  
+  def bySet(gs:Ref[GroupSet]) = findMany(BSONDocument("set" -> gs))
+  
+  def byNames(names:Set[String]) = findMany(BSONDocument("name" -> BSONDocument("$in" -> names)))
 }

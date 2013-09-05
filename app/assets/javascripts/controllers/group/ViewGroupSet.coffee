@@ -4,8 +4,10 @@ define(["./base"], (l) ->
 
     $scope.groupSet = groupSet
     
-    $scope.refreshGroups = () -> true
+    $scope.refreshGroups = () -> 
+      $scope.groups = GroupService.byGroupSet(groupSet.id)
 
+    $scope.refreshGroups()
   ]
   
   Assessory.controllers.group.ViewGroupSet.resolve = {

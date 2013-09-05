@@ -22,6 +22,10 @@ define(["./UserService"], () ->
           gsCache.put(id, prom)
           prom
         )
+        
+      byGroupSet: (groupSetId) ->
+        $http.post("/groupSet/#{groupSetId}/groups").then((res) -> res.data)
+        
                 
       courseGroupSets: (courseId) -> 
         $http.get("/course/#{courseId}/groupSets").then((res) -> res.data)

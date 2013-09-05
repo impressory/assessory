@@ -11,19 +11,16 @@ import com.assessory.api._
 import course._
 import group._
 
-
 package object reactivemongo {
 
-  implicit object RefCourseReader extends BSONReader[BSONObjectID, Ref[Course]] {
-    def read(id:BSONObjectID) = new LazyId(classOf[Course], id.stringify)
-  }
-
-  implicit object RefUserReader extends BSONReader[BSONObjectID, Ref[User]] {
-    def read(id:BSONObjectID) = new LazyId(classOf[User], id.stringify)
+  def RefReader[T <: HasStringId](c:Class[T]) = new BSONReader[BSONObjectID, Ref[T]] {
+    def read(id:BSONObjectID) = new LazyId(c, id.stringify)
   }
   
-  implicit object RefGroupSetReader extends BSONReader[BSONObjectID, Ref[GroupSet]] {
-    def read(id:BSONObjectID) = new LazyId(classOf[GroupSet], id.stringify)
-  }
+  implicit val RefCourseReader = RefReader(classOf[Course])
+  implicit val RefUserReader = RefReader(classOf[User])
+  implicit val RefGroupReader = RefReader(classOf[Group])
+  implicit val RefGroupSetReader = RefReader(classOf[GroupSet])
+  implicit val RefGPreenrolReader = RefReader(classOf[GPreenrol])
   
 }

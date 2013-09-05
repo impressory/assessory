@@ -14,16 +14,18 @@ class PreenrolSpec extends Specification  {
     
     "create from CSV" in {      
       
-      val rp = Preenrol.fromCsv("1", RefNone, """
+      val rp = Preenrol.fromCsv("1", Some("1"), Set(CourseRole.student), RefNone, """
 github, ,fred
 github, ,joe
       """.trim())
       
-      rp.toFuture must be_==(Some(
-        Preenrol("1", RefNone, Seq(
+      val rcsv = for (p <- rp) yield p.identities
+      
+      rcsv.toFuture must be_==(Some(
+        Seq(
             PreenrolPair("github", " ", "fred"),
             PreenrolPair("github", " ", "joe")
-        ))
+        )
       )).await
       
     }
