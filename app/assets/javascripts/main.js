@@ -23,6 +23,7 @@ require([
   "controllers/course/FindMyCourses",
 
   "controllers/group/CreateGroupSet",
+  "controllers/group/CreateGPreenroll",
   "controllers/group/ViewGroupSet",
 
   "modules/app"

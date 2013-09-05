@@ -43,6 +43,7 @@ object Application extends Controller {
       
       case "course/create.html" => Ok(views.html.partials.course.create())
       case "course/view.html" => Ok(views.html.partials.course.view())
+      case "course/admin.html" => Ok(views.html.partials.course.admin())
       case "course/createPreenrol.html" => Ok(views.html.partials.course.createPreenrol())
       case "course/viewPreenrol.html" => Ok(views.html.partials.course.viewPreenrol())
 

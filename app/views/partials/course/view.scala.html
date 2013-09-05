@@ -3,43 +3,25 @@
 <div class="course-view">
 
   <div class="container">
-    <h2>{{ course.title }} <small>{{ course.shortName }}</small></h2>
-    <p>{{ course.shortDescription }}</p>
-  
-  
+    <course-info course="course"></course-info>
+
     <div ng-show="course.permissions.edit">
-      <h3>Pre-enrol</h3>
+      <a href="/course/{{ course.id }}/admin" class="btn btn-default">Administration</a>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-6">
+        <h3>Tasks</h3>
       
-      <div ng-repeat="pe in preenrols">
-        <p>
-          <a href="/preenrol/{{ pe.id }}">{{ pe.name || 'Untitled '}}</a>
-        </p>
+        <div ng-repeat="t in tasks">
+          <h4>asd</h4>
+        </div>
       </div>
-      <a href="/course/{{ course.id }}/createPreenrol" class="btn btn-default">Create pre-enrol</a>
+      <div class="col-sm-6">
+        <h3>My groups</h3>
+      
+      </div>
     </div>
-  
-    <h3>Group sets</h3>
-  
-    <div ng-repeat="gs in groupSets">
-      <p>
-        <a href="/groupSet/{{ gs.id }}">{{ gs.name || 'Untitled '}}</a>
-      </p>
-    </div>
-
-    <div ng-show="course.permissions.edit">
-      <a href="/course/{{ course.id }}/createGroupSet" class="btn btn-default">Create group set</a>
-    </div>
-
-    <h3>Tasks</h3>
-  
-    <div ng-repeat="gs in groupSets">
-      <h4>asd</h4>
-    </div>
-
-    <div ng-show="course.permissions.edit">
-      <a href="/course/{{ course.id }}/createCritTask" class="btn btn-default">Create crit task</a>
-    </div>
-
     
   </div>
 

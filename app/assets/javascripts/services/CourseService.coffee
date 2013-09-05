@@ -27,14 +27,10 @@ define(["./UserService"], () ->
             (successRes) -> successRes.data
           )
         
-      my: () -> 
-        UserService.self().then((user) =>
-          if user.registrations?.length > 0
-            ids = (reg.course for reg in user.registrations)
-            @findMany(ids)
-          else
-            []
-        )
+      my: () ->
+        $http.post("/course/my").then(
+            (successRes) -> successRes.data
+          ) 
         
       createPreenrol: (courseId, preenrol) -> $http.post("/course/#{courseId}/createPreenrol", preenrol).then((res) -> 
         d = res.data
@@ -55,7 +51,9 @@ define(["./UserService"], () ->
         $http.get("/course/#{courseId}/preenrols").then((res) -> res.data)
         
       doPreenrolments: () -> 
-        $http.post("/preenrol/doPreenrolments").then((res) -> res.data)
+        $http.post("/preenrol/doPreenrolments").then((res) ->
+          res.data
+        )
         
     }
   ])

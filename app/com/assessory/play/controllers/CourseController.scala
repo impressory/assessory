@@ -89,11 +89,24 @@ object CourseController extends Controller {
     for (
       u <- request.user;
       i <- u.identities.toRefMany;
-      p <- PreenrolDAO.byIdentity(service=i.service, value=i.value, username=i.username);
-      pushed <- UserDAO.pushRegistration(u.itself, Registration(course=p.course, roles=p.roles.toSeq));
-      pp <- PreenrolDAO.markUsed(p, service=i.service, value=i.value, username=i.username)
-    ) yield pp
+      p <- PreenrolDAO.useRow(service=i.service, value=i.value, username=i.username);
+      pushed <- UserDAO.pushRegistration(u.itself, Registration(course=p.course, roles=p.roles.toSeq))
+    ) yield p
     
+  }
+  
+  def myCourses = dataAction.many { implicit request =>
+    val rIds = for (
+      u <- request.user;
+      r <- u.registrations.toRefMany;
+      cid <- Ref(r.course.getId)
+    ) yield cid
+    
+    for (
+      ids <- rIds.toRefOne;
+      c <- new RefManyById(classOf[Course], ids.toSeq);
+      approved <- request.approval ask Permissions.ViewCourse(c.itself)
+    ) yield c
   }
   
 }

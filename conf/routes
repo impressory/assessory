@@ -11,6 +11,7 @@ POST    /groupSet/:gsId                       com.assessory.play.controllers.Gro
 POST    /course/:courseId/createGroupSet      com.assessory.play.controllers.GroupController.createGroupSet(courseId)
 
 # Courses
+POST    /course/my                  com.assessory.play.controllers.CourseController.myCourses
 GET     /course/:id                 com.assessory.play.controllers.CourseController.get(id)
 POST    /course/create              com.assessory.play.controllers.CourseController.create
 POST    /course/findMany            com.assessory.play.controllers.CourseController.findMany

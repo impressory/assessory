@@ -11,12 +11,10 @@ case class GPreenrol (
     
     set: Ref[GroupSet] = None,
     
-    group: Ref[Group] = None,
-    
-    identities: Seq[GPreenrolPair] = Seq.empty
+    groupData: Seq[GPreenrolPair] = Seq.empty
 
 ) extends HasStringId
 
-case class GPreenrolPair(service:String, value:String)
+case class GPreenrolPair(groupName:String, service:String, value:String, username:String, used:Boolean = false)
 
 

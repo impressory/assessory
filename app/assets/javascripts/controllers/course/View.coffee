@@ -4,7 +4,7 @@ define(["./base"], (l) ->
 
     $scope.course = course
     
-    $scope.groupSets =  GroupService.courseGroupSets(course.id)
+    $scope.groupSets = GroupService.courseGroupSets(course.id)
     
     $scope.preenrols = CourseService.coursePreenrols(course.id)
 
@@ -15,5 +15,14 @@ define(["./base"], (l) ->
       CourseService.get($route.current.params.courseId)
     ]
   }  
+  
+  Assessory.angularApp.directive("courseInfo", [ () -> 
+    {
+      scope: { course: '=course' }
+      templateUrl: "directive_courseInfo.html"
+      restrict: 'E'
+    }
+  )]
+  
 
 )

@@ -63,14 +63,17 @@ object PreenrolDAO extends DAO[Preenrol] {
     }
   )
   
-  def markUsed(p:Preenrol, service:String, value:String, username:Option[String]) = updateAndFetch(
-    query = username match {
-      case Some(u) => BSONDocument(idIs(p.id), "$or" -> Seq(
-          BSONDocument("identities.service" -> service, "identities.value" -> value, "identities.used" -> false),
-          BSONDocument("identities.service" -> service, "identities.username" -> username, "identities.used" -> false)
-      ))
-      case None => BSONDocument("service" -> service, "value" -> value)
-    },
-    update = BSONDocument("$set" -> BSONDocument("identities.$.used" -> "true"))
-  )  
+  def useRow(service:String, value:String, username:Option[String]) = {
+    for (p <- byIdentity(service, value, username)) yield {
+      val row = p.identities.indexWhere { row => 
+        row.service == service && !row.used && (Some(row.username) == username || row.value == value)
+      }      
+      updateUnsafe(
+          query=BSONDocument(idIs(p.id)), 
+          update=BSONDocument("$set" -> BSONDocument(s"identities.$$${row}.used" -> true)), 
+          item=p, upsert=false
+      )
+      p
+    }
+  }
 }
