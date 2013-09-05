@@ -25,6 +25,9 @@ define(["./UserService"], () ->
                 
       courseGroupSets: (courseId) -> 
         $http.get("/course/#{courseId}/groupSets").then((res) -> res.data)
+        
+      createGroupPreenrol: (groupSetId, gpreenrol) ->
+        $http.post("/groupSet/#{groupSetId}/createGPreenrol", gpreenrol).then((res) -> res.data)
     }
   ])
 

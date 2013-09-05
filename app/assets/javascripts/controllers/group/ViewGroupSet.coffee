@@ -3,6 +3,8 @@ define(["./base"], (l) ->
   Assessory.controllers.group.ViewGroupSet = ["$scope", "CourseService", "GroupService", "groupSet", ($scope, CourseService, GroupService, groupSet) ->    
 
     $scope.groupSet = groupSet
+    
+    $scope.refreshGroups = () -> true
 
   ]
   

@@ -1,3 +1,6 @@
+# Group Preenrols
+POST    /groupSet/:gsId/createGPreenrol       com.assessory.play.controllers.GroupController.createGroupSetPreenrol(gsId)   
+
 # Preenrols
 GET     /course/:courseId/preenrols           com.assessory.play.controllers.CourseController.coursePreenrols(courseId)
 GET     /preenrol/:gsId                       com.assessory.play.controllers.CourseController.preenrol(gsId)

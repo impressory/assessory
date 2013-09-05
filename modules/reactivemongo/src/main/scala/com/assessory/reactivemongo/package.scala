@@ -9,6 +9,7 @@ import com.wbillingsley.handy.appbase.UserProvider
 
 import com.assessory.api._
 import course._
+import group._
 
 
 package object reactivemongo {
@@ -21,5 +22,8 @@ package object reactivemongo {
     def read(id:BSONObjectID) = new LazyId(classOf[User], id.stringify)
   }
   
+  implicit object RefGroupSetReader extends BSONReader[BSONObjectID, Ref[GroupSet]] {
+    def read(id:BSONObjectID) = new LazyId(classOf[GroupSet], id.stringify)
+  }
   
 }

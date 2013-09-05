@@ -12,12 +12,12 @@ case class Group (
   
   set:Ref[GroupSet] = RefNone,
   
-  leavable:Boolean = false,
-  
-  joinable:Boolean = false,
-  
   name:Option[String] = None,
   
-  members:RefManyById[User, String] = new RefManyById(classOf[User], Seq.empty) 
+  provenance:Option[String] = None,
+  
+  members:RefManyById[User, String] = new RefManyById(classOf[User], Seq.empty),
+  
+  created:Long = System.currentTimeMillis
 
 ) extends HasStringId

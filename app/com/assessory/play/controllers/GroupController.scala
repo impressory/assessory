@@ -15,6 +15,7 @@ import com.wbillingsley.handy.appbase.DataAction
 object GroupController extends Controller {
   
   implicit val gsToJson = GroupSetToJson
+  implicit val gpToJson = GPreenrolToJson
   
   val dataAction = new DataAction
   
@@ -59,6 +60,15 @@ object GroupController extends Controller {
       approved <- request.approval ask Permissions.ViewCourse(course.itself);
       gs <- GroupSetDAO.byCourse(course.itself)
     ) yield gs
+  }
+  
+  def createGroupSetPreenrol(gsId:String) = dataAction.one(parse.json) { implicit request =>
+    for (
+      gs <- refGroupSet(gsId);
+      approved <- request.approval ask Permissions.EditCourse(gs.course);
+      unsaved <- GPreenrolToJson.updateWithCsv(GPreenrolDAO.unsaved.copy(course=gs.course, set=gs.itself), request.body);
+      saved <- GPreenrolDAO.saveNew(unsaved)
+    ) yield saved    
   }
 
 }

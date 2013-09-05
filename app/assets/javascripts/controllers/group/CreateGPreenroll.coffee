@@ -5,9 +5,9 @@ define(["./base"], (l) ->
     
     $scope.errors = []    
     
-    $scope.submit = (gpreenroll) -> 
+    $scope.submit = (gpreenrol) -> 
       $scope.errors = [ ]
-      GroupService.createGroupPreenroll(groupSet.id, gpreenroll).then(
+      GroupService.createGroupPreenrol($scope.groupSet.id, gpreenrol).then(
        (gs) -> $scope.refreshGroups()
        (fail) -> $scope.errors = [ fail.data?.error || "Unexpected error" ]
       )
