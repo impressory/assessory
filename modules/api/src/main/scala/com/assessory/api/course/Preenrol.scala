@@ -2,6 +2,7 @@ package com.assessory.api.course
 
 import com.wbillingsley.handy._
 import Ref._
+import com.assessory.api._
 
 case class Preenrol (
         
@@ -13,13 +14,12 @@ case class Preenrol (
     
     course: Ref[Course] = RefNone,
     
-    identities: Seq[PreenrolPair] = Seq.empty,
+    identities: Seq[IdentityLookup] = Seq.empty,
     
     created: Long = System.currentTimeMillis
     
 ) extends HasStringId
 
-case class PreenrolPair(service:String, value:String, username:String, used:Boolean = false)
 
 object Preenrol {
   
@@ -34,7 +34,7 @@ object Preenrol {
     reader.close()
     
     val rSeq = try {
-      val seq = for (line <- lines) yield PreenrolPair(service=line(0), value=line(1), username=line(2))
+      val seq = for (line <- lines) yield IdentityLookup(service=line(0), value=Option(line(1)).filter(_.trim.nonEmpty), username=Option(line(2)).filter(_.trim.nonEmpty))
       seq.itself
     } catch {
       case ex:Throwable => RefFailed(ex)

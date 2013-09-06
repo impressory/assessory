@@ -13,6 +13,8 @@ case class GroupSet (
     
     course: Ref[Course] = RefNone,
     
+    preenrol: Ref[GPreenrol] = RefNone,
+    
     created: Long = System.currentTimeMillis
     
 ) extends HasStringId

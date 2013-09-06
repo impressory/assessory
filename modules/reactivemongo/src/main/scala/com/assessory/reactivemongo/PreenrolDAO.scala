@@ -20,8 +20,6 @@ object PreenrolDAO extends DAO[Preenrol] {
   
   def unsaved = Preenrol(id = allocateId)
   
-  implicit val ppFormat = Macros.handler[PreenrolPair]
-  
   implicit object bsonReader extends BSONDocumentReader[Preenrol] {
     def read(doc:BSONDocument):Preenrol = {
       new Preenrol(
@@ -29,7 +27,7 @@ object PreenrolDAO extends DAO[Preenrol] {
         course = doc.getAs[Ref[Course]]("course").getOrElse(RefNone),
         roles = doc.getAs[Set[CourseRole.T]]("roles").getOrElse(Set.empty),
         name = doc.getAs[String]("name"),
-        identities = doc.getAs[Seq[PreenrolPair]]("identities").getOrElse(Seq.empty),
+        identities = doc.getAs[Seq[IdentityLookup]]("identities").getOrElse(Seq.empty),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis())
       )
     }
@@ -53,27 +51,34 @@ object PreenrolDAO extends DAO[Preenrol] {
   
   def byCourse(c:Ref[Course]) = findMany(BSONDocument("course" -> c))
   
-  def byIdentity(service:String, value:String, username:Option[String]) = findMany(
-    username match {
-      case Some(u) => BSONDocument("$or" -> Seq(
-          BSONDocument("identities.service" -> service, "identities.value" -> value, "identities.used" -> false),
-          BSONDocument("identities.service" -> service, "identities.username" -> username, "identities.used" -> false)
-      ))
-      case None => BSONDocument("service" -> service, "value" -> value)
-    }
-  )
+  def byIdentity(service:String, value:Option[String], username:Option[String]) =  {
+    val s = Seq(
+      for (v <- value) yield BSONDocument("identities.service" -> service, "identities.value" -> value, "identities.used" -> false),
+      for (u <- username) yield BSONDocument("identities.service" -> service, "identities.username" -> username, "identities.used" -> false) 
+    )
+    val either = for (opt <- s; v <- opt) yield v
+    findMany(
+      BSONDocument("$or" -> {
+        either
+      })
+    )
+  }
   
-  def useRow(service:String, value:String, username:Option[String]) = {
-    for (p <- byIdentity(service, value, username)) yield {
-      val row = p.identities.indexWhere { row => 
-        row.service == service && !row.used && (Some(row.username) == username || row.value == value)
-      }      
-      updateUnsafe(
+  def useRow(service:String, value:Option[String], username:Option[String]) = {
+    for (
+      p <- byIdentity(service, value, username);
+      updated <- {
+        val row = p.identities.indexWhere { row => 
+          row.service == service && !row.used && (
+              (username.isDefined && (row.username == username)) || 
+              (value.isDefined && (row.value == value))
+          )
+        }      
+        updateAndFetch(
           query=BSONDocument(idIs(p.id)), 
-          update=BSONDocument("$set" -> BSONDocument(s"identities.${row}.used" -> true)), 
-          item=p, upsert=false
-      )
-      p
-    }
+          update=BSONDocument("$set" -> BSONDocument(s"identities.${row}.used" -> true))
+        )
+      }
+    ) yield updated
   }
 }

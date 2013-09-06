@@ -27,6 +27,9 @@
         <label>Restrict allocations to within this set</label>
         <select ng-model="task.body.withinSet" ng-options="gs.id as gs.name for gs in groupSets"></select>
       </div>  
+      <div class="form-group">
+        <label><input type="checkbox" ng-model="task.body.preallocate" /> Pre-allocate using group preenrolment</label>
+      </div>  
       
       <h3>Questionnaire</h3>
       

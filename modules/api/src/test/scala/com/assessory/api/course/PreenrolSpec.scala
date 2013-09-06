@@ -23,8 +23,8 @@ github, ,joe
       
       rcsv.toFuture must be_==(Some(
         Seq(
-            PreenrolPair("github", " ", "fred"),
-            PreenrolPair("github", " ", "joe")
+            IdentityLookup("github", None, Some("fred")),
+            IdentityLookup("github", None, Some("joe"))
         )
       )).await
       

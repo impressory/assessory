@@ -11,7 +11,10 @@ import play.api.libs.json.JsValue
 
 object GPreenrolToJson extends JsonConverter[GPreenrol, User] {
   
-  implicit val gpFormat = Json.writes[GPreenrolPair]
+  import GPreenrol._
+  
+  implicit val gpFormat = Json.writes[IdentityLookup]
+  implicit val gdFormat = Json.writes[GroupData]
   implicit val gpeFormat = Json.writes[GPreenrol]
   
   def toJsonFor(gp:GPreenrol, a:Approval[User]) = {

@@ -29,6 +29,7 @@ object GroupSetDAO extends DAO[GroupSet] {
         name = doc.getAs[String]("name"),
         description = doc.getAs[String]("description"),
         course = doc.getAs[Ref[Course]]("course").getOrElse(RefNone),
+        preenrol = doc.getAs[Ref[GPreenrol]]("preenrol").getOrElse(RefNone),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis())
       )
     }
@@ -58,6 +59,11 @@ object GroupSetDAO extends DAO[GroupSet] {
       "created" -> g.created
     ),
     g
+  )
+  
+  def setPreenrol(gs:Ref[GroupSet], gp:Ref[GPreenrol]) = updateAndFetch(
+    query=BSONDocument("_id" -> gs),
+    update=BSONDocument("$set" -> BSONDocument("preenrol" -> gp))
   )
   
   def byCourse(c:Ref[Course]) = findMany(BSONDocument("course" -> c))

@@ -91,7 +91,7 @@ object CourseController extends Controller {
   def doPreenrolments(user:User)= {
     val updates = for (
       i <- user.identities.toRefMany;
-      p <- PreenrolDAO.useRow(service=i.service, value=i.value, username=i.username);
+      p <- PreenrolDAO.useRow(service=i.service, value=Some(i.value), username=i.username);
       pushed <- UserDAO.pushRegistration(user.itself, Registration(course=p.course, roles=p.roles.toSeq))
     ) yield pushed
     

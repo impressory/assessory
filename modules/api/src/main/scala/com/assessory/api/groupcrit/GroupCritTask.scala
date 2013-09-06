@@ -14,6 +14,8 @@ case class GroupCritTask (
     
     withinSet: Ref[GroupSet] = RefNone,
     
+    preallocate: Boolean = true,
+    
     questionnaire: Questionnaire = new Questionnaire 
     
 ) extends TaskBody {

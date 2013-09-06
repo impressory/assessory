@@ -8,12 +8,8 @@ import com.assessory.api._
 import org.specs2.specification.BeforeExample
 import org.specs2.specification.Step
 
-class UserDAOSpec extends Specification with BeforeExample {
+class UserDAOSpec extends DatabaseSpec {
       
-  def before = {
-    Step(SpecSetup.doSetup)
-  }
-    
   "UserDAO" should {
     
     "save a new user" in {      

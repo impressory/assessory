@@ -11,7 +11,7 @@ import play.api.libs.json.JsValue
 
 object PreenrolToJson extends JsonConverter[Preenrol, User] {
   
-  implicit val ppFormat = Json.writes[PreenrolPair]
+  implicit val ppFormat = Json.writes[IdentityLookup]
   implicit val peFormat = Json.writes[Preenrol]
   
   def toJsonFor(preenrol:Preenrol, a:Approval[User]) = {

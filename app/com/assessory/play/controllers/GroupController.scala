@@ -74,6 +74,7 @@ object GroupController extends Controller {
       approved <- request.approval ask Permissions.EditCourse(gs.course);
       csv <- Ref((request.body \ "csv").asOpt[String]) orIfNone UserError("No CSV data");
       unsaved <- gpreenrolFromCsv(course=gs.course, set=gs.itself, csv=csv);
+      gsUpdated <- GroupSetDAO.setPreenrol(gs.itself, unsaved.itself);
       saved <- GPreenrolDAO.saveNew(unsaved)
     ) yield saved    
   }
@@ -112,8 +113,8 @@ object GroupController extends Controller {
     for (
       u <- user;
       i <- u.identities.toRefMany;
-      gPreenrolRow <- GPreenrolDAO.useRow(course, service=i.service, value=i.value, username=i.username);
-      g <- GroupDAO.addMember(gPreenrolRow.group, u.itself)
+      g <- GPreenrolDAO.useRow(course, service=i.service, value=Some(i.value), username=i.username);
+      added <- GroupDAO.addMember(g.itself, u.itself)
     ) yield g
   }
   
@@ -131,26 +132,27 @@ object GroupController extends Controller {
     val lines = reader.readAll().asScala.toSeq
     reader.close()
     
-    val rSeq = try {
+    val rGroupData = try {
+      
+      import GPreenrol._
       
       val names = lines.map(_(0)).toSet
-      val pairs = for (
+      for (
         name <- names.toRefMany;
         group = GroupDAO.unsaved.copy(name=Some(name), course=course, set=set, provenance=Some("pre-enrol"));
-        saved <- GroupDAO.saveNew(group)
-      ) yield name -> saved
-      val rMap = for (p <- pairs.toRefOne) yield Map(p.toSeq:_*)
-      
-      val rows = for (
-        map <- rMap;
-        line <- lines.toRefMany
-      ) yield GPreenrolPair(group=map(line(0)).itself, service=line(1), value=line(2), username=line(3))
-      rows.toRefOne
+        saved <- GroupDAO.saveNew(group);
+        gd = GroupData(
+          group = saved.itself,
+          lookups = for (line <- lines.filter(_(0) == name)) yield {
+            IdentityLookup(service=line(1), value=Option(line(2)).filter(_.trim.nonEmpty), username=Option(line(3)).filter(_.trim.nonEmpty))
+          } 
+        )
+      ) yield gd
     } catch {
       case ex:Throwable => RefFailed(ex)
     }
     
-    for (seq <- rSeq) yield GPreenrolDAO.unsaved.copy(course=course, set=set, groupData=seq.toSeq)
+    for (gd <- rGroupData.toRefOne) yield GPreenrolDAO.unsaved.copy(course=course, set=set, groupData=gd.toSeq)
   }
   
   

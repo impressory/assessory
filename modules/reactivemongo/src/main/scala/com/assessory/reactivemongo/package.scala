@@ -10,6 +10,7 @@ import com.wbillingsley.handy.appbase.UserProvider
 import com.assessory.api._
 import course._
 import group._
+import groupcrit._
 
 package object reactivemongo {
 
@@ -31,7 +32,24 @@ package object reactivemongo {
   implicit val RefGroupReader = RefReader(classOf[Group])
   implicit val RefGroupSetReader = RefReader(classOf[GroupSet])
   implicit val RefGPreenrolReader = RefReader(classOf[GPreenrol])
+  implicit val RefTaskReader = RefReader(classOf[Task])
+  implicit val RefGCritiqueReader = RefReader(classOf[GCritique])
   implicit val RefManyUserReader = RefManyByIdReader(classOf[User])
+  
+  implicit object identityLookupFormat extends BSONHandler[BSONDocument, IdentityLookup] {
+    def read(doc:BSONDocument) = {
+      IdentityLookup(
+        service=doc.getAs[String]("service").get,
+        value=doc.getAs[String]("value"),
+        username=doc.getAs[String]("username"),
+        used=doc.getAs[Boolean]("used").getOrElse(false)
+      )
+    }
+    
+    def write(i:IdentityLookup) = BSONDocument(
+      "service"->i.service, "value" -> i.value, "username" -> i.username, "used" -> i.used
+    )
+  }
   
 
 }

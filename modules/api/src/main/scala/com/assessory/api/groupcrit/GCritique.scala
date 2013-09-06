@@ -6,7 +6,7 @@ import com.assessory.api.course.Course
 import com.assessory.api.group.Group
 import com.assessory.api.question.Answer
 
-case class Critique (
+case class GCritique (
     
     id:String,
 
