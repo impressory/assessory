@@ -21,6 +21,11 @@
         <a class="btn btn-default" href="/">Cancel</a>
         <button class="btn btn-primary" ng-click="submit(course)">Create</button>
       </div>
+      
+      <div ng-repeat="error in errors" class="alert alert-danger">
+      {{ error }} 
+      </div>
+      
     </div>
   </div>
 

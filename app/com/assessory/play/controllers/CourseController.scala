@@ -16,15 +16,13 @@ object CourseController extends Controller {
   implicit val courseToJson = CourseToJson
   implicit val preenrolToJson = PreenrolToJson
   
-  val dataAction = new DataAction
-  
   def refCourse(id:String) = new LazyId(classOf[Course], id)
   def refPreenrol(id:String) = new LazyId(classOf[Preenrol], id)
   
   /**
    * Retrieves a course
    */  
-  def get(id:String) = dataAction.one { implicit request =>     
+  def get(id:String) = DataAction.returning.one { implicit request =>     
     val cache = request.approval.cache
     for (
       course <- cache(refCourse(id));
@@ -35,20 +33,23 @@ object CourseController extends Controller {
   /**
    * Creates a course
    */  
-  def create = dataAction.one(parse.json) { implicit request =>
+  def create = DataAction.returning.result(parse.json) { implicit request =>
     val cache = request.approval.cache
     for (
       approved <- request.approval ask Permissions.CreateCourse;
       unsaved = CourseToJson.update(CourseDAO.unsaved.copy(addedBy=request.user), request.body);
       saved <- CourseDAO.saveNew(unsaved);
-      regPushed <- UserDAO.pushRegistration(request.user, Registration(course=saved.itself, roles=Seq(CourseRole.student, CourseRole.staff)))
-    ) yield saved
+      regPushed <- UserDAO.pushRegistration(request.user, Registration(course=saved.itself, roles=Seq(CourseRole.student, CourseRole.staff)));
+      
+      // When the request began, the user was not registered with this course. We need to produce json for the updated version that is
+      j <- CourseToJson.toJsonFor(saved, Approval(regPushed.itself))
+    ) yield Ok(j)
   }
   
   /**
    * Retrieves a course
    */  
-  def findMany = dataAction.many(parse.json) { implicit request =>
+  def findMany = DataAction.returning.many(parse.json) { implicit request =>
     
     val ids = (request.body \ "ids").asOpt[Set[String]].getOrElse(Set.empty)
     val cache = request.approval.cache
@@ -59,14 +60,14 @@ object CourseController extends Controller {
     ) yield course
   }
   
-  def preenrol(preenrolId:String) = dataAction.one { implicit request => 
+  def preenrol(preenrolId:String) = DataAction.returning.one { implicit request => 
     for (
       preenrol <- request.approval.cache(refPreenrol(preenrolId));
       approved <- request.approval ask Permissions.EditCourse(preenrol.course)
     ) yield preenrol
   }
   
-  def coursePreenrols(courseId:String) = dataAction.many { implicit request => 
+  def coursePreenrols(courseId:String) = DataAction.returning.many { implicit request => 
     for (
       course <- request.approval.cache(refCourse(courseId));
       approved <- request.approval ask Permissions.ViewCourse(course.itself);
@@ -74,7 +75,7 @@ object CourseController extends Controller {
     ) yield preenrol
   }
   
-  def createPreenrol(courseId:String) = dataAction.one(parse.json) { implicit request =>
+  def createPreenrol(courseId:String) = DataAction.returning.one(parse.json) { implicit request =>
     val cache = request.approval.cache
     for (
       course <- refCourse(courseId);
@@ -84,29 +85,43 @@ object CourseController extends Controller {
     ) yield saved
   }  
   
-  def doPreenrolments = dataAction.many { implicit request =>
-    
-    for (
-      u <- request.user;
-      i <- u.identities.toRefMany;
+  /**
+   * Searches for course pre-enrolments, and performs them
+   */
+  def doPreenrolments(user:User)= {
+    val updates = for (
+      i <- user.identities.toRefMany;
       p <- PreenrolDAO.useRow(service=i.service, value=i.value, username=i.username);
-      pushed <- UserDAO.pushRegistration(u.itself, Registration(course=p.course, roles=p.roles.toSeq))
-    ) yield p
+      pushed <- UserDAO.pushRegistration(user.itself, Registration(course=p.course, roles=p.roles.toSeq))
+    ) yield pushed
     
+    // We want to return the user when they have been registered for everything: ie, the last item in the RefMany
+    updates.fold(user)((last, updated) => updated)
   }
   
-  def myCourses = dataAction.many { implicit request =>
+  /**
+   * Fetches the courses this user is registered with.
+   * Note that this also performs the pre-enrolments
+   */
+  def myCourses = DataAction.returning.manyJson { implicit request =>
+    val userAfterUpdates = for (u <- request.user; updated <- doPreenrolments(u)) yield updated
+    
+    // As we've updated the user, we'll need a new Approval
+    val approval = Approval(userAfterUpdates)
+
     val rIds = for (
-      u <- request.user;
+      u <- userAfterUpdates;
       r <- u.registrations.toRefMany;
       cid <- Ref(r.course.getId)
     ) yield cid
     
+    
     for (
       ids <- rIds.toRefOne;
       c <- new RefManyById(classOf[Course], ids.toSeq);
-      approved <- request.approval ask Permissions.ViewCourse(c.itself)
-    ) yield c
+      approved <- approval ask Permissions.ViewCourse(c.itself);
+      j <- CourseToJson.toJsonFor(c, approval)
+    ) yield j
   }
   
 }

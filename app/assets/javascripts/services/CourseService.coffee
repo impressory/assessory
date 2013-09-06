@@ -50,11 +50,6 @@ define(["./UserService"], () ->
       coursePreenrols: (courseId) -> 
         $http.get("/course/#{courseId}/preenrols").then((res) -> res.data)
         
-      doPreenrolments: () -> 
-        $http.post("/preenrol/doPreenrolments").then((res) ->
-          res.data
-        )
-        
     }
   ])
 
