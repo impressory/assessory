@@ -70,7 +70,7 @@ object PreenrolDAO extends DAO[Preenrol] {
       }      
       updateUnsafe(
           query=BSONDocument(idIs(p.id)), 
-          update=BSONDocument("$set" -> BSONDocument(s"identities.$$${row}.used" -> true)), 
+          update=BSONDocument("$set" -> BSONDocument(s"identities.${row}.used" -> true)), 
           item=p, upsert=false
       )
       p

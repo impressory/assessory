@@ -40,7 +40,7 @@ object UserDAO extends DAO[User] with UserProvider[User] {
    */
   implicit object bsonReader extends BSONDocumentReader[User] {
     def read(doc:BSONDocument):User = {
-      new User(
+      val u = new User(
         id = doc.getAs[BSONObjectID]("_id").get.stringify,    
         name = doc.getAs[String]("name"),
         nickname = doc.getAs[String]("nickname"),
@@ -51,6 +51,8 @@ object UserDAO extends DAO[User] with UserProvider[User] {
         registrations = doc.getAs[Seq[Registration]]("registrations").getOrElse(Seq.empty),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis())
       )
+      println(u.registrations)
+      u
     }
   }
   
@@ -141,7 +143,7 @@ object UserDAO extends DAO[User] with UserProvider[User] {
     for (
       updated <- updateAndFetch(
         query=BSONDocument("_id" -> ru, "registrations.course" -> r.course),
-        update=BSONDocument("$addToSet" -> BSONDocument("registrations.$.roles" -> r.roles))
+        update=BSONDocument("$addToSet" -> BSONDocument("registrations.$.roles" -> BSONDocument("$each" -> r.roles)))
       ) orIfNone updateAndFetch(
         query=BSONDocument("_id" -> ru),
         update=BSONDocument("$addToSet" -> BSONDocument("registrations" -> r))
