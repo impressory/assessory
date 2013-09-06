@@ -80,6 +80,7 @@ object UserDAO extends DAO[User] with UserProvider[User] {
       "pwlogin" -> u.pwlogin,
       "identities" -> u.identities,
       "activeSessions" -> u.activeSessions,
+      "registrations" -> u.registrations,
       "created" -> u.created
     ),
     u
@@ -136,9 +137,16 @@ object UserDAO extends DAO[User] with UserProvider[User] {
     ) yield user
   }
   
-  def pushRegistration(ru:Ref[User], r:Registration) = updateAndFetch(
-    query = BSONDocument("_id" -> ru), 
-    update = BSONDocument("$push" -> BSONDocument("registrations" -> r))
-  )
+  def pushRegistration(ru:Ref[User], r:Registration) = {
+    for (
+      updated <- updateAndFetch(
+        query=BSONDocument("_id" -> ru, "registrations.course" -> r.course),
+        update=BSONDocument("$addToSet" -> BSONDocument("registrations.$.roles" -> r.roles))
+      ) orIfNone updateAndFetch(
+        query=BSONDocument("_id" -> ru),
+        update=BSONDocument("$addToSet" -> BSONDocument("registrations" -> r))
+      )
+    ) yield updated
+  }
   
 }
