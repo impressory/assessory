@@ -4,10 +4,6 @@ import com.wbillingsley.handy._
 import com.assessory.api._
 import group._
 
-
-  
-case class GCPreallocate(service:String, value:String, username:String, used:Boolean = false)
-
 case class GCAllocatedCrit(
 
   group: Ref[Group] = RefNone,
@@ -23,7 +19,7 @@ case class GroupCritAllocation(
     
   user: Ref[User] = RefNone,
   
-  preallocate: Option[GCPreallocate] = None, 
+  preallocate: Option[IdentityLookup] = None, 
   
   allocation: Seq[GCAllocatedCrit] = Seq.empty
   

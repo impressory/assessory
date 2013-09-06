@@ -20,8 +20,6 @@ object GroupCritAllocationDAO extends DAO[GroupCritAllocation] {
     
   val db = DBConnector
   
-  implicit val preallHandler = Macros.handler[GCPreallocate]
-  
   implicit object GCAllocatedCritHandler extends BSONHandler[BSONDocument, GCAllocatedCrit] {
     def read(doc:BSONDocument) = {
       GCAllocatedCrit(
@@ -44,11 +42,23 @@ object GroupCritAllocationDAO extends DAO[GroupCritAllocation] {
         id = doc.getAs[BSONObjectID]("_id").get.stringify,
         task = doc.getAs[Ref[Task]]("task").getOrElse(RefNone),
         user = doc.getAs[Ref[User]]("user").getOrElse(RefNone),
-        preallocate = doc.getAs[GCPreallocate]("preallocate"),
+        preallocate = doc.getAs[IdentityLookup]("preallocate"),
         allocation = doc.getAs[Seq[GCAllocatedCrit]]("allocation").getOrElse(Seq.empty)
       )
     }
   }  
   
+  def saveNew(gca:GroupCritAllocation) = {
+    saveSafe(
+      BSONDocument(
+        idIs(gca.id),
+        "task" -> gca.task,
+        "user" -> gca.user,
+        "preallocate" -> gca.preallocate,
+        "allocation" -> gca.allocation
+      ),
+      gca
+    )
+  }
 
 }

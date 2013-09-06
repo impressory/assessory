@@ -18,30 +18,61 @@ object GroupCritController extends Controller {
   
   /**
    * Searches for course pre-enrolments, and performs them
-   *
-  def doPreallocation(rTask:Ref[Task], gct:GroupCritTask, rDistribute:Ref[GroupSet], rAmong:Ref[GroupSet]):RefMany[Group]= {
+   */
+  def doPreallocation(rTask:Ref[Task], gct:GroupCritTask, rDistribute:Ref[GroupSet], rAmong:Ref[GroupSet]):RefMany[GroupCritAllocation]= {
     
-    for (
-      task <- rTask; 
+    val rr = for (
+      task <- rTask;
+      body <- {
+        task.body match {
+          case Some(gct:GroupCritTask) => gct.itself;
+          case _ => RefFailed(new IllegalStateException("Trying to allocate group crits on a non-group-crit task"))
+        }
+      };
       distributeSet <- rDistribute;
       distributePR <- distributeSet.preenrol;
       amongSet <- rAmong;
       amongPE <- amongSet.preenrol
-    ) {
+    ) yield {
       
-      val groups = (for (row <- distributePR.groupData; id <- row.group.getId) yield id).toSet.toSeq      
-      if (groups.length == 0) { 
+      val groupDatas = distributePR.groupData      
+      if (groupDatas.length == 0) { 
         throw new IllegalStateException("Can't allocate critiques when there are no groups to critique")
       }
       
-      val rows = amongPE.groupData
+      val reverseMap = Map((for (gd <- amongPE.groupData; row <- gd.lookups) yield row -> gd):_*)
       
       var cursor = 0
+      def pick(row:IdentityLookup):GPreenrol.GroupData = {
+        val gd = groupDatas(cursor)
+        cursor = cursor + 1
+        if (
+            // Group doesn't contain this person
+            (!gd.lookups.contains(row))  &&
+            
+            (gd.lookups.length > 0) &&
+            
+            // First member is in the same 'among' set
+            reverseMap(gd.lookups.head) == reverseMap(row)
+        ) {
+          gd
+        } else {
+          pick(row)
+        }
+      }
       
+      val rows = amongPE.groupData.flatMap(_.lookups)
       
-      
-      
+      for (
+        row <- rows.toRefMany;
+        gca = GroupCritAllocation(
+          id=GroupCritAllocationDAO.allocateId, task=task.itself, user=RefNone, preallocate=Some(row),
+          allocation = for (iter <- 0 until gct.number) yield GCAllocatedCrit(group=pick(row).group)
+        );
+        saved <- GroupCritAllocationDAO.saveNew(gca)
+      ) yield saved
     }
-  }  */
+    rr.flatten
+  }  
   
 }
