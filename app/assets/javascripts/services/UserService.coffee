@@ -16,6 +16,20 @@ define(["modules/base"], () ->
           prom
         )
         
+      get: (id) ->         
+        cache.get(id) || ( 
+          prom = $http.get("/user/#{id}").then(
+            (successRes) -> successRes.data
+          )
+          cache.put(id, prom)
+          prom
+        )      
+        
+      findMany: (ids) -> 
+        $http.post("/user/findMany", { ids: ids }).then(
+            (successRes) -> successRes.data
+          )        
+        
       forgetSelf: () -> cache.remove("self")
         
       signUp: (json) -> $http.post("/signUp", json).then((res) -> 

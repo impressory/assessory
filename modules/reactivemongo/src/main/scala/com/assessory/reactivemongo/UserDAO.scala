@@ -51,7 +51,6 @@ object UserDAO extends DAO[User] with UserProvider[User] {
         registrations = doc.getAs[Seq[Registration]]("registrations").getOrElse(Seq.empty),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis())
       )
-      println(u.registrations)
       u
     }
   }

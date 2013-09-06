@@ -4,9 +4,7 @@ define(["./base"], (l) ->
 
     $scope.course = course
     
-    $scope.groupSets = GroupService.courseGroupSets(course.id)
-    
-    $scope.preenrols = CourseService.coursePreenrols(course.id)
+    $scope.groups = GroupService.myGroups(course.id)
 
   ]
   

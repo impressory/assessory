@@ -27,6 +27,7 @@ object GroupSetDAO extends DAO[GroupSet] {
       new GroupSet(
         id = doc.getAs[BSONObjectID]("_id").get.stringify,
         name = doc.getAs[String]("name"),
+        description = doc.getAs[String]("description"),
         course = doc.getAs[Ref[Course]]("course").getOrElse(RefNone),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis())
       )
@@ -39,7 +40,8 @@ object GroupSetDAO extends DAO[GroupSet] {
   def saveDetails(g:GroupSet) = updateAndFetch(
     query=BSONDocument(idIs(g.id)), 
     update=BSONDocument("$set" -> BSONDocument(
-      "name" -> g.name
+      "name" -> g.name,
+      "description" -> g.description
     ))
   )
 
@@ -51,6 +53,7 @@ object GroupSetDAO extends DAO[GroupSet] {
     BSONDocument(
       idIs(g.id),
       "name" -> g.name,
+      "description" -> g.description,
       "course" -> g.course,
       "created" -> g.created
     ),

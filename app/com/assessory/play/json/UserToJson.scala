@@ -42,7 +42,11 @@ object UserToJson extends JsonConverter[User, User] {
       ).itself      
     } else {
       // We don't hand out user details to other users at the moment
-      Json.obj("id" -> u.id).itself
+      Json.obj(
+        "id" -> u.id,
+        "nickname" -> u.nickname,
+        "avatar" -> u.avatar
+      ).itself
     }    
   }
   

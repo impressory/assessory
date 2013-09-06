@@ -15,13 +15,16 @@ require([
   "controllers/login/LogIn",
   "controllers/login/SignUp",
   "controllers/login/Self",
+  "controllers/login/UserInfo",
     
   "controllers/course/Create",
   "controllers/course/View",
+  "controllers/course/Admin",
   "controllers/course/CreatePreenrol",
   "controllers/course/ViewPreenrol",
   "controllers/course/FindMyCourses",
 
+  "controllers/group/View",
   "controllers/group/CreateGroupSet",
   "controllers/group/CreateGPreenroll",
   "controllers/group/ViewGroupSet",

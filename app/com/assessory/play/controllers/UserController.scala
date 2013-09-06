@@ -64,6 +64,11 @@ object UserController extends Controller {
     }
   }
   
-  
+  def findMany = DataAction.returning.many(parse.json) { implicit request => 
+    for (
+      ids <- Ref((request.body \ "ids").asOpt[Seq[String]]) orIfNone UserError("No ids requested");
+      u <- new RefManyById(classOf[User], ids)
+    ) yield u
+  }
 
 }

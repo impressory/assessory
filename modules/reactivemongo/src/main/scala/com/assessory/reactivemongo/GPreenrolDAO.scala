@@ -54,9 +54,9 @@ object GPreenrolDAO extends DAO[GPreenrol] {
   
   def byCourse(c:Ref[Course]) = findMany(BSONDocument("course" -> c))
   
-  def byIdentity(service:String, value:String, username:Option[String]) = findMany(
+  def byIdentity(course:Ref[Course], service:String, value:String, username:Option[String]) = findMany(
     username match {
-      case Some(u) => BSONDocument("$or" -> Seq(
+      case Some(u) => BSONDocument("course" -> course, "$or" -> Seq(
           BSONDocument("groupData.service" -> service, "groupData.value" -> value, "groupData.used" -> false),
           BSONDocument("groupData.service" -> service, "groupData.username" -> username, "groupData.used" -> false)
       ))
@@ -64,17 +64,17 @@ object GPreenrolDAO extends DAO[GPreenrol] {
     }
   )
   
-  def useRow(service:String, value:String, username:Option[String]) = {
-    for (p <- byIdentity(service, value, username)) yield {
+  def useRow(course:Ref[Course], service:String, value:String, username:Option[String]) = {
+    for (p <- byIdentity(course, service, value, username)) yield {
       val row = p.groupData.indexWhere { row => 
         row.service == service && !row.used && (Some(row.username) == username || row.value == value)
       }      
       updateUnsafe(
           query=BSONDocument(idIs(p.id)), 
-          update=BSONDocument("$set" -> BSONDocument(s"identities.$$${row}.used" -> true)), 
+          update=BSONDocument("$set" -> BSONDocument(s"groupData.${row}.used" -> true)), 
           item=p, upsert=false
       )
-      p
+      p.groupData(row)
     }
   }
 }

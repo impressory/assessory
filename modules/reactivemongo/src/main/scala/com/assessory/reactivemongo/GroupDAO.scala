@@ -29,7 +29,7 @@ object GroupDAO extends DAO[Group] {
         set = doc.getAs[Ref[GroupSet]]("set").getOrElse(RefNone),
         name= doc.getAs[String]("name"),
         provenance= doc.getAs[String]("provenance"),
-        members = new RefManyById(classOf[User], doc.getAs[Seq[String]]("members").getOrElse(Seq.empty)),
+        members = doc.getAs[RefManyById[User, String]]("members").getOrElse(new RefManyById(classOf[User], Seq.empty)),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis)
       )
     }
@@ -50,6 +50,11 @@ object GroupDAO extends DAO[Group] {
       "created" -> g.created
     ),
     g
+  )
+  
+  def addMember(g:Ref[Group], u:Ref[User]) = updateAndFetch(
+    query=BSONDocument("_id" -> g),
+    update=BSONDocument("$addToSet" -> BSONDocument("members" -> u))
   )
   
   def byCourse(c:Ref[Course]) = findMany(BSONDocument("course" -> c))

@@ -88,6 +88,34 @@ object GroupController extends Controller {
     ) yield g
   }
   
+  def group(id:String) = DataAction.returning.one { implicit request =>     
+    val cache = request.approval.cache
+    for (
+      gs <- cache(refGroup(id));
+      approved <- request.approval ask Permissions.ViewCourse(gs.course)
+    ) yield gs
+  }
+  
+  
+  def myGroups(courseId:String) = DataAction.returning.many { implicit request =>
+    val course = refCourse(courseId)
+    for (
+      newlyPreenrolled <- doPreenrolments(course, request.user).toRefOne;
+      group <- GroupDAO.byCourseAndUser(course, request.user)
+    ) yield group
+  }
+  
+  /**
+   * Searches for course pre-enrolments, and performs them
+   */
+  def doPreenrolments(course:Ref[Course], user:Ref[User]):RefMany[Group]= {
+    for (
+      u <- user;
+      i <- u.identities.toRefMany;
+      gPreenrolRow <- GPreenrolDAO.useRow(course, service=i.service, value=i.value, username=i.username);
+      g <- GroupDAO.addMember(gPreenrolRow.group, u.itself)
+    ) yield g
+  }
   
   /**
    * Creates a group pre-enrolment from submitted CSV data

@@ -1,0 +1,23 @@
+<site-header></site-header>
+
+<div class="container">
+  <course-info course="course"></course-info>
+  
+  <h2>{{ group.name }}</h2>
+  
+  <p>
+    Group set: <a ng-href="/groupSet/{{ group.set }}">{{ groupSet.name }}</a>
+  </p>
+  
+  <h3>Members</h3>
+  
+  <p>
+   <user-many-info user-ids="group.members"></user-many-info>
+  </p>
+  
+  <p>
+    Note that other members may have been pre-enrolled, but not yet visited the course. 
+  </p>
+  
+</div>
+  
