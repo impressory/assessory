@@ -34,7 +34,9 @@ object CourseToJson extends JsonConverter[Course, User] {
     c.copy(
         title = (json \ "title").asOpt[String],
         shortName = (json \ "shortName").asOpt[String],
-        shortDescription = (json \ "shortDescription").asOpt[String]
+        shortDescription = (json \ "shortDescription").asOpt[String],
+        coverImage =  (json \ "coverImage").asOpt[String],
+        website =  (json \ "website").asOpt[String]
     )
   }  
 

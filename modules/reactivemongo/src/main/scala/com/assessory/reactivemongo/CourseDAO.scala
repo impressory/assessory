@@ -27,6 +27,8 @@ object CourseDAO extends DAO[Course] {
         title = doc.getAs[String]("title"),
         shortName = doc.getAs[String]("shortName"),
         shortDescription = doc.getAs[String]("shortDescription"),
+        website = doc.getAs[String]("website"),
+        coverImage = doc.getAs[String]("coverImage"),
         addedBy = doc.getAs[Ref[User]]("addedBy").getOrElse(RefNone),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis())
       )
@@ -41,7 +43,9 @@ object CourseDAO extends DAO[Course] {
     update=BSONDocument("$set" -> BSONDocument(
       "title" -> c.title,
       "shortName" -> c.shortName,
-      "shortDescription" -> c.shortDescription
+      "shortDescription" -> c.shortDescription,
+      "website" -> c.website,
+      "coverImage" -> c.coverImage
     ))
   )
 
@@ -55,6 +59,8 @@ object CourseDAO extends DAO[Course] {
       "title" -> c.title,
       "shortName" -> c.shortName,
       "shortDescription" -> c.shortDescription,
+      "website" -> c.website,
+      "coverImage" -> c.coverImage,
       "addedBy" -> c.addedBy,
       "created" -> c.created
     ),

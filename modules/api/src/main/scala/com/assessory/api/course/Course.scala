@@ -12,6 +12,10 @@ case class Course (
     shortName:Option[String] = None,
     
     shortDescription:Option[String] = None,
+    
+    website:Option[String] = None,
+    
+    coverImage:Option[String] = None,
 
     addedBy:Ref[User] = RefNone,
     

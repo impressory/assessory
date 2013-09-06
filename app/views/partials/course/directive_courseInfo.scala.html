@@ -1,7 +1,17 @@
-<div>
-    <h2>
-      <small>{{ course.shortName }}</small><br/>
-      <a href="/course/{{course.id}}">{{ course.title }}</a>
-    </h2>
-    <p>{{ course.shortDescription }}</p>
+<div class="course-info">
+    <div class="media">
+    <div class="pull-left" >
+      <span class="cover-image">
+        <img ng-src="{{ course.coverImage || 'http://placehold.it/100x100' }}" />
+      </span>
+    </div>
+    <div class="media-body">
+      <h4 class="media-heading">{{ course.shortName }}</h4>
+      <h2 class="media-heading">
+        <a href="/course/{{course.id}}">{{ course.title }}</a>
+      </h2>
+      <a ng-show="course.website" ng-href="{{ course.website }}">Course website</a>
+      <p>{{ course.shortDescription }}</p>
+    </div>
+  </div>
 </div>
