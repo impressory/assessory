@@ -1,18 +1,12 @@
-package com.assessory.groupcrit
+package com.assessory.api.groupcrit
 
 import com.wbillingsley.handy.{Ref, RefNone}
-import com.assessory.api.{Task, TaskDetails}
+import com.assessory.api.{Task, TaskDetails, TaskBody}
 import com.assessory.api.course.Course
 import com.assessory.api.group.GroupSet
 import com.assessory.api.question.Questionnaire
 
-case class CritTask(
-    
-    id:String,
-    
-    details: TaskDetails = new TaskDetails,
-    
-    course: Ref[Course] = RefNone,
+case class GroupCritTask (
     
     groupToCrit: Ref[GroupSet] = RefNone,
     
@@ -20,13 +14,13 @@ case class CritTask(
     
     questionnaire: Questionnaire = new Questionnaire 
     
-) extends Task {
+) extends TaskBody {
   
-  val kind = CritTask.kind
+  val kind = GroupCritTask.kind
   
 }
 
-object CritTask {
+object GroupCritTask {
   
   val kind = "Group critique by an individual"
   

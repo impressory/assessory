@@ -25,13 +25,13 @@ package object reactivemongo {
       new RefManyById(c, s.toSeq)
     }
   }
-
   
   implicit val RefCourseReader = RefReader(classOf[Course])
   implicit val RefUserReader = RefReader(classOf[User])
   implicit val RefGroupReader = RefReader(classOf[Group])
   implicit val RefGroupSetReader = RefReader(classOf[GroupSet])
   implicit val RefGPreenrolReader = RefReader(classOf[GPreenrol])
-  
   implicit val RefManyUserReader = RefManyByIdReader(classOf[User])
+  
+
 }

@@ -21,7 +21,6 @@ object Global extends GlobalSettings with AcceptExtractors {
 
     // Set the completion action for OAuth
     com.wbillingsley.handy.playoauth.PlayAuth.onAuth = { r =>
-      println("Calling onAuth inside assessory with " + r)
       com.assessory.auth.controllers.InterstitialController.onOAuth(r)
     }
     
@@ -30,14 +29,16 @@ object Global extends GlobalSettings with AcceptExtractors {
                    GroupSetDAO.lookupPf orElse
                    GroupDAO.lookupPf orElse
                    PreenrolDAO.lookupPf orElse
-                   GPreenrolDAO.lookupPf
+                   GPreenrolDAO.lookupPf orElse
+                   TaskDAO.lookupPf
     
     val lookupManyPf = UserDAO.lookupManyPf orElse
                        CourseDAO.lookupManyPf orElse
                        GroupSetDAO.lookupManyPf orElse
                        GroupDAO.lookupManyPf orElse
                        PreenrolDAO.lookupManyPf orElse
-                       GPreenrolDAO.lookupManyPf
+                       GPreenrolDAO.lookupManyPf orElse
+                       TaskDAO.lookupManyPf
 
     // Set the home action
     DataAction.homeAction = com.assessory.play.controllers.Application.index

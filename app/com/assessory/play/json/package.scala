@@ -15,12 +15,7 @@ package object json {
   }
 
   implicit def writesRefMany[T <: HasStringId, K] = new Writes[RefManyById[T, K]] {
-    def writes(r:RefManyById[T, K]) = {
-      println(r.rawIds)
-      val j = Json.toJson(r.getIds)
-      println("ids are " + j)
-      j
-    }
+    def writes(r:RefManyById[T, K]) = Json.toJson(r.getIds)
   }
   
   

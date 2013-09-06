@@ -1,16 +1,22 @@
 package com.assessory.api
 
-import com.wbillingsley.handy.{Ref, HasStringId}
+import com.wbillingsley.handy.{Ref, RefNone, HasStringId}
 import com.assessory.api.course.Course
 
-trait Task extends HasStringId {
-  
-  val kind:String
-  
-  val course: Ref[Course]
-  
-  val details: TaskDetails
+case class Task(
+    
+   id: String,
+   
+   course: Ref[Course] = RefNone,
+    
+   details: TaskDetails = new TaskDetails,
 
+   body: Option[TaskBody] = None
+   
+) extends HasStringId {
+  
+  def kind = body.map(_.kind)
+  
 }
 
 case class TaskDetails (
@@ -23,3 +29,9 @@ case class TaskDetails (
     
     due: Option[Long] = None
 )
+
+trait TaskBody {
+  
+  val kind:String
+  
+}

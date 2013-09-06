@@ -29,12 +29,10 @@ object InterstitialController extends Controller {
    */
   def onOAuth(rur:Ref[UserRecord]) = dataAction.result { implicit request =>
     
-    println("Auth was called with rur " + rur)
     val res = for (
       mem <- rur;
       user <- optionally(UserDAO.byIdentity("github", mem.id))
     ) yield {
-      println("onOAuth user is " + user)
       
       user match {
         case Some(u) => {

@@ -1,4 +1,4 @@
-package com.assessory.groupcrit
+package com.assessory.api.groupcrit
 
 import com.wbillingsley.handy.{Ref, RefNone, HasStringId}
 import com.assessory.api.User

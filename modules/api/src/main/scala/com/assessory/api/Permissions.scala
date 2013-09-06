@@ -29,11 +29,7 @@ object Permissions {
   def getRoles(course: Ref[Course], user: Ref[User]) = {
     for (
        u <- user;
-       r <- {
-         println(course.getId)
-         println(u.registrations.map(_.course.getId))
-         u.registrations.find(_.course.getId == course.getId)
-       }
+       r <- u.registrations.find(_.course.getId == course.getId)
     ) yield r.roles
   }
   
