@@ -8,6 +8,8 @@ import com.assessory.api.question.Questionnaire
 
 case class GroupCritTask (
     
+    number:Int,
+    
     groupToCrit: Ref[GroupSet] = RefNone,
     
     withinSet: Ref[GroupSet] = RefNone,

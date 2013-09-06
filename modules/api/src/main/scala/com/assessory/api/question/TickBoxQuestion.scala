@@ -18,7 +18,7 @@ case class TickBoxQuestion(
 
 object TickBoxQuestion {
   
-  val kind = "Tickbox"
+  val kind = "Tick box"
   
 }
 

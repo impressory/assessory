@@ -27,6 +27,9 @@ define(["./base" ], () ->
           when('/signUp', { templateUrl: '/partials/signUp.html' }).
           when('/self', { templateUrl: '/partials/self.html', controller: Assessory.controllers.login.Self }).
           when('/course/create', { templateUrl: '/partials/course/create.html' }).
+
+          when('/course/:courseId/createGroupCritTask', { templateUrl: '/partials/groupcrit/createTask.html', controller: Assessory.controllers.groupcrit.CreateTask, resolve: Assessory.controllers.groupcrit.CreateTask.resolve }).
+
           when('/course/:courseId/createGroupSet', { templateUrl: '/partials/group/createGroupSet.html', controller: Assessory.controllers.group.CreateGroupSet, resolve: Assessory.controllers.group.CreateGroupSet.resolve }).
           when('/course/:courseId/createPreenrol', { templateUrl: '/partials/course/createPreenrol.html', controller: Assessory.controllers.course.CreatePreenrol, resolve: Assessory.controllers.course.CreatePreenrol.resolve }).
           when('/course/:courseId/admin', { templateUrl: '/partials/course/admin.html', controller: Assessory.controllers.course.Admin, resolve: Assessory.controllers.course.Admin.resolve }).
@@ -34,6 +37,7 @@ define(["./base" ], () ->
           when('/group/:groupId', { templateUrl: '/partials/group/view.html', controller: Assessory.controllers.group.View, resolve: Assessory.controllers.group.View.resolve }).
           when('/groupSet/:gsId', { templateUrl: '/partials/group/viewGroupSet.html', controller: Assessory.controllers.group.ViewGroupSet, resolve: Assessory.controllers.group.ViewGroupSet.resolve }).
           when('/preenrol/:preenrolId', { templateUrl: '/partials/course/viewPreenrol.html', controller: Assessory.controllers.course.ViewPreenrol, resolve: Assessory.controllers.course.ViewPreenrol.resolve }).
+          when('/task/:taskId', { templateUrl: '/partials/task/view.html', controller: Assessory.controllers.task.View, resolve: Assessory.controllers.task.View.resolve }).
           otherwise({ redirectTo: '/' })
       ])
 

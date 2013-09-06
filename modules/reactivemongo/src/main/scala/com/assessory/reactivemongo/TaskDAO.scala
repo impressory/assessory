@@ -17,7 +17,7 @@ object TaskDAO extends DAO[Task] {
 
   val clazz = classOf[Task]
   
-  val collName = "assessoryGroup"
+  val collName = "task"
     
   val db = DBConnector
   

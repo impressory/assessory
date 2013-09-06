@@ -1,6 +1,10 @@
+# Tasks
+GET     /task/:id                              com.assessory.play.controllers.TaskController.get(id)
+POST    /course/:courseId/task/create          com.assessory.play.controllers.TaskController.create(courseId)
+GET     /course/:courseId/tasks                com.assessory.play.controllers.TaskController.courseTasks(courseId)
+
 # Users
 POST    /user/findMany                        com.assessory.play.controllers.UserController.findMany
-
 
 # Groups
 GET     /course/:courseId/group/my            com.assessory.play.controllers.GroupController.myGroups(courseId)

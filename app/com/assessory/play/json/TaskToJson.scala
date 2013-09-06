@@ -6,13 +6,15 @@ import course._
 import group._
 import com.wbillingsley.handy._
 import Ref._
-import play.api.libs.json.Json
-import play.api.libs.json.JsValue
-import play.api.libs.json.Writes
+import play.api.libs.json.{Json, JsValue, JsObject, Writes, Format}
+import groupcrit._
+import question._
+import com.assessory.reactivemongo.TaskDAO
+import play.api.libs.json.JsSuccess
 
 object TaskToJson extends JsonConverter[Task, User] {
   
-  implicit val tWrites = WritesTaskBody
+  implicit val tbodyFormat = TaskBodyFormat
   implicit val tdFormat = Json.writes[TaskDetails]
   implicit val tFormat = Json.writes[Task]
   
@@ -35,39 +37,61 @@ object TaskToJson extends JsonConverter[Task, User] {
   /**
    * Produces an update Course object
    */
-  def update(gp:GPreenrol, json:JsValue) = {
-    gp.copy(
-        // TODO
+  def update(t:Task, json:JsValue) = {
+    println(json)
+    println(t)
+    val details = t.details.copy(
+        name = (json \ "details" \ "name").asOpt[String],
+        description = (json \ "details" \ "description").asOpt[String]
+      )
+    println("new")
+    println(details)
+    val task = t.copy(
+      details = details,
+      body = (json \ "body").asOpt[TaskBody] orElse t.body
     )
+    println(task)
+    task
   }
 
 }
 
-import groupcrit._
-import question._
-
-object WritesQuestion extends Writes[Question] {
+object QuestionFormat extends Format[Question] {
   
-  val stWrites = Json.writes[ShortTextQuestion]
-  val tbWrites = Json.writes[TickBoxQuestion]
-  val iWrites = Json.writes[IntegerQuestion]
+  val stFormat = Json.format[ShortTextQuestion]
+  val tbFormat = Json.format[TickBoxQuestion]
+  val iFormat = Json.format[IntegerQuestion]
   
   def writes(q:Question) = {
     val base = q match {
-      case s:ShortTextQuestion => stWrites.writes(s)
-      case t:TickBoxQuestion => tbWrites.writes(t)
-      case i:IntegerQuestion => iWrites.writes(i)
+      case s:ShortTextQuestion => stFormat.writes(s)
+      case t:TickBoxQuestion => tbFormat.writes(t)
+      case i:IntegerQuestion => iFormat.writes(i)
     }
     Json.obj("kind" -> q.kind) ++ base
   }
   
+  def reads(j:JsValue) = {
+    val kind = (j \ "kind").asOpt[String].get
+    val withId = (j \ "id").asOpt[String] match {
+      case Some(id) => j
+      case None => Json.obj("id" -> TaskDAO.allocateId) ++ j.asInstanceOf[JsObject]
+    }
+    val q = kind match {
+      case ShortTextQuestion.kind => stFormat.reads(withId)
+      case TickBoxQuestion.kind => tbFormat.reads(withId)
+      case IntegerQuestion.kind => iFormat.reads(withId)
+    }
+    q
+  }
+  
 }
 
-object WritesTaskBody extends Writes[TaskBody] {
+object TaskBodyFormat extends Format[TaskBody] {
   
-  implicit val qWrites = WritesQuestion
-  implicit val qsFormat = Json.writes[Questionnaire]
-  implicit val gctFormat = Json.writes[GroupCritTask]
+  implicit val qFormat = QuestionFormat
+  implicit val qsFormat = Json.format[Questionnaire]
+  implicit val gctFormat = Json.format[GroupCritTask]
   
   def writes(b:TaskBody):JsValue = {
     val base = b match {
@@ -75,5 +99,20 @@ object WritesTaskBody extends Writes[TaskBody] {
     }
     Json.obj("kind" -> b.kind) ++ base
   }
+  
+  def reads(j:JsValue) = {
+    val kind = (j \ "kind").asOpt[String].get
+    val tb:TaskBody = kind match {
+      case GroupCritTask.kind => {
+        new GroupCritTask(
+          number = (j \ "number").asOpt[Int].getOrElse(1),
+          groupToCrit = (j \ "groupToCrit").asOpt[Ref[GroupSet]].getOrElse(RefNone),
+          withinSet = (j \ "withinSet").asOpt[Ref[GroupSet]].getOrElse(RefNone),
+          questionnaire = (j \ "questionnaire").asOpt[Questionnaire].getOrElse(new Questionnaire)
+        )
+      }
+    }
+    JsSuccess(tb)
+  }  
   
 }

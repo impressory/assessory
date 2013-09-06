@@ -1,0 +1,47 @@
+<site-header></site-header>
+
+<div class="container">
+  <course-info course="course"></course-info>
+  
+  <h2>Create Group Critique Task</h2>
+  
+    <div class="form">
+      <div class="form-group">
+        <label>Name</label>
+        <input ng-model="task.details.name" type="text" class="form-control" placeholder="eg, project critique" />
+      </div>  
+      <div class="form-group">
+        <label>Description</label>
+        <textarea ng-model="task.details.description" type="text" class="form-control" placeholder="eg, project critique" ></textarea>
+      </div>
+      <div class="form-group">
+        <label>Critiques per student</label>
+        <input ng-model="task.body.number" type="number" class="form-control" />
+      </div>  
+      
+      <div class="form-group">
+        <label>Choose groups from this set to critique</label>
+        <select ng-model="task.body.groupToCrit" ng-options="gs.id as gs.name for gs in groupSets"></select>
+      </div>  
+      <div class="form-group">
+        <label>Restrict allocations to within this set</label>
+        <select ng-model="task.body.withinSet" ng-options="gs.id as gs.name for gs in groupSets"></select>
+      </div>  
+      
+      <h3>Questionnaire</h3>
+      
+      <questionnaire-edit questionnaire="task.body.questionnaire"></questionnaire-edit>
+
+      <hr />
+      <div ng-repeat="error in errors" class="alert alert-danger">
+      {{ error }} 
+      </div>
+
+      <div class="form-group">
+        <a class="btn btn-default" ng-href="/course/#{course.id}/admin">Cancel</a>
+        <button class="btn btn-primary" ng-click="submit(task)">Create</a>
+      </div>
+
+    </div>
+
+</div>

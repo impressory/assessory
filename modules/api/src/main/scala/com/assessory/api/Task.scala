@@ -23,9 +23,11 @@ case class TaskDetails (
         
     name:Option[String] = None,
     
+    description:Option[String] = None,
+    
     created: Long = System.currentTimeMillis,
     
-    published: Option[Long] = None,
+    published: Option[Long] = Some(System.currentTimeMillis),
     
     due: Option[Long] = None
 )

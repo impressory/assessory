@@ -8,6 +8,7 @@ require([
   "services/UserService",
   "services/CourseService",
   "services/GroupService",
+  "services/TaskService",
   
   "components/SiteHeader",
   "components/MyCourses",
@@ -28,6 +29,13 @@ require([
   "controllers/group/CreateGroupSet",
   "controllers/group/CreateGPreenroll",
   "controllers/group/ViewGroupSet",
+
+  "controllers/task/TaskInfo",
+  "controllers/task/View",
+
+  "controllers/groupcrit/CreateTask",
+  
+  "controllers/question/EditQuestionnaire",
 
   "modules/app"
   

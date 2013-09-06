@@ -1,10 +1,12 @@
 define(["./base"], (l) ->
 
-  Assessory.controllers.course.View = ["$scope", "CourseService", "GroupService", "course", ($scope, CourseService, GroupService, course) ->    
+  Assessory.controllers.course.View = ["$scope", "CourseService", "GroupService", "TaskService", "course", ($scope, CourseService, GroupService, TaskService, course) ->    
 
     $scope.course = course
     
     $scope.groups = GroupService.myGroups(course.id)
+    
+    $scope.tasks = TaskService.courseTasks(course.id)
 
   ]
   

@@ -22,9 +22,7 @@ object TaskBodyHandler extends BSONHandler[BSONDocument, TaskBody]{
   
   implicit object QuestionnaireWriter extends BSONWriter[Questionnaire, BSONDocument] {
     def write(q:Questionnaire) = BSONDocument(
-      "name" -> q.name,
-      "questions" -> q.questions,
-      "created" -> q.created
+      "questions" -> q.questions
     )
     
   }
@@ -44,7 +42,7 @@ object TaskBodyHandler extends BSONHandler[BSONDocument, TaskBody]{
       case g:GroupCritTask => BSONDocument(
         "groupToCrit" -> g.groupToCrit,
         "withinSet" -> g.withinSet,
-        "questionnair" -> g.questionnaire
+        "questionnaire" -> g.questionnaire
       )
     }
     BSONDocument("kind" -> b.kind) ++ base

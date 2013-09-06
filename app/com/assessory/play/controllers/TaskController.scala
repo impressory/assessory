@@ -17,11 +17,30 @@ object TaskController extends Controller {
   implicit val taskToJson = TaskToJson
   
   def refTask(id:String) = new LazyId(classOf[Task], id)
+  def refCourse(id:String) = new LazyId(classOf[Course], id)
   
   def get(id:String) = DataAction.returning.one { implicit request => 
     for (
       t <- refTask(id);
       approved <- request.approval ask Permissions.ViewCourse(t.course)
+    ) yield t
+  }
+  
+  
+  def create(courseId:String) = DataAction.returning.one(parse.json) { implicit request =>
+    for (
+      c <- refCourse(courseId);
+      approved <- request.approval ask Permissions.EditCourse(c.itself);
+      t = TaskToJson.update(TaskDAO.unsaved.copy(course=c.itself), request.body);
+      saved <- TaskDAO.saveNew(t)
+    ) yield saved  
+  }
+  
+  def courseTasks(courseId:String) = DataAction.returning.many { implicit request => 
+    for (
+      c <- refCourse(courseId);
+      approved <- request.approval ask Permissions.ViewCourse(c.itself);
+      t <- TaskDAO.byCourse(c.itself)
     ) yield t
   }
 
