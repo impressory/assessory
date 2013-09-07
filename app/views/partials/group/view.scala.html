@@ -1,6 +1,13 @@
 <site-header></site-header>
 
 <div class="container">
+
+  <ol class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <li><a ng-href="/course/{{course.id}}">{{ course.title }}</a></li>
+    <li class="active">{{ group.name }}</li>
+  </ol>
+
   <course-info course="course"></course-info>
   
   <h2>{{ group.name }}</h2>

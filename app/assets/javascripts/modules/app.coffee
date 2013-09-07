@@ -37,6 +37,7 @@ define(["./base" ], () ->
           when('/group/:groupId', { templateUrl: '/partials/group/view.html', controller: Assessory.controllers.group.View, resolve: Assessory.controllers.group.View.resolve }).
           when('/groupSet/:gsId', { templateUrl: '/partials/group/viewGroupSet.html', controller: Assessory.controllers.group.ViewGroupSet, resolve: Assessory.controllers.group.ViewGroupSet.resolve }).
           when('/preenrol/:preenrolId', { templateUrl: '/partials/course/viewPreenrol.html', controller: Assessory.controllers.course.ViewPreenrol, resolve: Assessory.controllers.course.ViewPreenrol.resolve }).
+          when('/task/:taskId/admin', { templateUrl: '/partials/task/admin.html', controller: Assessory.controllers.task.Admin, resolve: Assessory.controllers.task.Admin.resolve }).
           when('/task/:taskId', { templateUrl: '/partials/task/view.html', controller: Assessory.controllers.task.View, resolve: Assessory.controllers.task.View.resolve }).
           otherwise({ redirectTo: '/' })
       ])

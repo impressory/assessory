@@ -3,6 +3,13 @@
 <div class="course-view">
 
   <div class="container" ng-show="course.permissions.edit">
+  
+    <ol class="breadcrumb">
+      <li><a href="/">Home</a></li>
+      <li><a ng-href="/course/{{course.id}}">{{ course.title }}</a></li>
+      <li class="active">Admin</li>
+    </ol>  
+  
     <course-info course="course"></course-info>
   
     <div class="row">

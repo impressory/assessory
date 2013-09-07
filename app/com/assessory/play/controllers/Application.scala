@@ -52,6 +52,7 @@ object Application extends Controller {
       case "group/viewGroupSet.html" => Ok(views.html.partials.group.viewGroupSet())
 
       case "task/view.html" => Ok(views.html.partials.task.view())
+      case "task/admin.html" => Ok(views.html.partials.task.admin())
       case "groupcrit/createTask.html" => Ok(views.html.partials.groupcrit.createTask())
 
       case _ => NotFound(s"No such partial template: $templ")

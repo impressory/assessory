@@ -3,6 +3,12 @@
 <div class="course-view">
 
   <div class="container">
+  
+    <ol class="breadcrumb">
+      <li><a href="/">Home</a></li>
+      <li class="active">{{ course.title }}</li>
+    </ol>
+  
     <div class="pull-right" ng-show="course.permissions.edit">
       <a href="/course/{{ course.id }}/admin" class="btn btn-default">Administration</a>
     </div>

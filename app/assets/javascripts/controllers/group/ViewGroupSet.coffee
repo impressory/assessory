@@ -4,6 +4,8 @@ define(["./base"], (l) ->
 
     $scope.groupSet = groupSet
     
+    $scope.course = CourseService.get(groupSet.course)
+    
     $scope.refreshGroups = () -> 
       $scope.groups = GroupService.byGroupSet(groupSet.id)
 

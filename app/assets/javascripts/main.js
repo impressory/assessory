@@ -33,6 +33,7 @@ require([
 
   "controllers/task/TaskInfo",
   "controllers/task/View",
+  "controllers/task/Admin",
 
   "controllers/groupcrit/CreateTask",
   "controllers/groupcrit/View",
