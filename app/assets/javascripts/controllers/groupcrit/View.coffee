@@ -12,6 +12,14 @@ define(["./base"], (l) ->
 
   ]  
   
+  Assessory.controllers.groupcrit.GCAllAllocations = ["$scope", "CourseService", "GroupService", "GroupCritService", ($scope, CourseService, GroupService, GroupCritService) ->    
+
+     $scope.myAllocations = GroupCritService.allAllocations($scope.task.id)
+     
+     $scope.allocate = () -> GroupCritService.allocateTask($scope.task.id)
+
+  ]   
+  
   
   Assessory.angularApp.directive("groupCritInfo", [ () -> 
     {
@@ -30,4 +38,13 @@ define(["./base"], (l) ->
       restrict: 'E'
     }
   ])  
+  
+  Assessory.angularApp.directive("gcAllAllocations", [ () -> 
+    {
+      scope: { task: '=task' }
+      controller: Assessory.controllers.groupcrit.GCAllAllocations
+      templateUrl: "directive_gcAllAllocations.html"
+      restrict: 'E'
+    }
+  ])    
 )

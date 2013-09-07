@@ -64,5 +64,9 @@ object GroupCritAllocationDAO extends DAO[GroupCritAllocation] {
       gca
     )
   }
+  
+  def markTaskAllocated(t:Ref[Task]) = {
+    TaskDAO.updateAndFetch(BSONDocument("_id" -> t), BSONDocument("$set" -> BSONDocument("body.allocated" -> true)))
+  }
 
 }

@@ -22,6 +22,7 @@ define(["./UserService"], () ->
       )
       
       courseTasks: (courseId) ->  $http.get("/course/#{courseId}/tasks").then((res) -> res.data)
+      
     }
   ])
 

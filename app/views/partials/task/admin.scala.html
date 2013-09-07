@@ -13,5 +13,12 @@
 
   <task-info task="task"></task-info>
   
+  <div ng-switch="task.body.kind">
+    <div ng-switch-when="Group critique by an individual">
+      <gc-all-allocations task="task"></gc-all-allocations>
+    </div>
+  </div>
+  
+  
   
 </div>

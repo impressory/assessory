@@ -16,7 +16,9 @@ case class GroupCritTask (
     
     preallocate: Boolean = true,
     
-    questionnaire: Questionnaire = new Questionnaire 
+    questionnaire: Questionnaire = new Questionnaire, 
+    
+    allocated: Boolean = false
     
 ) extends TaskBody {
   

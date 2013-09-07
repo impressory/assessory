@@ -1,7 +1,16 @@
 <div class="groupcrit-allocation">
 
-  <ng-repeat="allocation in allocations">
-  asdas
-  </ng-repeat>
+  <table class="table table-striped table-bordered">
+  <thead>
+    <tr><th>User</th><th>service</th><th>value</th><th>username</th><th>Group</th><th>Crit</th></tr>
+  </thead>
+  <tbody>
+  <tr ng-repeat="allocation in allocations">
+    
+  </rt>
+  </tbody>
+  </table>
+  
+  <button ng-hide="allocations.length > 0" class="btn btn-primary" ng-click="allocate()">Allocate</button>
 
 </div>

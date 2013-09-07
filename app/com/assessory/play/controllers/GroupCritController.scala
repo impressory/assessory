@@ -22,7 +22,7 @@ object GroupCritController extends Controller {
   /**
    * Searches for course pre-enrolments, and performs them
    */
-  def doPreallocation(rTask:Ref[Task], gct:GroupCritTask, rDistribute:Ref[GroupSet], rAmong:Ref[GroupSet]):RefMany[GroupCritAllocation]= {
+  def doPreallocation(rTask:Ref[Task]):RefMany[GroupCritAllocation]= {
     
     val rr = for (
       task <- rTask;
@@ -32,9 +32,9 @@ object GroupCritController extends Controller {
           case _ => RefFailed(new IllegalStateException("Trying to allocate group crits on a non-group-crit task"))
         }
       };
-      distributeSet <- rDistribute;
+      distributeSet <- body.groupToCrit;
       distributePR <- distributeSet.preenrol;
-      amongSet <- rAmong;
+      amongSet <- body.withinSet;
       amongPE <- amongSet.preenrol
     ) yield {
       
@@ -49,6 +49,9 @@ object GroupCritController extends Controller {
       def pick(row:IdentityLookup):GPreenrol.GroupData = {
         val gd = groupDatas(cursor)
         cursor = cursor + 1
+        if (cursor >= groupDatas.length) {
+          cursor = 0
+        }
         if (
             // Group doesn't contain this person
             (!gd.lookups.contains(row))  &&
@@ -58,24 +61,37 @@ object GroupCritController extends Controller {
             // First member is in the same 'among' set
             reverseMap(gd.lookups.head) == reverseMap(row)
         ) {
+          println("returning " + gd.group)
           gd
         } else {
+          println("moving on")
           pick(row)
         }
       }
       
       val rows = amongPE.groupData.flatMap(_.lookups)
       
+      println(rows)
+      
       for (
+        marked <- GroupCritAllocationDAO.markTaskAllocated(rTask);
         row <- rows.toRefMany;
         gca = GroupCritAllocation(
           id=GroupCritAllocationDAO.allocateId, task=task.itself, user=RefNone, preallocate=Some(row),
-          allocation = for (iter <- 0 until gct.number) yield GCAllocatedCrit(group=pick(row).group)
+          allocation = for (iter <- 0 until body.number) yield GCAllocatedCrit(group=pick(row).group)
         );
         saved <- GroupCritAllocationDAO.saveNew(gca)
       ) yield saved
     }
     rr.flatten
+  }
+  
+  def allocateTask(taskId:String) = DataAction.returning.many { implicit request =>
+    val task = refTask(taskId)
+    val allocations = for (t <- task; approved <- request.approval ask Permissions.EditCourse(t.course);
+         a <- doPreallocation(t.itself)
+    ) yield a
+    allocations
   }
   
   def myAllocation(taskId:String) = DataAction.returning.many { implicit request =>

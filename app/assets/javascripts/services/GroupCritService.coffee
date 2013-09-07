@@ -5,6 +5,8 @@ define(["./UserService"], () ->
     
     {
     
+      allocateTask: (taskId) -> $http.post("/groupcrit/#{taskId}/allocate").then((res) -> res.data)
+    
       myAllocations: (taskId) -> 
         $http.get("/groupcrit/#{taskId}/myAllocations").then((res) -> res.data)
 

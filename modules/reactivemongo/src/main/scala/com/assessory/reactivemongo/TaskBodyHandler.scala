@@ -32,7 +32,8 @@ object TaskBodyHandler extends BSONHandler[BSONDocument, TaskBody]{
         groupToCrit=doc.getAs[Ref[GroupSet]]("groupToCrit").getOrElse(RefNone),
         withinSet=doc.getAs[Ref[GroupSet]]("withinSet").getOrElse(RefNone),
         preallocate=doc.getAs[Boolean]("preallocate").getOrElse(true),
-        questionnaire=doc.getAs[Questionnaire]("questionnaire").getOrElse(new Questionnaire)
+        questionnaire=doc.getAs[Questionnaire]("questionnaire").getOrElse(new Questionnaire),
+        allocated=doc.getAs[Boolean]("allocated").getOrElse(false)
       )
     }
   }
@@ -60,7 +61,9 @@ object TaskBodyHandler extends BSONHandler[BSONDocument, TaskBody]{
       case g:GroupCritTask => BSONDocument(
         "groupToCrit" -> g.groupToCrit,
         "withinSet" -> g.withinSet,
-        "questionnaire" -> g.questionnaire
+        "preallocate" -> g.preallocate,
+        "questionnaire" -> g.questionnaire,
+        "allocated" -> g.allocated
       )
     }
     BSONDocument("kind" -> b.kind) ++ base
