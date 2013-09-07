@@ -4,4 +4,10 @@
   <course-info course="course"></course-info>
 
   <task-info task="task"></task-info>
+  
+  <div ng-switch="task.body.kind">
+    <div ng-switch-when="Group critique by an individual">
+      <group-crit-info task="task"></group-crit-info>
+    </div>
+  </div>
 </div>

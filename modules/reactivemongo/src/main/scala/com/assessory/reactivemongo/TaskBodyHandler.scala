@@ -4,6 +4,7 @@ import _root_.reactivemongo.bson._
 import com.assessory.api._
 import question._
 import groupcrit._
+import group._
 import com.wbillingsley.handy._
 
 object TaskBodyHandler extends BSONHandler[BSONDocument, TaskBody]{
@@ -16,8 +17,25 @@ object TaskBodyHandler extends BSONHandler[BSONDocument, TaskBody]{
   }
 
   implicit val qHandler = QuestionHandler
-  implicit val questionnaireReader = Macros.reader[Questionnaire]
-  implicit val groupCritHandler = Macros.reader[GroupCritTask]
+  
+  implicit object questionnaireReader extends BSONDocumentReader[Questionnaire] {
+     def read(doc:BSONDocument) = {
+       Questionnaire(questions=doc.getAs[Seq[Question]]("questions").getOrElse(Seq.empty))
+     }
+  }
+  
+  
+  implicit object groupCritHandler extends BSONDocumentReader[GroupCritTask] {
+    def read(doc:BSONDocument) = {
+      GroupCritTask(
+        number=doc.getAs[Int]("number").getOrElse(1),
+        groupToCrit=doc.getAs[Ref[GroupSet]]("groupToCrit").getOrElse(RefNone),
+        withinSet=doc.getAs[Ref[GroupSet]]("withinSet").getOrElse(RefNone),
+        preallocate=doc.getAs[Boolean]("preallocate").getOrElse(true),
+        questionnaire=doc.getAs[Questionnaire]("questionnaire").getOrElse(new Questionnaire)
+      )
+    }
+  }
   
   
   implicit object QuestionnaireWriter extends BSONWriter[Questionnaire, BSONDocument] {

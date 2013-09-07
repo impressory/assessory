@@ -20,6 +20,8 @@ object TaskToJson extends JsonConverter[Task, User] {
   
   def toJsonFor(t:Task, a:Approval[User]) = {
     
+    println(t)
+    
     val permissions = for (
       course <- a.cache(t.course, classOf[Course]);
       view <- optionally(a ask Permissions.ViewCourse(course.itself));

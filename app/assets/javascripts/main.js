@@ -9,6 +9,7 @@ require([
   "services/CourseService",
   "services/GroupService",
   "services/TaskService",
+  "services/GroupCritService",
   
   "components/SiteHeader",
   "components/MyCourses",
@@ -34,6 +35,7 @@ require([
   "controllers/task/View",
 
   "controllers/groupcrit/CreateTask",
+  "controllers/groupcrit/View",
   
   "controllers/question/EditQuestionnaire",
 

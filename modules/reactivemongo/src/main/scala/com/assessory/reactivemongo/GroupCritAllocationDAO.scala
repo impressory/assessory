@@ -48,6 +48,10 @@ object GroupCritAllocationDAO extends DAO[GroupCritAllocation] {
     }
   }  
   
+  def byTask(t:Ref[Task]) = findMany(BSONDocument("task" -> t))
+  
+  def byUserAndTask(u:Ref[User], t:Ref[Task]) = findMany(BSONDocument("task" -> t, "user" -> u))
+  
   def saveNew(gca:GroupCritAllocation) = {
     saveSafe(
       BSONDocument(

@@ -15,6 +15,9 @@ import com.wbillingsley.handy.appbase.DataAction
 
 object GroupCritController extends Controller {
 
+  def refTask(id:String) = new LazyId(classOf[Task], id)
+  
+  implicit val gcaToJson = GroupCritAllocationToJson
   
   /**
    * Searches for course pre-enrolments, and performs them
@@ -73,6 +76,16 @@ object GroupCritController extends Controller {
       ) yield saved
     }
     rr.flatten
-  }  
+  }
+  
+  def myAllocation(taskId:String) = DataAction.returning.many { implicit request =>
+    val task = refTask(taskId)
+    for (t <- GroupCritAllocationDAO.byUserAndTask(request.user, task)) yield t
+  }
+  
+  def allocations(taskId:String) = DataAction.returning.many { implicit request =>
+    val task = refTask(taskId)
+    for (t <- GroupCritAllocationDAO.byTask(task)) yield t
+  }
   
 }
