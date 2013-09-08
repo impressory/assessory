@@ -41,10 +41,16 @@ object ApplicationBuild extends Build {
 
   lazy val aaaMain = play.Project(appName, appVersion, appDependencies).settings(
 
+    // Enable further details on compiler warnings 
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
+    
     templatesImport += "com.wbillingsley.handy._",
 
     resolvers ++= extraResolvers,
-
+    
+    // Modular routes in Play 2.1 requires reflective calls
+    routesImport ++= Seq("language.reflectiveCalls"),
+    
     requireJs ++= Seq(
           "main.js" 
     )

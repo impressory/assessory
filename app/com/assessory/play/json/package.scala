@@ -8,6 +8,7 @@ import play.api.libs.json.{Json, JsValue, Writes, Reads}
 
 package object json {
 
+  import scala.language.implicitConversions;
   implicit def refToJson[T <: HasStringId](ref:Ref[T]) = Json.toJson(ref.getId)
   
   implicit object writesRef extends Writes[Ref[HasStringId]] {
