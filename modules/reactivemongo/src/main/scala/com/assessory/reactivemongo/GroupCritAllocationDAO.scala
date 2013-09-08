@@ -68,5 +68,27 @@ object GroupCritAllocationDAO extends DAO[GroupCritAllocation] {
   def markTaskAllocated(t:Ref[Task]) = {
     TaskDAO.updateAndFetch(BSONDocument("_id" -> t), BSONDocument("$set" -> BSONDocument("body.allocated" -> true)))
   }
+  
+  def byIdentity(task:Ref[Task], service:String, value:Option[String], username:Option[String]) = {
+    val s = Seq(
+      for (v <- value) yield BSONDocument("preallocate.service" -> service, "preallocate.value" -> value, "preallocate.used" -> false),
+      for (u <- username) yield BSONDocument("preallocate.service" -> service, "preallocate.username" -> username, "preallocate.used" -> false)
+    )
+    val either = for (opt <- s; v <- opt) yield v
+    findMany(
+        BSONDocument("task" -> task, "$or" -> either)
+    )
+  }
+  
+  def useRow(task:Ref[Task], user:Ref[User], service:String, value:Option[String], username:Option[String]) = {
+    for (
+      p <- byIdentity(task, service, value, username);
+      u <- updateAndFetch(
+        query=BSONDocument(idIs(p.id)),
+        update=BSONDocument("$set" -> BSONDocument("user" -> user, "preallocate.used" -> true))
+      ) 
+    ) yield u
+  }  
+    
 
 }

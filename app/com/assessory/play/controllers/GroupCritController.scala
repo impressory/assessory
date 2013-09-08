@@ -94,9 +94,20 @@ object GroupCritController extends Controller {
     allocations
   }
   
+  def doPreallocation(t:Ref[Task], user:Ref[User]) = {
+    for (
+      u <- user;
+      i <- u.identities.toRefMany;
+      r <- GroupCritAllocationDAO.useRow(t, u.itself, service=i.service, value=Some(i.value), username=i.username)
+    ) yield r
+  }
+  
   def myAllocation(taskId:String) = DataAction.returning.many { implicit request =>
     val task = refTask(taskId)
-    for (t <- GroupCritAllocationDAO.byUserAndTask(request.user, task)) yield t
+    for (
+      done <- optionally(doPreallocation(task, request.user).toRefOne);
+      t <- GroupCritAllocationDAO.byUserAndTask(request.user, task)
+    ) yield t
   }
   
   def allocations(taskId:String) = DataAction.returning.many { implicit request =>
