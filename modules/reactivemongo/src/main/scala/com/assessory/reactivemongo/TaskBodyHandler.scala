@@ -61,6 +61,7 @@ object TaskBodyHandler extends BSONHandler[BSONDocument, TaskBody]{
       case g:GroupCritTask => BSONDocument(
         "groupToCrit" -> g.groupToCrit,
         "withinSet" -> g.withinSet,
+        "number" -> g.number,
         "preallocate" -> g.preallocate,
         "questionnaire" -> g.questionnaire,
         "allocated" -> g.allocated

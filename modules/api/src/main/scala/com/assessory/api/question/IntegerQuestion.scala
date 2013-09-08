@@ -6,9 +6,9 @@ case class IntegerQuestion(
     
     prompt: String,
     
-    max: Int = 5,
+    max: Option[Int] = Some(5),
     
-    min: Int = 0,
+    min: Option[Int] = Some(0),
     
     required: Boolean = true,
     
