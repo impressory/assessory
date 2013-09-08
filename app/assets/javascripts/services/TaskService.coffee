@@ -21,6 +21,12 @@ define(["./UserService"], () ->
         gs
       )
       
+      updateBody: (task) -> $http.post("/task/#{task.id}/body", task).then((res) -> 
+        gs = res.data
+        taskCache.put(gs.id, gs)
+        gs      
+      )
+      
       courseTasks: (courseId) ->  $http.get("/course/#{courseId}/tasks").then((res) -> res.data)
       
     }

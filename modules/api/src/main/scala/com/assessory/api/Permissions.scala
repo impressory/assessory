@@ -24,6 +24,21 @@ object Permissions {
   case class EditCourse(course:Ref[Course]) extends PermOnIdRef[User, Course](course) {
     def resolve(prior:Approval[User]) = hasRole(course, prior.who, CourseRole.staff, prior.cache)
   }  
+
+  case class ViewTask(task:Ref[Task]) extends PermOnIdRef[User, Task](task) {
+    def resolve(prior:Approval[User]) = for (
+        t <- prior.cache(task, classOf[Task]);
+        a <- prior ask ViewCourse(t.course)
+    ) yield a
+  }  
+  
+  case class EditTask(task:Ref[Task]) extends PermOnIdRef[User, Task](task) {
+    def resolve(prior:Approval[User]) = for (
+        t <- prior.cache(task, classOf[Task]);
+        a <- prior ask EditCourse(t.course)
+    ) yield a
+  }  
+
   
   
   def getRoles(course: Ref[Course], user: Ref[User]) = {

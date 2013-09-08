@@ -37,6 +37,7 @@ require([
 
   "controllers/groupcrit/CreateTask",
   "controllers/groupcrit/View",
+  "controllers/groupcrit/Edit",
   
   "controllers/question/EditQuestionnaire",
 

@@ -8,6 +8,7 @@ POST    /groupcrit/:taskId/allocate                 com.assessory.play.controlle
 GET     /task/:id                              com.assessory.play.controllers.TaskController.get(id)
 POST    /course/:courseId/task/create          com.assessory.play.controllers.TaskController.create(courseId)
 GET     /course/:courseId/tasks                com.assessory.play.controllers.TaskController.courseTasks(courseId)
+POST    /task/:id/body                         com.assessory.play.controllers.TaskController.updateBody(id)
 
 # Users
 POST    /user/findMany                        com.assessory.play.controllers.UserController.findMany

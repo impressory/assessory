@@ -51,6 +51,16 @@ object TaskDAO extends DAO[Task] {
     t
   )
   
+  def updateBody(t:Task) = {
+    for (
+      b <- Ref(t.body);
+      updated <- updateAndFetch(
+        query=BSONDocument(idIs(t.id)),
+        update=BSONDocument("$set" -> TaskBodyHandler.bodyUpdate(b))
+      )
+    ) yield updated
+  }  
+  
   def byCourse(c:Ref[Course]) = findMany(BSONDocument("course" -> c))
   
 

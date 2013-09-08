@@ -9,21 +9,8 @@ import com.wbillingsley.handy._
 
 object TaskBodyHandler extends BSONHandler[BSONDocument, TaskBody]{
 
-  implicit def refWriter[T <: HasStringId] = new BSONWriter[Ref[T], BSONValue] {
-    // TODO: this may fail if id is None (which it shouldn't be)
-    def write(r:Ref[T]) = {
-      r.getId.map(new BSONObjectID(_)).getOrElse(BSONNull)
-    }
-  }
-
   implicit val qHandler = QuestionHandler
-  
-  implicit object questionnaireReader extends BSONDocumentReader[Questionnaire] {
-     def read(doc:BSONDocument) = {
-       Questionnaire(questions=doc.getAs[Seq[Question]]("questions").getOrElse(Seq.empty))
-     }
-  }
-  
+  implicit val qqHandler = QuestionnaireHandler
   
   implicit object groupCritHandler extends BSONDocumentReader[GroupCritTask] {
     def read(doc:BSONDocument) = {
@@ -38,14 +25,6 @@ object TaskBodyHandler extends BSONHandler[BSONDocument, TaskBody]{
     }
   }
   
-  
-  implicit object QuestionnaireWriter extends BSONWriter[Questionnaire, BSONDocument] {
-    def write(q:Questionnaire) = BSONDocument(
-      "questions" -> q.questions
-    )
-    
-  }
-  
   def read(doc:BSONDocument):TaskBody = {
     
     val kind = doc.getAs[String]("kind").get
@@ -58,16 +37,18 @@ object TaskBodyHandler extends BSONHandler[BSONDocument, TaskBody]{
   def write(b:TaskBody):BSONDocument = {
     
     val base = b match {
-      case g:GroupCritTask => BSONDocument(
-        "groupToCrit" -> g.groupToCrit,
-        "withinSet" -> g.withinSet,
-        "number" -> g.number,
-        "preallocate" -> g.preallocate,
-        "questionnaire" -> g.questionnaire,
-        "allocated" -> g.allocated
-      )
+      case g:GroupCritTask => GroupCritToBSON.newBSON(g)
     }
     BSONDocument("kind" -> b.kind) ++ base
     
   }
+  
+  def bodyUpdate(b:TaskBody):BSONDocument = {
+    
+    val base = b match {
+      case g:GroupCritTask => GroupCritToBSON.updateBSON(g)
+    }
+    base
+  }
 }
+

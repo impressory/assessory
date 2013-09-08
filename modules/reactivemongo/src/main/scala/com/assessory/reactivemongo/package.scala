@@ -13,7 +13,7 @@ import group._
 import groupcrit._
 
 package object reactivemongo {
-
+  
   def RefReader[T <: HasStringId](c:Class[T]) = new BSONReader[BSONObjectID, Ref[T]] {
     def read(id:BSONObjectID) = new LazyId(c, id.stringify)
   }

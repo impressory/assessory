@@ -15,7 +15,30 @@
   
   <div ng-switch="task.body.kind">
     <div ng-switch-when="Group critique by an individual">
-      <gc-all-allocations task="task"></gc-all-allocations>
+      <ul class="nav nav-pills">
+        <li ng-class="{ active : tab=='allocations'}"><a href="#" ng-click="tab='allocations'">Allocations</a></li>
+        <li ng-class="{ active : tab=='questionnaire'}"><a href="#" ng-click="tab='questionnaire'">Questionnaire</a></li>
+      </ul>
+    
+      <div ng-switch="tab">
+        <div ng-switch-when="allocations">
+          <gc-all-allocations task="task"></gc-all-allocations>
+        </div>
+        <div ng-switch-when="questionnaire">
+          <div ng-controller="Assessory.controllers.groupcrit.EditTaskBody">
+            <div class="form">
+              <questionnaire-edit questionnaire="task.body.questionnaire"></questionnaire-edit>
+              <hr />
+              
+              <div class="form-group">
+                <button class="btn btn-default" ng-click="reset()">Reset</a>
+                <button class="btn btn-primary" ng-click="save(task)">Save</a>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   

@@ -40,54 +40,20 @@ object TaskToJson extends JsonConverter[Task, User] {
    * Produces an update Course object
    */
   def update(t:Task, json:JsValue) = {
-    println(json)
-    println(t)
     val details = t.details.copy(
         name = (json \ "details" \ "name").asOpt[String],
         description = (json \ "details" \ "description").asOpt[String]
       )
-    println("new")
-    println(details)
     val task = t.copy(
       details = details,
       body = (json \ "body").asOpt[TaskBody] orElse t.body
     )
-    println(task)
     task
   }
 
 }
 
-object QuestionFormat extends Format[Question] {
-  
-  val stFormat = Json.format[ShortTextQuestion]
-  val tbFormat = Json.format[TickBoxQuestion]
-  val iFormat = Json.format[IntegerQuestion]
-  
-  def writes(q:Question) = {
-    val base = q match {
-      case s:ShortTextQuestion => stFormat.writes(s)
-      case t:TickBoxQuestion => tbFormat.writes(t)
-      case i:IntegerQuestion => iFormat.writes(i)
-    }
-    Json.obj("kind" -> q.kind) ++ base
-  }
-  
-  def reads(j:JsValue) = {
-    val kind = (j \ "kind").asOpt[String].get
-    val withId = (j \ "id").asOpt[String] match {
-      case Some(id) => j
-      case None => Json.obj("id" -> TaskDAO.allocateId) ++ j.asInstanceOf[JsObject]
-    }
-    val q = kind match {
-      case ShortTextQuestion.kind => stFormat.reads(withId)
-      case TickBoxQuestion.kind => tbFormat.reads(withId)
-      case IntegerQuestion.kind => iFormat.reads(withId)
-    }
-    q
-  }
-  
-}
+
 
 object TaskBodyFormat extends Format[TaskBody] {
   

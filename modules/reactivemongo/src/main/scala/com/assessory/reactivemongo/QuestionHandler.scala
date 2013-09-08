@@ -56,3 +56,18 @@ object QuestionHandler extends BSONHandler[BSONDocument, Question] {
   
 }
 
+
+object QuestionnaireHandler extends BSONDocumentReader[Questionnaire] with BSONDocumentWriter[Questionnaire] {
+  implicit val qhandler = QuestionHandler
+  
+  def write(q:Questionnaire) = BSONDocument(
+    "questions" -> q.questions
+  )
+
+  def read(doc:BSONDocument) = {
+    Questionnaire(questions=doc.getAs[Seq[Question]]("questions").getOrElse(Seq.empty))
+  }  
+  
+}
+
+

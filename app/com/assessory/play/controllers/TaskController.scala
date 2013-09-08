@@ -36,6 +36,15 @@ object TaskController extends Controller {
     ) yield saved  
   }
   
+  def updateBody(taskId:String) = DataAction.returning.one(parse.json) { implicit request =>
+    for (
+      t <- refTask(taskId);
+      a <- request.approval ask Permissions.EditTask(t.itself);
+      updated = TaskToJson.update(t, request.body);
+      saved <- TaskDAO.updateBody(updated)
+    ) yield saved
+  }
+  
   def courseTasks(courseId:String) = DataAction.returning.many { implicit request => 
     for (
       c <- refCourse(courseId);
