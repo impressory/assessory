@@ -7,9 +7,20 @@ object ApplicationBuild extends Build {
     val appName         = "assessory"
     val appVersion      = "0.1"
      
-    lazy val assessoryApi = Project(appName + "-api", base = file ("modules/api"))
+    // Define the additional repositories we're going to need in one place, to reuse it in all subprojects
+    val extraResolvers = Seq(
+        "handy releases" at "https://bitbucket.org/wbillingsley/mavenrepo/raw/master/releases/",
+        "handy snapshots" at "https://bitbucket.org/wbillingsley/mavenrepo/raw/master/snapshots/",
+        "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+    )
+     
+    lazy val assessoryApi = Project(appName + "-api", base = file ("modules/api")).settings(
+      resolvers ++= extraResolvers
+    )
       
-    lazy val assessoryReactivemongo = Project(appName + "-reactivemongo", base = file ("modules/reactivemongo")).dependsOn(assessoryApi)
+    lazy val assessoryReactivemongo = Project(appName + "-reactivemongo", base = file ("modules/reactivemongo")).dependsOn(assessoryApi).settings(
+      resolvers ++= extraResolvers
+    )
     
     val appBaseDependencies = Seq(
       "com.wbillingsley" %% "handy" % "0.4-SNAPSHOT",
@@ -18,7 +29,7 @@ object ApplicationBuild extends Build {
     )
     
     lazy val appBase = play.Project(appName + "-app-base", appVersion, appBaseDependencies, path= file("modules/app-base")).settings(
-    
+      resolvers ++= extraResolvers
     )
       
     val appDependencies = Seq(
@@ -32,17 +43,12 @@ object ApplicationBuild extends Build {
 
     templatesImport += "com.wbillingsley.handy._",
 
-    resolvers ++= Seq(
-        "handy releases" at "https://bitbucket.org/wbillingsley/mavenrepo/raw/master/releases/",
-        "handy snapshots" at "https://bitbucket.org/wbillingsley/mavenrepo/raw/master/snapshots/",
-        "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
-    ),
+    resolvers ++= extraResolvers,
 
     requireJs ++= Seq(
           "main.js" 
     )
     
-        // Add your own project settings here      
   ).dependsOn(
       assessoryApi,
       assessoryReactivemongo
