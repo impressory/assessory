@@ -104,4 +104,27 @@ object GroupCritController extends Controller {
     for (t <- GroupCritAllocationDAO.byTask(task)) yield t
   }
   
+  def allocationsAsCSV(taskId:String) = Action { implicit request =>
+    val task = refTask(taskId)
+    val line = for (
+      alloc <- GroupCritAllocationDAO.byTask(task);
+      prealloc <- Ref(alloc.preallocate);
+      username <- Ref(prealloc.username)
+    ) yield {
+      
+      val groups = for (
+                     allocation <- alloc.allocation.toRefMany;
+                     g <- allocation.group;
+                     name <- Ref(g.name)
+                   ) yield name
+      
+      val string = groups.fold(username)((sofar, gn) => sofar + ","+gn)
+      for (s <- string) yield s + "\n"
+    }
+    
+    import com.wbillingsley.handyplay.RefConversions._
+    val en = line.flatten.enumerate
+        
+    Ok.stream(en)
+  }
 }
