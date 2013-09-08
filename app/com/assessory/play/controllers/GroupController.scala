@@ -106,6 +106,13 @@ object GroupController extends Controller {
     ) yield group
   }
   
+  def findMany = DataAction.returning.many(parse.json) { implicit request => 
+    for (
+      ids <- Ref((request.body \ "ids").asOpt[Seq[String]]) orIfNone UserError("No ids requested");
+      g <- new RefManyById(classOf[Group], ids)
+    ) yield g  
+  }
+  
   /**
    * Searches for course pre-enrolments, and performs them
    */

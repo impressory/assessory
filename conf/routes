@@ -15,6 +15,7 @@ POST    /user/findMany                        com.assessory.play.controllers.Use
 # Groups
 GET     /course/:courseId/group/my            com.assessory.play.controllers.GroupController.myGroups(courseId)
 POST    /groupSet/:gsId/groups                com.assessory.play.controllers.GroupController.groupSetGroups(gsId)
+POST    /group/findMany                        com.assessory.play.controllers.GroupController.findMany
 GET     /group/:id                       com.assessory.play.controllers.GroupController.group(id)
 
 # Group Preenrols

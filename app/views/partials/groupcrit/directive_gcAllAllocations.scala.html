@@ -1,12 +1,25 @@
 <div class="groupcrit-allocation">
 
+  <h3>All allocations</h3>
+  
+  <a target="_blank" ng-href="/groupcrit/{{ task.id }}/allocations/csv">Download as CSV</a>
+
   <table class="table table-striped table-bordered">
   <thead>
-    <tr><th>User</th><th>service</th><th>value</th><th>username</th><th>Group</th><th>Crit</th></tr>
+    <tr><th>User</th><th>service</th><th>value</th><th>username</th><th>Groups</th></tr>
   </thead>
   <tbody>
   <tr ng-repeat="allocation in allocations">
-    
+    <td><user-info user="cachedUsers[allocation.user]"></user-info></td>
+    <td>{{ allocation.preallocate.service }}</td>
+    <td>{{ allocation.preallocate.value }}</td>
+    <td>{{ allocation.preallocate.username }}</td>
+    <td><table class="table">
+      <tr ng-repeat="alloc in allocation.allocation">
+        <td>{{ cachedGroups[alloc.group].name }}</td>
+        <td>{{ alloc.critique }}</td>
+      </tr>
+    </table></td>
   </rt>
   </tbody>
   </table>

@@ -22,6 +22,15 @@ define(["./UserService"], () ->
         gsCache.put(gs.id, gs)
         gs
       )
+      
+      findMany: (ids) -> 
+        $http.post("/group/findMany", { ids: ids }).then(
+            (successRes) -> 
+              data = successRes.data
+              for group in data
+                groupCache.put(group.id, group)
+              data
+          )       
     
       getGroupSet: (id) ->         
         gsCache.get(id) || ( 

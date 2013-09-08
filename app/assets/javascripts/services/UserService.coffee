@@ -27,7 +27,11 @@ define(["modules/base"], () ->
         
       findMany: (ids) -> 
         $http.post("/user/findMany", { ids: ids }).then(
-            (successRes) -> successRes.data
+            (successRes) -> 
+              data = successRes.data
+              for user in data
+                cache.put(user.id, user)
+              data
           )        
         
       forgetSelf: () -> cache.remove("self")

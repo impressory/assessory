@@ -12,9 +12,37 @@ define(["./base"], (l) ->
 
   ]  
   
-  Assessory.controllers.groupcrit.GCAllAllocations = ["$scope", "CourseService", "GroupService", "GroupCritService", ($scope, CourseService, GroupService, GroupCritService) ->    
+  Assessory.controllers.groupcrit.GCAllAllocations = ["$scope", "UserService", "GroupService", "GroupCritService", ($scope, UserService, GroupService, GroupCritService) ->    
 
-     $scope.myAllocations = GroupCritService.allAllocations($scope.task.id)
+     # We keep our own locally updated cache of users on the scope, so that the table of allocations
+     # cannot inadvertently cause individual requests for users to the server
+     $scope.cachedUsers = {}
+
+     # We keep our own locally updated cache of users on the scope, so that the table of allocations
+     # cannot inadvertently cause individual requests for users to the server
+     $scope.cachedGroups = {}
+
+     $scope.allocations = GroupCritService.allAllocations($scope.task.id).then((allocations) ->
+       userIds = (allocation.user for allocation in allocations when allocation.user != null)
+       
+       # Bulk fetch the users
+       users = UserService.findMany(userIds).then((users) ->
+         for user in users
+           $scope.cachedUsers[user.id] = user
+         users
+       )
+       
+       # Bulk fetch the groups
+       groups = {}
+       for allocation in allocations
+         for alloc in allocation.allocation
+           groups[alloc.group] = 1
+       groups = GroupService.findMany(Object.keys(groups)).then((groups) ->
+         for group in groups
+           $scope.cachedGroups[group.id] = group
+       )
+       allocations 
+     )
      
      $scope.allocate = () -> GroupCritService.allocateTask($scope.task.id)
 

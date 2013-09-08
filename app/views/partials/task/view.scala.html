@@ -10,11 +10,11 @@
 
   <course-info course="course"></course-info>
 
-  <task-info task="task"></task-info>
-  
-  <div ng-show="task.permissions.edit">
+  <div ng-show="task.permissions.edit" class="pull-right">
     <a class="btn btn-default" ng-href="/task/{{ task.id }}/admin">Admin</a>
   </div>  
+  <task-info task="task"></task-info>
+  
   
   <div ng-switch="task.body.kind">
     <div ng-switch-when="Group critique by an individual">
