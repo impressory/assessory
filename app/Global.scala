@@ -30,7 +30,9 @@ object Global extends GlobalSettings with AcceptExtractors {
                    GroupDAO.lookupPf orElse
                    PreenrolDAO.lookupPf orElse
                    GPreenrolDAO.lookupPf orElse
-                   TaskDAO.lookupPf
+                   TaskDAO.lookupPf orElse
+                   TaskOutputDAO.lookupPf orElse
+                   GroupCritAllocationDAO.lookupPf
     
     val lookupManyPf = UserDAO.lookupManyPf orElse
                        CourseDAO.lookupManyPf orElse
@@ -38,7 +40,9 @@ object Global extends GlobalSettings with AcceptExtractors {
                        GroupDAO.lookupManyPf orElse
                        PreenrolDAO.lookupManyPf orElse
                        GPreenrolDAO.lookupManyPf orElse
-                       TaskDAO.lookupManyPf
+                       TaskDAO.lookupManyPf orElse
+                       TaskOutputDAO.lookupManyPf orElse
+                       GroupCritAllocationDAO.lookupManyPf
 
     // Set the home action
     DataAction.homeAction = com.assessory.play.controllers.Application.index

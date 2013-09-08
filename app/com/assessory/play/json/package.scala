@@ -26,6 +26,7 @@ package object json {
   
   implicit val readsRefUser = readsRef(classOf[User])
   implicit val readsRefGroupSet = readsRef(classOf[GroupSet])
+  implicit val readsRefGroup = readsRef(classOf[Group])
   implicit val readsRefCourse = readsRef(classOf[Course])
   implicit val readsRefGPreenrol = readsRef(classOf[GPreenrol])
 }

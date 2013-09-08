@@ -4,20 +4,24 @@ import play.api.mvc.{Action, Controller}
 import com.assessory.reactivemongo._
 import com.assessory.play.json._
 import play.api.mvc.AnyContent
-
 import com.assessory.api._
 import course._
 import group._
 import groupcrit._
+import question._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.appbase.DataAction
+import com.assessory.reactivemongo.GroupCritAllocationDAO
 
 object GroupCritController extends Controller {
 
   def refTask(id:String) = new LazyId(classOf[Task], id)
+  def refAlloc(id:String) = new LazyId(classOf[GroupCritAllocation], id)
+  def refGroup(id:String) = new LazyId(classOf[Group], id)
   
   implicit val gcaToJson = GroupCritAllocationToJson
+  implicit val toToJSON = TaskOutputToJson
   
   /**
    * Searches for course pre-enrolments, and performs them
@@ -113,6 +117,38 @@ object GroupCritController extends Controller {
   def allocations(taskId:String) = DataAction.returning.many { implicit request =>
     val task = refTask(taskId)
     for (t <- GroupCritAllocationDAO.byTask(task)) yield t
+  }
+  
+  def createCritFor(allocId:String, groupId:String) = DataAction.returning.one { implicit request => 
+    val alloc = refAlloc(allocId)
+    val group = refGroup(groupId)
+    
+    for (
+      allocation <- alloc;
+      approved <- request.approval ask Permissions.WriteCritique(allocation.itself);
+      g <- group;
+      task <- allocation.task;
+      taskBody <- task.body match {
+        case Some(gc:GroupCritTask) => gc.itself
+        case _ => RefFailed(new IllegalStateException("This was not a group critique task"))
+      };
+      unsaved = TaskOutputDAO.unsaved.copy(
+        byUser = request.user,
+        attnGroups = new RefManyById(classOf[Group], Seq(g.id)),
+        attnUsers = g.members,
+        body = Some(GCritique(forGroup = g.itself, answers={
+          for (q <- taskBody.questionnaire.questions) yield {
+            q match {
+              case s:ShortTextQuestion => ShortTextAnswer(question=Some(s.id), answer=None)
+              case t:TickBoxQuestion => TickBoxAnswer(question=Some(t.id), answer=None)
+              case i:IntegerQuestion => IntegerAnswer(question=Some(i.id), answer=None)
+            }
+          }
+        }))
+      );
+      saved <- TaskOutputDAO.saveNew(unsaved);
+      updatedAlloc <- GroupCritAllocationDAO.setOutput(allocation.itself, g.itself, saved.itself)
+    ) yield saved
   }
   
   /** Fetches allocations as a CSV. */

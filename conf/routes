@@ -3,6 +3,7 @@ GET     /groupcrit/:taskId/allocations/csv          com.assessory.play.controlle
 GET     /groupcrit/:taskId/myAllocations            com.assessory.play.controllers.GroupCritController.myAllocation(taskId)
 GET     /groupcrit/:taskId/allocations              com.assessory.play.controllers.GroupCritController.allocations(taskId)
 POST    /groupcrit/:taskId/allocate                 com.assessory.play.controllers.GroupCritController.allocateTask(taskId)
+POST    /groupcritalloc/:allocId/createCritFor/:groupId                 com.assessory.play.controllers.GroupCritController.createCritFor(allocId, groupId)
 
 # Tasks
 GET     /task/:id                              com.assessory.play.controllers.TaskController.get(id)

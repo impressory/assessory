@@ -26,5 +26,7 @@ case class TaskOutput (
   
   val created:Long = System.currentTimeMillis,
   
+  val finalised:Option[Long] = None,
+  
   val updated:Long = System.currentTimeMillis
 ) extends HasStringId 

@@ -88,7 +88,12 @@ object GroupCritAllocationDAO extends DAO[GroupCritAllocation] {
         update=BSONDocument("$set" -> BSONDocument("user" -> user, "preallocate.used" -> true))
       ) 
     ) yield u
-  }  
+  }
+  
+  def setOutput(alloc:Ref[GroupCritAllocation], group:Ref[Group], output:Ref[TaskOutput]) = updateAndFetch(
+    query=BSONDocument("_id" -> alloc, "allocation.group" -> group),
+    update=BSONDocument("$set" -> BSONDocument("allocation.$.critique" -> output))
+  )
     
 
 }

@@ -6,7 +6,7 @@ define(["./base"], (l) ->
 
   ]
   
-  Assessory.controllers.groupcrit.GCAllocationInfo = ["$scope", "GroupCritService", "GroupService", ($scope, GroupCritService, GroupService) ->    
+  Assessory.controllers.groupcrit.GCAllocationInfo = ["$scope", "$location", "GroupCritService", "GroupService", ($scope, $location, GroupCritService, GroupService) ->    
 
     groupIds = (alloc.group for alloc in $scope.allocation.allocation)
 

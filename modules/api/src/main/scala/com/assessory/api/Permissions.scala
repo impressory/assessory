@@ -39,6 +39,11 @@ object Permissions {
     ) yield a
   }  
 
+  case class EditOutput(to:Ref[TaskOutput]) extends PermOnIdRef[User, TaskOutput](to) {
+    def resolve(prior:Approval[User]) = {
+      for (o <- to if (!o.finalised.isDefined && o.byUser.getId == prior.who.getId)) yield Approved("You may write edit your own output")
+    }
+  }  
   
   case class WriteCritique(gca:Ref[GroupCritAllocation]) extends PermOnIdRef[User, GroupCritAllocation](gca) {
     def resolve(prior:Approval[User]) = {
