@@ -46,7 +46,7 @@ object GroupDAO extends DAO[Group] {
       "set" -> g.set,
       "name" -> g.name,
       "provenance" -> g.provenance,
-      "members" -> g.members.getIds,
+      "members" -> g.members,
       "created" -> g.created
     ),
     g

@@ -18,7 +18,11 @@ object GroupCritAllocationToJson extends JsonConverter[GroupCritAllocation, User
   implicit val gcaFormat = Json.writes[GroupCritAllocation]
   
   def toJsonFor(gca:GroupCritAllocation, a:Approval[User]) = {
-    gcaFormat.writes(gca).itself
+    val perm = for (write <- optionally(a ask Permissions.WriteCritique(gca.itself))) yield Json.obj(
+      "critique" -> write.isDefined
+    )
+    
+    for (p <- perm) yield Json.obj("permissions" -> p) ++ gcaFormat.writes(gca)
   }
   
   def toJson(gca:GroupCritAllocation) = gcaFormat.writes(gca).itself

@@ -1,8 +1,8 @@
 package com.assessory.api
 
 import com.wbillingsley.handy._
-
 import course._
+import com.assessory.api.groupcrit.GroupCritAllocation
 
 object Permissions {
 
@@ -40,6 +40,11 @@ object Permissions {
   }  
 
   
+  case class WriteCritique(gca:Ref[GroupCritAllocation]) extends PermOnIdRef[User, GroupCritAllocation](gca) {
+    def resolve(prior:Approval[User]) = {
+      for (g <- gca if (g.user.getId == prior.who.getId)) yield Approved("You may write critiques that are allocated to you")
+    }
+  }  
   
   def getRoles(course: Ref[Course], user: Ref[User]) = {
     for (

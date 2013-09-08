@@ -6,9 +6,22 @@ define(["./base"], (l) ->
 
   ]
   
-  Assessory.controllers.groupcrit.GCAlloactionInfo = ["$scope", "CourseService", "GroupService", ($scope, CourseService, GroupService) ->    
+  Assessory.controllers.groupcrit.GCAllocationInfo = ["$scope", "GroupCritService", "GroupService", ($scope, GroupCritService, GroupService) ->    
 
-    $scope.group = GroupService.get($scope.allocation.allocation.group)
+    groupIds = (alloc.group for alloc in $scope.allocation.allocation)
+
+    $scope.cachedGroups = {}
+
+    groups = GroupService.findMany(groupIds).then((groups) ->
+         for group in groups
+           $scope.cachedGroups[group.id] = group
+    )
+    
+    $scope.createCritique = (alloc) ->
+       GroupCritService.createCritique($scope.allocation.id, alloc.group).then((crit) ->
+          $location.path("/groupcritique/#{crit.id}/edit")
+       )
+      
 
   ]  
   

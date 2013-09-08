@@ -24,8 +24,12 @@ object TickBoxQuestion {
 
 case class TickBoxAnswer(
   
-  question: String,
+  question: Option[String],
   
-  answer: Boolean
+  answer: Option[Boolean]
 
-) extends Answer
+) extends Answer {
+  
+  val kind = TickBoxQuestion.kind
+  
+}

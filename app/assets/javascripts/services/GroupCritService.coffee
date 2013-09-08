@@ -1,6 +1,6 @@
 define(["./UserService"], () ->
 
-  Assessory.services.GroupCritService = Assessory.angularApp.service('GroupCritService', ['$http', '$cacheFactory', 'CourseService', ($http, $cacheFactory, CourseService) ->
+  Assessory.services.GroupCritService = Assessory.angularApp.service('GroupCritService', ['$http', '$cacheFactory', '$location', ($http, $cacheFactory, $location) ->
       
     
     {
@@ -12,6 +12,12 @@ define(["./UserService"], () ->
 
       allAllocations: (taskId) -> 
         $http.get("/groupcrit/#{taskId}/allocations").then((res) -> res.data)
+        
+      createCritique: (allocId, groupId) ->
+        $http.post("/groupcritalloc/#{allocId}/createCritFor/#{groupId}").then((res) -> 
+          crit = res.data
+          crit
+        )
 
     }
   ])

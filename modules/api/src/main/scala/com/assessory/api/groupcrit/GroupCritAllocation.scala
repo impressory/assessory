@@ -8,7 +8,7 @@ case class GCAllocatedCrit(
 
   group: Ref[Group] = RefNone,
   
-  critique: Ref[GCritique] = RefNone
+  critique: Ref[TaskOutput] = RefNone
 )
 
 case class GroupCritAllocation(

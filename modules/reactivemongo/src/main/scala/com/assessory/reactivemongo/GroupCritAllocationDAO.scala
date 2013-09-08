@@ -24,7 +24,7 @@ object GroupCritAllocationDAO extends DAO[GroupCritAllocation] {
     def read(doc:BSONDocument) = {
       GCAllocatedCrit(
         group = doc.getAs[Ref[Group]]("group").getOrElse(RefNone),
-        critique = doc.getAs[Ref[GCritique]]("critique").getOrElse(RefNone)
+        critique = doc.getAs[Ref[TaskOutput]]("critique").getOrElse(RefNone)
       )
     }
     

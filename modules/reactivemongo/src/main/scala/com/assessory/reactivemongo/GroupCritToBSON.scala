@@ -17,7 +17,7 @@ object GroupCritToBSON {
     def write(r:Ref[T]) = {
       r.getId.map(new BSONObjectID(_)).getOrElse(BSONNull)
     }
-  }   
+  }
   
   def newBSON(g:GroupCritTask) = BSONDocument(
         "groupToCrit" -> g.groupToCrit,
@@ -37,4 +37,26 @@ object GroupCritToBSON {
       )
       
 
+}
+
+
+object GCritiqueToBSON {
+  
+  import GroupCritToBSON._
+  
+  implicit val ah = AnswerHandler
+  
+  def newBSON(gc:GCritique) = BSONDocument("forGroup" -> gc.forGroup, "answers" -> gc.answers, "kind" -> GCritique.kind)
+  
+  def updateBSON(gc:GCritique) = BSONDocument("$set" -> BSONDocument("body.forGroup" -> gc.forGroup, "body.answers" -> gc.answers))
+  
+  implicit object gcReader extends BSONDocumentReader[GCritique] {
+    def read(doc:BSONDocument) = {
+      GCritique(
+        forGroup = doc.getAs[Ref[Group]]("forGroup").getOrElse(RefNone),
+        answers = doc.getAs[Seq[Answer]]("answers").getOrElse(Seq.empty)
+      )
+    }
+  }  
+  
 }

@@ -18,7 +18,7 @@ package object reactivemongo {
     def read(id:BSONObjectID) = new LazyId(c, id.stringify)
   }
 
-  def RefManyByIdReader[T <: HasStringId](c:Class[T]) = new BSONReader[BSONArray, RefManyById[T, String]] {
+   def RefManyByIdReader[T <: HasStringId](c:Class[T]) = new BSONReader[BSONArray, RefManyById[T, String]] {
     def read(ids:BSONArray) = {
       val s = for (v <- ids.values) yield {
         v.asInstanceOf[BSONObjectID].stringify
@@ -27,14 +27,26 @@ package object reactivemongo {
     }
   }
   
+  def RefManyByIdWriter[T <: HasStringId](c:Class[T]) = new BSONWriter[RefManyById[T, String], BSONArray] {
+    def write(r:RefManyById[T, String]) = {
+      val s = for (v <- r.getIds) yield {
+        scala.util.Try{ new BSONObjectID(v) }
+      }
+      new BSONArray(s.toStream)
+    }
+  }
+   
   implicit val RefCourseReader = RefReader(classOf[Course])
   implicit val RefUserReader = RefReader(classOf[User])
   implicit val RefGroupReader = RefReader(classOf[Group])
   implicit val RefGroupSetReader = RefReader(classOf[GroupSet])
   implicit val RefGPreenrolReader = RefReader(classOf[GPreenrol])
   implicit val RefTaskReader = RefReader(classOf[Task])
-  implicit val RefGCritiqueReader = RefReader(classOf[GCritique])
+  implicit val RefTaskOutputReader = RefReader(classOf[TaskOutput])
   implicit val RefManyUserReader = RefManyByIdReader(classOf[User])
+  implicit val RefManyGroupReader = RefManyByIdReader(classOf[Group])
+  implicit val RefManyUserWriter = RefManyByIdWriter(classOf[User])
+  implicit val RefManyGroupWriter = RefManyByIdWriter(classOf[Group])
   
   implicit object identityLookupFormat extends BSONHandler[BSONDocument, IdentityLookup] {
     def read(doc:BSONDocument) = {

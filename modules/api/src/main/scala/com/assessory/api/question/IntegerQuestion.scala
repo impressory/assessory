@@ -28,8 +28,10 @@ object IntegerQuestion {
 
 case class IntegerAnswer(
   
-  question: String,
+  question: Option[String],
   
-  answer: Int
+  answer: Option[Int]
 
-) extends Answer
+) extends Answer {
+  val kind = IntegerQuestion.kind
+}

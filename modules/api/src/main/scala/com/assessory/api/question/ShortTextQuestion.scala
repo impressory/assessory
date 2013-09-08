@@ -27,8 +27,10 @@ object ShortTextQuestion {
 
 case class ShortTextAnswer(
   
-  question: String,
+  question: Option[String],
   
-  answer: String
+  answer: Option[String]
 
-) extends Answer
+) extends Answer {
+  val kind = ShortTextQuestion.kind
+}
