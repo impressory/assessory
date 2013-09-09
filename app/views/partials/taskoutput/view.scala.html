@@ -14,7 +14,7 @@
   </div>
   
   <div ng-show="taskoutput.permissions.edit">
-    <a ng-href="/taskoutput/{{taskoutput.id}}/edit" class="btn btn-default">Edit</a>
+    <a ng-href="/taskoutput/{{taskoutput.id}}/edit" class="btn btn-default">Edit</a>  
   </div>
 
   <h3>{{ taskoutput.kind }}</h3>
@@ -23,6 +23,13 @@
     <div ng-switch-when="Group critique by an individual">
       <gcoutput-view task="task" taskoutput="taskoutput"></gcoutput-view>
     </div>
+  </div>
+
+  <div ng-show="taskoutput.finalised" class="alert alert-success">
+    This critique has been finalised, and cannot be edited
+  </div>
+  <div ng-hide="taskoutput.finalised" class="alert alert-danger">
+    This critique has not been finalised, and is only in draft.
   </div>
 
 </div>

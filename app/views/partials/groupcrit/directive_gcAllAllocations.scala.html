@@ -17,7 +17,7 @@
     <td><table class="table">
       <tr ng-repeat="alloc in allocation.allocation">
         <td>{{ cachedGroups[alloc.group].name }}</td>
-        <td>{{ alloc.critique }}</td>
+        <td><a ng-show="alloc.critique" ng-href="/taskoutput/{{ alloc.critique }}" class="btn btn-sm">Go to critique</a></td>
       </tr>
     </table></td>
   </rt>

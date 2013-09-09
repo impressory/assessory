@@ -30,8 +30,15 @@ object TaskOutputController extends Controller {
       output <- refOutput(id);
       approved <- request.approval ask Permissions.EditOutput(output.itself);
       updated = TaskOutputToJson.update(output, request.body);
-      saved <- TaskOutputDAO.updateBody(updated)
-    ) yield saved
+      saved <- TaskOutputDAO.updateBody(updated);
+      finalised <- if ((request.body \ "finalise").asOpt[Boolean].getOrElse(false)) {
+        // Finalise the task output
+        TaskOutputDAO.finalise(saved)
+      } else {
+        // Don't finalise it; just return the saved item
+        saved.itself
+      }
+    ) yield finalised
   }
   
 }

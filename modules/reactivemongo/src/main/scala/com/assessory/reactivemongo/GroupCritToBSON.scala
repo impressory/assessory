@@ -48,7 +48,7 @@ object GCritiqueToBSON {
   
   def newBSON(gc:GCritique) = BSONDocument("forGroup" -> gc.forGroup, "answers" -> gc.answers, "kind" -> GCritique.kind)
   
-  def updateBSON(gc:GCritique) = BSONDocument("$set" -> BSONDocument("body.forGroup" -> gc.forGroup, "body.answers" -> gc.answers))
+  def updateBSON(gc:GCritique) = BSONDocument("body.forGroup" -> gc.forGroup, "body.answers" -> gc.answers)
   
   implicit object gcReader extends BSONDocumentReader[GCritique] {
     def read(doc:BSONDocument) = {

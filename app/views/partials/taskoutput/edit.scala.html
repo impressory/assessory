@@ -21,9 +21,16 @@
   </div>
   
   <hr />
+  <div ng-repeat="error in errors" class="alert alert-danger">
+    {{ error }}
+  </div>
   
+  <label>When you are sure you have finished editing you're critique, "finalise" it to
+    make it available for marking.</label>
   <div>
-    <a ng-href="/taskoutput/{{taskoutput.id}}" class="btn btn-default">Cancel</a>  
+    <a ng-href="/taskoutput/{{taskoutput.id}}" class="btn btn-default">Cancel</a>
+    <button class="btn btn-default" ng-click="save(false)">Save</button>
+    <button class="btn btn-primary" ng-click="save(true)">Save and finalise</button>  
   </div>
   
   

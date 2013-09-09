@@ -14,6 +14,18 @@ define(["./base"], (l) ->
     
     for answer in $scope.answers 
       $scope.answerMap[answer.question] = answer
+
+    for question in $scope.questions  
+      ans = $scope.answerMap[question.id] 
+      if not (ans?)
+        ans =  {
+          kind: question.kind
+          question: question.id
+          answer: null
+        }
+        $scope.answers.push(ans)
+        $scope.answerMap[question.id] = ans
+      
     
   ]
   

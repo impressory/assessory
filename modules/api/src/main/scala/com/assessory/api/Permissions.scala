@@ -41,7 +41,9 @@ object Permissions {
 
   case class EditOutput(to:Ref[TaskOutput]) extends PermOnIdRef[User, TaskOutput](to) {
     def resolve(prior:Approval[User]) = {
-      for (o <- to if (!o.finalised.isDefined && o.byUser.getId == prior.who.getId)) yield Approved("You may write edit your own output")
+      (for (
+        o <- to if (!o.finalised.isDefined && o.byUser.getId == prior.who.getId)
+      ) yield Approved("You may write edit your own output")) orIfNone Refused("You may only edit your own critiques, before they have been finalised")
     }
   }  
   

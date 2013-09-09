@@ -1,22 +1,23 @@
 <div>
   <div class="form">
+    
     <div ng-repeat="question in questionnaire.questions">
       <label>{{ question.prompt }}</label>
       
       <div ng-switch="question.kind">
         <div ng-switch-when="Short text">
          <p class="form-control-static">
-         {{ answers[question.id].answer }}
+         {{ answerMap[question.id].answer }}
          </p>
         </div>
        <div ng-switch-when="Tick box">
          <p class="form-control-static">
-         {{ answers[question.id].answer || 'No' }}
+         {{ answerMap[question.id].answer || 'No' }}
          </p>       
        </div>
        <div ng-switch-when="Integer">
          <p class="form-control-static">
-         {{ answers[question.id].answer }}
+         {{ answerMap[question.id].answer }}
          </p>
        </div>
      </div>       

@@ -5,13 +5,13 @@
       
       <div ng-switch="question.kind">
         <div ng-switch-when="Short text">
-         <textarea class="form-control" ng-model="answers[question.id].answer"></textarea>
+         <textarea class="form-control" ng-model="answerMap[question.id].answer"></textarea>
         </div>
        <div ng-switch-when="Tick box">
-         <input type="checkbox" ng-model="answers[question.id].answer" />
+         <input type="checkbox" ng-model="answerMap[question.id].answer" />
        </div>
        <div ng-switch-when="Integer">
-         <input type="number" ng-model="answers[question.id].answer" />
+         <input type="number" ng-model="answerMap[question.id].answer" />
        </div>
      </div>       
       

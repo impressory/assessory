@@ -33,8 +33,11 @@ object TaskOutputDAO extends DAO[TaskOutput] {
         byUser = doc.getAs[Ref[User]]("byUser").getOrElse(RefNone),
         byGroup = doc.getAs[Ref[Group]]("byGroup").getOrElse(RefNone),
         attnUsers = doc.getAs[RefManyById[User, String]]("attnUsers").getOrElse(new RefManyById(classOf[User], Seq.empty)),
-        attnGroups = doc.getAs[RefManyById[Group, String]]("attnGroups").getOrElse(new RefManyById(classOf[Group], Seq.empty)),        
-        body = doc.getAs[TaskOutputBody]("body")
+        attnGroups = doc.getAs[RefManyById[Group, String]]("attnGroups").getOrElse(new RefManyById(classOf[Group], Seq.empty)),
+        body = doc.getAs[TaskOutputBody]("body"),
+        created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis()),
+        finalised = doc.getAs[Long]("finalised"),
+        updated = doc.getAs[Long]("updated").getOrElse(System.currentTimeMillis())
       )
     }
   }  
@@ -62,6 +65,12 @@ object TaskOutputDAO extends DAO[TaskOutput] {
       )
     ) yield updated
   }  
+  
+  def finalise(t:TaskOutput) = updateAndFetch(
+    query=BSONDocument(idIs(t.id)),
+    update=BSONDocument("$set" -> BSONDocument("finalised" -> System.currentTimeMillis()))
+  )
+  
   
   
   

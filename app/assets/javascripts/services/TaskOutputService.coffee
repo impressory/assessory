@@ -15,7 +15,7 @@ define(["./UserService"], () ->
           prom
         )
       
-      updateBody: (to) -> $http.post("/taskoutput/#{task.id}", to).then((res) -> 
+      updateBody: (to) -> $http.post("/taskoutput/#{to.id}", to).then((res) -> 
         gs = res.data
         toCache.put(gs.id, gs)
         gs      
