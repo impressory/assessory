@@ -87,5 +87,36 @@ define(["./base"], (l) ->
       templateUrl: "directive_gcAllAllocations.html"
       restrict: 'E'
     }
-  ])    
+  ])
+  
+  
+  Assessory.controllers.groupcrit.GCOutputView = ["$scope", "GroupService", "GroupCritService", ($scope, GroupService, GroupCritService) ->    
+
+    $scope.group  = GroupService.get($scope.taskoutput.body.forGroup)
+  ]  
+
+  Assessory.controllers.groupcrit.GCOutputEdit = ["$scope", "GroupService", "GroupCritService", ($scope, GroupService, GroupCritService) ->    
+    $scope.group  = GroupService.get($scope.taskoutput.body.forGroup)
+
+  ]  
+
+  
+  Assessory.angularApp.directive("gcoutputView", [ () -> 
+    {
+      scope: { task: '=task', taskoutput: "=taskoutput" }
+      controller: Assessory.controllers.groupcrit.GCOutputView      
+      templateUrl: "directive_gcoutputView.html"
+      restrict: 'E'
+    }
+  ])  
+  
+  Assessory.angularApp.directive("gcoutputEdit", [ () -> 
+    {
+      scope: { task: '=task', taskoutput: "=taskoutput" }
+      controller: Assessory.controllers.groupcrit.GCOutputEdit      
+      templateUrl: "directive_gcoutputEdit.html"
+      restrict: 'E'
+    }
+  ])  
+  
 )

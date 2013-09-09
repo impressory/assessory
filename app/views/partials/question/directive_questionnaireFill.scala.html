@@ -1,2 +1,20 @@
-@* directive_questionnaireFill Template File *@
-@(param: Any)
+<div>
+  <div class="form">
+    <div ng-repeat="question in questionnaire.questions">
+      <label>{{ question.prompt }}</label>
+      
+      <div ng-switch="question.kind">
+        <div ng-switch-when="Short text">
+         <textarea class="form-control" ng-model="answers[question.id].answer"></textarea>
+        </div>
+       <div ng-switch-when="Tick box">
+         <input type="checkbox" ng-model="answers[question.id].answer" />
+       </div>
+       <div ng-switch-when="Integer">
+         <input type="number" ng-model="answers[question.id].answer" />
+       </div>
+     </div>       
+      
+    </div>
+  </div>
+</div>

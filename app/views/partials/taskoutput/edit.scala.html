@@ -14,8 +14,17 @@
     <course-info course="course"></course-info>
   </div>
   
+  <div ng-switch="task.body.kind">
+    <div ng-switch-when="Group critique by an individual">
+      <gcoutput-edit task="task" taskoutput="taskoutput"></gcoutput-edit>
+    </div>
+  </div>
+  
+  <hr />
   
   <div>
     <a ng-href="/taskoutput/{{taskoutput.id}}" class="btn btn-default">Cancel</a>  
   </div>
+  
+  
 </div>

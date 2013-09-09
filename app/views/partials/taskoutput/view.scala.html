@@ -18,7 +18,11 @@
   </div>
 
   <h3>{{ taskoutput.kind }}</h3>
-
-  <taskoutput-view taskoutput="taskoutput" task="task"></taskoutput-view>
+  
+  <div ng-switch="task.body.kind">
+    <div ng-switch-when="Group critique by an individual">
+      <gcoutput-view task="task" taskoutput="taskoutput"></gcoutput-view>
+    </div>
+  </div>
 
 </div>
