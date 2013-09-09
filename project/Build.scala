@@ -23,9 +23,8 @@ object ApplicationBuild extends Build {
     )
     
     val appBaseDependencies = Seq(
-      "com.wbillingsley" %% "handy" % "0.4-SNAPSHOT",
-      "com.wbillingsley" %% "handy-appbase-core" % "0.4-SNAPSHOT",
-      "com.wbillingsley" %% "eventroom" % "0.1-SNAPSHOT"
+      "com.wbillingsley" %% "handy" % "0.4",
+      "com.wbillingsley" %% "handy-appbase-core" % "0.4"
     )
     
     lazy val appBase = play.Project(appName + "-app-base", appVersion, appBaseDependencies, path= file("modules/app-base")).settings(
@@ -33,9 +32,8 @@ object ApplicationBuild extends Build {
     )
       
     val appDependencies = Seq(
-      "com.wbillingsley" %% "handy-appbase-core" % "0.4-SNAPSHOT",
-      "com.wbillingsley" %% "eventroom" % "0.1-SNAPSHOT",
-      "com.wbillingsley" %% "handy-play-oauth" % "0.1-SNAPSHOT",
+      "com.wbillingsley" %% "handy-appbase-core" % "0.4",
+      "com.wbillingsley" %% "handy-play-oauth" % "0.1",
       "net.sf.opencsv" % "opencsv" % "2.0"
     )
 
