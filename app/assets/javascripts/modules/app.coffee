@@ -39,6 +39,10 @@ define(["./base" ], () ->
           when('/preenrol/:preenrolId', { templateUrl: '/partials/course/viewPreenrol.html', controller: Assessory.controllers.course.ViewPreenrol, resolve: Assessory.controllers.course.ViewPreenrol.resolve }).
           when('/task/:taskId/admin', { templateUrl: '/partials/task/admin.html', controller: Assessory.controllers.task.Admin, resolve: Assessory.controllers.task.Admin.resolve }).
           when('/task/:taskId', { templateUrl: '/partials/task/view.html', controller: Assessory.controllers.task.View, resolve: Assessory.controllers.task.View.resolve }).
+
+          when('/taskoutput/:taskoutputId/edit', { templateUrl: '/partials/taskoutput/edit.html', controller: Assessory.controllers.taskoutput.Edit, resolve: Assessory.controllers.taskoutput.Edit.resolve }).
+          when('/taskoutput/:taskoutputId', { templateUrl: '/partials/taskoutput/view.html', controller: Assessory.controllers.taskoutput.View, resolve: Assessory.controllers.taskoutput.View.resolve }).
+
           otherwise({ redirectTo: '/' })
       ])
 

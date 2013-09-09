@@ -25,7 +25,7 @@ object TaskOutputController extends Controller {
     refOutput(id)
   }
   
-  def editBody(id:String) = DataAction.returning.one(parse.json) { implicit request => 
+  def updateBody(id:String) = DataAction.returning.one(parse.json) { implicit request => 
     for (
       output <- refOutput(id);
       approved <- request.approval ask Permissions.EditOutput(output.itself);

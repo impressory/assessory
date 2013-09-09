@@ -133,6 +133,7 @@ object GroupCritController extends Controller {
         case _ => RefFailed(new IllegalStateException("This was not a group critique task"))
       };
       unsaved = TaskOutputDAO.unsaved.copy(
+        task = task.itself,
         byUser = request.user,
         attnGroups = new RefManyById(classOf[Group], Seq(g.id)),
         attnUsers = g.members,

@@ -19,7 +19,7 @@ define(["./base"], (l) ->
     
     $scope.createCritique = (alloc) ->
        GroupCritService.createCritique($scope.allocation.id, alloc.group).then((crit) ->
-          $location.path("/groupcritique/#{crit.id}/edit")
+          $location.path("/taskoutput/#{crit.id}/edit")
        )
       
 
