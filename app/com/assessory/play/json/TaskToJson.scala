@@ -18,10 +18,7 @@ object TaskToJson extends JsonConverter[Task, User] {
   implicit val tdFormat = Json.writes[TaskDetails]
   implicit val tFormat = Json.writes[Task]
   
-  def toJsonFor(t:Task, a:Approval[User]) = {
-    
-    println(t)
-    
+  def toJsonFor(t:Task, a:Approval[User]) = {    
     val permissions = for (
       course <- a.cache(t.course, classOf[Course]);
       view <- optionally(a ask Permissions.ViewCourse(course.itself));

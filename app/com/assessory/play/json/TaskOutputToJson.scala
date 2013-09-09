@@ -18,9 +18,7 @@ object TaskOutputToJson extends JsonConverter[TaskOutput, User] {
   implicit val tout = Json.writes[TaskOutput]
   
   def toJsonFor(t:TaskOutput, a:Approval[User]) = {
-    
-    println(t)
-    
+        
     val permissions = for (
       edit <- optionally(a ask Permissions.EditOutput(t.itself))
     ) yield Json.obj(
