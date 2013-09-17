@@ -33,4 +33,6 @@ case class ShortTextAnswer(
 
 ) extends Answer {
   val kind = ShortTextQuestion.kind
+  
+  def answerAsString = answer.getOrElse("")
 }

@@ -54,6 +54,7 @@ object Application extends Controller {
       case "task/view.html" => Ok(views.html.partials.task.view())
       case "task/admin.html" => Ok(views.html.partials.task.admin())
       case "groupcrit/createTask.html" => Ok(views.html.partials.groupcrit.createTask())
+      case "outputcrit/createTask.html" => Ok(views.html.partials.outputcrit.createTask())
 
       case "taskoutput/view.html" => Ok(views.html.partials.taskoutput.view())
       case "taskoutput/edit.html" => Ok(views.html.partials.taskoutput.edit())

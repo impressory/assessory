@@ -40,6 +40,9 @@ require([
   "controllers/groupcrit/View",
   "controllers/groupcrit/Edit",
   
+  "controllers/outputcrit/CreateTask",
+  "controllers/outputcrit/View",
+  
   "controllers/taskoutput/View",
   "controllers/taskoutput/Edit",
 

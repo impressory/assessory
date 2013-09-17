@@ -1,6 +1,9 @@
 # Task Output
 GET     /taskoutput/:toId                           com.assessory.play.controllers.TaskOutputController.get(toId)
 POST    /taskoutput/:toId                           com.assessory.play.controllers.TaskOutputController.updateBody(toId)
+GET     /task/:taskId/outputsAsCsv                  com.assessory.play.controllers.TaskOutputController.asCsv(taskId)
+GET     /task/:taskId/myOutputs                     com.assessory.play.controllers.TaskOutputController.myOutputs(taskId)
+GET     /task/:taskId/relevantToMe                  com.assessory.play.controllers.TaskOutputController.relevantToMe(taskId)
 
 # Group Crits
 GET     /groupcrit/:taskId/allocations/csv          com.assessory.play.controllers.GroupCritController.allocationsAsCSV(taskId)

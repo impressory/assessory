@@ -32,4 +32,6 @@ case class TickBoxAnswer(
   
   val kind = TickBoxQuestion.kind
   
+  def answerAsString = answer.map(_.toString).getOrElse("")
+  
 }

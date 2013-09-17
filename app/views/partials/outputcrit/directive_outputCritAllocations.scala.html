@@ -1,0 +1,24 @@
+<div class="groupcrit-allocation">
+
+  Please read and review the following critiques:
+  
+  <ul class="nav nav-pills">
+    <li ng-repeat="output in relevantOutputs" ng-class="{ active: selectedOutput == output }"><a ng-click="selectOutput(output)">{{ $index }}</a></li>
+  </ul>
+  
+  <div class="row">
+  
+    <div ng-if="selectedOutput">
+    
+      <div class="col-sm-6">
+        <questionnaire-view questionnaire="forTask.body.questionnaire" answers="selectedOutput.body.answers" filter="questionFilter"></questionnaire-view>
+      </div>
+      <div class="col-sm-6">
+        
+      </div>
+    </div>
+  
+  </div>
+  
+
+</div>

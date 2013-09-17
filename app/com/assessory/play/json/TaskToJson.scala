@@ -8,6 +8,7 @@ import com.wbillingsley.handy._
 import Ref._
 import play.api.libs.json.{Json, JsValue, JsObject, Writes, Format}
 import groupcrit._
+import outputcrit._
 import question._
 import com.assessory.reactivemongo.TaskDAO
 import play.api.libs.json.JsSuccess
@@ -57,10 +58,12 @@ object TaskBodyFormat extends Format[TaskBody] {
   implicit val qFormat = QuestionFormat
   implicit val qsFormat = Json.format[Questionnaire]
   implicit val gctFormat = Json.format[GroupCritTask]
+  implicit val octFormat = Json.format[OutputCritTask]
   
   def writes(b:TaskBody):JsValue = {
     val base = b match {
-      case g:GroupCritTask => gctFormat.writes(g) 
+      case g:GroupCritTask => gctFormat.writes(g)
+      case o:OutputCritTask => octFormat.writes(o)
     }
     Json.obj("kind" -> b.kind) ++ base
   }
@@ -73,6 +76,12 @@ object TaskBodyFormat extends Format[TaskBody] {
           number = (j \ "number").asOpt[Int].getOrElse(1),
           groupToCrit = (j \ "groupToCrit").asOpt[Ref[GroupSet]].getOrElse(RefNone),
           withinSet = (j \ "withinSet").asOpt[Ref[GroupSet]].getOrElse(RefNone),
+          questionnaire = (j \ "questionnaire").asOpt[Questionnaire].getOrElse(new Questionnaire)
+        )
+      }
+      case OutputCritTask.kind => {
+        new OutputCritTask(
+          taskToCrit = (j \ "taskToCrit").asOpt[Ref[Task]].getOrElse(RefNone),
           questionnaire = (j \ "questionnaire").asOpt[Questionnaire].getOrElse(new Questionnaire)
         )
       }

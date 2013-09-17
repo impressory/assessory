@@ -2,13 +2,13 @@
   <div class="form">
     
     <div ng-repeat="question in questionnaire.questions">
+     <div ng-if="showQuestion(question)">
+     
       <label>{{ question.prompt }}</label>
       
       <div ng-switch="question.kind">
         <div ng-switch-when="Short text">
-         <p class="form-control-static">
-         {{ answerMap[question.id].answer }}
-         </p>
+         <textarea disabled class="form-control" ng-model="answerMap[question.id].answer" style="min-height: 200px"></textarea>
         </div>
        <div ng-switch-when="Tick box">
          <p class="form-control-static">
@@ -23,5 +23,6 @@
      </div>       
       
     </div>
+   </div>
   </div>
 </div>

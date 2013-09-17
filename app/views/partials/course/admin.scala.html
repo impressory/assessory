@@ -74,11 +74,17 @@
         </table>
     
         <div>
-          <a href="/course/{{ course.id }}/createGroupCritTask" class="btn btn-default">Create crit task</a>
+          <div class="btn-group">
+            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" >
+            Add <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dlabel">
+              <li><a href="/course/{{ course.id }}/createGroupCritTask">Critique for a group</a></li>
+              <li><a href="/course/{{ course.id }}/createOutputCritTask">Critique the output of another task</a></li>
+            </ul>
+          </div>
         </div>
       </div>
-
-      
     </div>
     
   </div>

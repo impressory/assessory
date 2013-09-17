@@ -4,6 +4,7 @@ import _root_.reactivemongo.bson._
 import com.assessory.api._
 import question._
 import groupcrit._
+import outputcrit._
 import group._
 import com.wbillingsley.handy._
 
@@ -30,6 +31,7 @@ object TaskOutputBodyHandler extends BSONHandler[BSONDocument, TaskOutputBody]{
     val kind = doc.getAs[String]("kind").get
     kind match {
       case GCritique.kind => GCritiqueToBSON.gcReader.read(doc)
+      case OCritique.kind => OCritiqueToBSON.gcReader.read(doc)
     }
     
   }
@@ -38,6 +40,7 @@ object TaskOutputBodyHandler extends BSONHandler[BSONDocument, TaskOutputBody]{
     
     val base = b match {
       case g:GCritique => GCritiqueToBSON.newBSON(g)
+      case g:OCritique => OCritiqueToBSON.newBSON(g)
     }
     BSONDocument("kind" -> b.kind) ++ base
     
@@ -47,6 +50,7 @@ object TaskOutputBodyHandler extends BSONHandler[BSONDocument, TaskOutputBody]{
     
     val base = b match {
       case g:GCritique => GCritiqueToBSON.updateBSON(g)
+      case g:OCritique => OCritiqueToBSON.updateBSON(g)
     }
     base
   }

@@ -71,8 +71,26 @@ object TaskOutputDAO extends DAO[TaskOutput] {
     update=BSONDocument("$set" -> BSONDocument("finalised" -> System.currentTimeMillis()))
   )
   
+  def byTask(t:Ref[Task]) = findMany(BSONDocument("task" -> t))
   
+  def byTaskAndUser(t:Ref[Task], u:Ref[User]) = findMany(BSONDocument("task" -> t, "byUser" -> u))
   
-  
-
+  def relevantTo(t:Task, u:Ref[User]) = {
+    val groupIds = GroupDAO.byCourseAndUser(t.course, u).map(_.id)
+    for (
+      gids <- groupIds.toRefOne.map(_.toSeq);
+      gg = new RefManyById(classOf[Group], gids);
+      to <- {
+        val d = BSONDocument(
+        "task" -> (t.itself:Ref[Task]),
+        "$or" -> BSONArray(
+          BSONDocument("attnUsers" -> u),
+          BSONDocument("attnGroups" -> BSONDocument("$in" -> gg))
+        )
+        )
+        println(BSONDocument.pretty(d))
+        findMany(d)
+      }
+    ) yield to
+  }
 }

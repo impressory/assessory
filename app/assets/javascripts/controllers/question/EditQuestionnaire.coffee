@@ -12,7 +12,7 @@ define(["./base"], (l) ->
     
     $scope.answerMap = {}
     
-    for answer in $scope.answers 
+    for answer in ($scope.answers || [])
       $scope.answerMap[answer.question] = answer
 
     for question in $scope.questions  
@@ -37,6 +37,8 @@ define(["./base"], (l) ->
     
     for answer in $scope.answers 
       $scope.answerMap[answer.question] = answer
+      
+    $scope.showQuestion = (q) -> $scope.qfilter(q)
 
   ]
   
@@ -60,7 +62,7 @@ define(["./base"], (l) ->
   
   Assessory.angularApp.directive("questionnaireView", [ () -> 
     {
-      scope: { questionnaire: '=questionnaire', answers: "=answers" }
+      scope: { questionnaire: '=questionnaire', answers: "=answers", qfilter: "=filter" }
       controller: Assessory.controllers.question.ViewQuestionnaire
       templateUrl: "directive_questionnaireView.html"
       restrict: 'E'

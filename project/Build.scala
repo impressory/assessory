@@ -5,7 +5,7 @@ import play.Project._
 object ApplicationBuild extends Build {
   
     val appName         = "assessory"
-    val appVersion      = "0.1"
+    val appVersion      = "0.1-SNAPSHOT"
      
     // Define the additional repositories we're going to need in one place, to reuse it in all subprojects
     val extraResolvers = Seq(

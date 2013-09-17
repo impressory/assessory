@@ -34,4 +34,6 @@ case class IntegerAnswer(
 
 ) extends Answer {
   val kind = IntegerQuestion.kind
+  
+  def answerAsString = answer.map(_.toString).getOrElse("")
 }

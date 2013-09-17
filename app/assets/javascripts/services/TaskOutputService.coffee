@@ -20,6 +20,10 @@ define(["./UserService"], () ->
         toCache.put(gs.id, gs)
         gs      
       )
+      
+      relevantToMe: (taskId) -> $http.get("/task/#{taskId}/relevantToMe").then((res) -> res.data)
+      
+      myOutputs: (taskId) -> $http.get("/task/#{taskId}/myOutputs").then((res) -> res.data)
     }
   ])
 

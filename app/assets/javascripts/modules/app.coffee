@@ -29,6 +29,7 @@ define(["./base" ], () ->
           when('/course/create', { templateUrl: '/partials/course/create.html' }).
 
           when('/course/:courseId/createGroupCritTask', { templateUrl: '/partials/groupcrit/createTask.html', controller: Assessory.controllers.groupcrit.CreateTask, resolve: Assessory.controllers.groupcrit.CreateTask.resolve }).
+          when('/course/:courseId/createOutputCritTask', { templateUrl: '/partials/outputcrit/createTask.html', controller: Assessory.controllers.outputcrit.CreateTask, resolve: Assessory.controllers.outputcrit.CreateTask.resolve }).
 
           when('/course/:courseId/createGroupSet', { templateUrl: '/partials/group/createGroupSet.html', controller: Assessory.controllers.group.CreateGroupSet, resolve: Assessory.controllers.group.CreateGroupSet.resolve }).
           when('/course/:courseId/createPreenrol', { templateUrl: '/partials/course/createPreenrol.html', controller: Assessory.controllers.course.CreatePreenrol, resolve: Assessory.controllers.course.CreatePreenrol.resolve }).

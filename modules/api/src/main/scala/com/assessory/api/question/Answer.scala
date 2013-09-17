@@ -6,4 +6,6 @@ trait Answer {
   
   val kind:String
   
+  def answerAsString: String
+  
 }
