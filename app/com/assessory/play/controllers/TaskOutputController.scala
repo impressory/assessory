@@ -37,10 +37,28 @@ object TaskOutputController extends Controller {
   }
   
   def myOutputs(taskId:String) = DataAction.returning.many { implicit request =>
-    TaskOutputDAO.byTaskAndUser(refTask(taskId), request.user)
+    for (to <- TaskOutputDAO.byTaskAndUser(refTask(taskId), request.user)) yield {
+      to
+    }
   }
   
-  def updateBody(id:String) = DataAction.returning.one(parse.json) { implicit request => 
+  def create(taskId:String) = DataAction.returning.one(parse.json) { implicit request =>
+    for (
+      task <- refTask(taskId);
+      approved <- request.approval ask Permissions.ViewCourse(task.course);
+      updated = TaskOutputToJson.update(TaskOutputDAO.unsaved.copy(byUser=request.user, task=task.itself), request.body);
+      saved <- TaskOutputDAO.saveNew(updated);
+      finalised <- if ((request.body \ "finalise").asOpt[Boolean].getOrElse(false)) {
+        // Finalise the task output
+        TaskOutputDAO.finalise(saved)
+      } else {
+        // Don't finalise it; just return the saved item
+        saved.itself
+      }
+    ) yield finalised
+  }
+  
+  def updateBody(id:String) = DataAction.returning.json(parse.json) { implicit request => 
     for (
       output <- refOutput(id);
       approved <- request.approval ask Permissions.EditOutput(output.itself);
@@ -52,8 +70,9 @@ object TaskOutputController extends Controller {
       } else {
         // Don't finalise it; just return the saved item
         saved.itself
-      }
-    ) yield finalised
+      };
+      j <-TaskOutputToJson.toJsonFor(finalised, new Approval(request.user))
+    ) yield j
   }
   
   def asCsv(taskId:String) = DataAction.returning.result { implicit request => 

@@ -1,6 +1,7 @@
 # Task Output
 GET     /taskoutput/:toId                           com.assessory.play.controllers.TaskOutputController.get(toId)
 POST    /taskoutput/:toId                           com.assessory.play.controllers.TaskOutputController.updateBody(toId)
+POST    /task/:taskId/newOutput                     com.assessory.play.controllers.TaskOutputController.create(taskId)
 GET     /task/:taskId/outputsAsCsv                  com.assessory.play.controllers.TaskOutputController.asCsv(taskId)
 GET     /task/:taskId/myOutputs                     com.assessory.play.controllers.TaskOutputController.myOutputs(taskId)
 GET     /task/:taskId/relevantToMe                  com.assessory.play.controllers.TaskOutputController.relevantToMe(taskId)

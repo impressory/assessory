@@ -21,6 +21,18 @@ define(["./UserService"], () ->
         gs      
       )
       
+      saveNew: (to) -> $http.post("/task/#{to.task}/newOutput", to).then((res) -> 
+        gs = res.data
+        toCache.put(gs.id, gs)
+        gs      
+      )
+      
+      save: (to) -> 
+        if to.id?
+          @updateBody(to)
+        else
+          @saveNew(to)
+      
       relevantToMe: (taskId) -> $http.get("/task/#{taskId}/relevantToMe").then((res) -> res.data)
       
       myOutputs: (taskId) -> $http.get("/task/#{taskId}/myOutputs").then((res) -> res.data)

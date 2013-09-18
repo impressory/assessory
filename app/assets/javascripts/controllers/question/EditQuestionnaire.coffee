@@ -38,7 +38,7 @@ define(["./base"], (l) ->
     for answer in $scope.answers 
       $scope.answerMap[answer.question] = answer
       
-    $scope.showQuestion = (q) -> $scope.qfilter(q)
+    $scope.showQuestion = (q) -> (!$scope.qfilter?) || $scope.qfilter(q)
 
   ]
   

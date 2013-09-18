@@ -12,6 +12,7 @@ import outputcrit._
 import question._
 import com.assessory.reactivemongo.TaskDAO
 import play.api.libs.json.JsSuccess
+import play.api.libs.json.JsError
 
 object TaskOutputToJson extends JsonConverter[TaskOutput, User] {
   
@@ -25,7 +26,6 @@ object TaskOutputToJson extends JsonConverter[TaskOutput, User] {
     ) yield Json.obj(
       "edit" -> edit.isDefined
     )
-    
     for (p <- permissions) yield tout.writes(t) ++ Json.obj("permissions" -> p)
   }
   
@@ -59,10 +59,9 @@ object TaskOutputBodyFormat extends Format[TaskOutputBody] {
   }
   
   def reads(j:JsValue) = {
-    val kind = (j \ "kind").asOpt[String].get
-    val tb = kind match {
-      case GCritique.kind => gctFormat.reads(j)
-      case OCritique.kind => ocFormat.reads(j)
+    val tb = (j \ "kind").asOpt[String] match {
+      case Some(GCritique.kind) => gctFormat.reads(j)
+      case Some(OCritique.kind) => ocFormat.reads(j)
     }
     tb
   }  
