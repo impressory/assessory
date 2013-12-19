@@ -8,7 +8,8 @@
          <textarea class="form-control" ng-model="answerMap[question.id].answer"></textarea>
         </div>
        <div ng-switch-when="Tick box">
-         <input type="checkbox" ng-model="answerMap[question.id].answer" />
+         <label class="radio-inline"><input type="radio" ng-model="answerMap[question.id].answer" ng-value="true" /> Yes </label>
+         <label class="radio-inline"><input type="radio" ng-model="answerMap[question.id].answer" ng-value="false" /> No </label>
        </div>
        <div ng-switch-when="Integer">
          <input type="number" ng-model="answerMap[question.id].answer" />

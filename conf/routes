@@ -49,7 +49,7 @@ POST    /course/create              com.assessory.play.controllers.CourseControl
 POST    /course/findMany            com.assessory.play.controllers.CourseController.findMany
 
 # Logged in user
-GET		/self						com.assessory.play.controllers.UserController.self
+POST	/self						com.assessory.play.controllers.UserController.self
 
 POST	/signUp						com.assessory.play.controllers.UserController.signUp
 POST	/logIn 						com.assessory.play.controllers.UserController.logIn
@@ -66,8 +66,12 @@ GET     /partials/*template         com.assessory.play.controllers.Application.p
 # Index
 GET     /                           com.assessory.play.controllers.Application.index
 
+# Test error conditions
+GET     /notFound                   com.assessory.play.controllers.Application.notFound
+GET     /userError                  com.assessory.play.controllers.Application.userError
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 # Default route
-GET     /*path                      com.assessory.play.controllers.Application.defaultRoute(path)
+#GET     /*path                      com.assessory.play.controllers.Application.defaultRoute(path)

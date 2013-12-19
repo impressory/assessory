@@ -23,9 +23,8 @@ object CourseController extends Controller {
    * Retrieves a course
    */  
   def get(id:String) = DataAction.returning.one { implicit request =>     
-    val cache = request.approval.cache
     for (
-      course <- cache(refCourse(id));
+      course <- refCourse(id);
       approved <- request.approval ask Permissions.ViewCourse(course.itself)
     ) yield course
   }

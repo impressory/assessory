@@ -7,44 +7,32 @@ object ApplicationBuild extends Build {
     val appName         = "assessory"
     val appVersion      = "0.1-SNAPSHOT"
      
-    // Define the additional repositories we're going to need in one place, to reuse it in all subprojects
-    val extraResolvers = Seq(
-        "handy releases" at "https://bitbucket.org/wbillingsley/mavenrepo/raw/master/releases/",
-        "handy snapshots" at "https://bitbucket.org/wbillingsley/mavenrepo/raw/master/snapshots/",
-        "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
-    )
-     
     lazy val assessoryApi = Project(appName + "-api", base = file ("modules/api")).settings(
-      resolvers ++= extraResolvers
     )
       
     lazy val assessoryReactivemongo = Project(appName + "-reactivemongo", base = file ("modules/reactivemongo")).dependsOn(assessoryApi).settings(
-      resolvers ++= extraResolvers
     )
     
     val appBaseDependencies = Seq(
-      "com.wbillingsley" %% "handy" % "0.4",
-      "com.wbillingsley" %% "handy-appbase-core" % "0.4"
+      "com.wbillingsley" %% "handy" % "0.5-SNAPSHOT",
+      "com.wbillingsley" %% "handy-appbase-core" % "0.5-SNAPSHOT"
     )
     
     lazy val appBase = play.Project(appName + "-app-base", appVersion, appBaseDependencies, path= file("modules/app-base")).settings(
-      resolvers ++= extraResolvers
     )
       
     val appDependencies = Seq(
-      "com.wbillingsley" %% "handy-appbase-core" % "0.4",
-      "com.wbillingsley" %% "handy-play-oauth" % "0.1",
+      "com.wbillingsley" %% "handy-appbase-core" % "0.5-SNAPSHOT",
+      "com.wbillingsley" %% "handy-play-oauth" % "0.2-SNAPSHOT",
       "net.sf.opencsv" % "opencsv" % "2.0"
     )
 
-  lazy val aaaMain = play.Project(appName, appVersion, appDependencies).settings(
+  lazy val mainProj = play.Project(appName, appVersion, appDependencies).settings(
 
     // Enable further details on compiler warnings 
     scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
     
     templatesImport += "com.wbillingsley.handy._",
-
-    resolvers ++= extraResolvers,
     
     // Modular routes in Play 2.1 requires reflective calls
     routesImport ++= Seq("language.reflectiveCalls"),
@@ -58,4 +46,6 @@ object ApplicationBuild extends Build {
       assessoryReactivemongo
   )
 
+  override def rootProject = Some(mainProj)
+  
 }

@@ -22,7 +22,7 @@ define(["./base"], (l) ->
       templateUrl: "directive_courseInfo.html"
       restrict: 'E'
     }
-  )]
+  ])
   
 
 )

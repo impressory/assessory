@@ -13,6 +13,7 @@ import question._
 import com.assessory.reactivemongo.TaskDAO
 import play.api.libs.json.JsSuccess
 import play.api.libs.json.JsError
+import play.Logger
 
 object TaskOutputToJson extends JsonConverter[TaskOutput, User] {
   
@@ -62,6 +63,10 @@ object TaskOutputBodyFormat extends Format[TaskOutputBody] {
     val tb = (j \ "kind").asOpt[String] match {
       case Some(GCritique.kind) => gctFormat.reads(j)
       case Some(OCritique.kind) => ocFormat.reads(j)
+      case x => {
+        Logger.error("Kind of task output body not found: " + x)
+        JsError("Kind of task output body not found: " + x)
+      }
     }
     tb
   }  

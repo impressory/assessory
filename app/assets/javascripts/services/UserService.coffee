@@ -9,7 +9,7 @@ define(["modules/base"], () ->
       # Fetches a JSON representation of the user themselves
       self: () ->
         cache.get("self") || ( 
-          prom = $http.get("/self").then(
+          prom = $http.post("/self").then(
             (successRes) -> successRes.data
           )
           cache.put("self", prom)

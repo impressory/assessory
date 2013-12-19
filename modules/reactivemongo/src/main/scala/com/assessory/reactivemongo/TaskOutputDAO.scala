@@ -46,15 +46,15 @@ object TaskOutputDAO extends DAO[TaskOutput] {
    * Save a new user. This should only be used for new users because it overwrites
    * sessions and identities.
    */
-  def saveNew(t:TaskOutput) = saveSafe(
-    BSONDocument(
+  def saveNew(t:TaskOutput) = {
+    val d = BSONDocument(
       idIs(t.id),
       "task" -> t.task,
       "byUser" -> t.byUser, "byGroup" -> t.byGroup, "attnUsers" -> t.attnUsers, "attnGroups" -> t.attnGroups,
       "body" -> t.body, "created" -> t.created, "updated" -> t.updated
-    ),
-    t
-  )
+    )
+    saveSafe(d,t)
+  }
   
   def updateBody(t:TaskOutput) = {
     for (
@@ -88,7 +88,6 @@ object TaskOutputDAO extends DAO[TaskOutput] {
           BSONDocument("attnGroups" -> BSONDocument("$in" -> gg))
         )
         )
-        println(BSONDocument.pretty(d))
         findMany(d)
       }
     ) yield to

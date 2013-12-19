@@ -22,6 +22,6 @@ define(["./base"], (l) ->
       restrict: 'E'
       templateUrl: "directive_siteHeader.html"
     }
-  )]
+  ])
 
 )

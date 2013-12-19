@@ -3,6 +3,9 @@ package com.assessory.play.controllers
 import play.api.mvc.{Action, Controller}
 import com.wbillingsley.handy.appbase.DataAction
 import com.assessory.reactivemongo.UserDAO
+import com.wbillingsley.handy.RefNone
+import com.assessory.api.UserError
+import com.wbillingsley.handy.RefFailed
 
 object Application extends Controller {
   
@@ -61,6 +64,24 @@ object Application extends Controller {
       
       case _ => NotFound(s"No such partial template: $templ")
     }
-  }  
+  }
+  
+  def notFound = DataAction.returning.result { RefNone }
+  
+  implicit val utj = com.assessory.play.json.UserToJson
+  import com.assessory.api.User
+  def userError = DataAction.returning.one { implicit request => 
+    
+    import play.api.libs.concurrent.Execution.Implicits.defaultContext
+    
+    import com.wbillingsley.handy._
+    def fut = new RefFuture[User](
+      scala.concurrent.future {
+        throw new UserError("Testing a user error")
+      }
+    )
+    val fail1 = fut
+    for (s <- fail1; q <- fut; r <- fail1) yield r
+  }
   
 }

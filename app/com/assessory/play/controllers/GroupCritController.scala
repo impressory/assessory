@@ -175,7 +175,7 @@ object GroupCritController extends Controller {
       import com.wbillingsley.handyplay.RefConversions._
       val en = line.flatten.enumerate
         
-      Ok.stream(en)
+      Ok.chunked(en)
     }
   }
 }

@@ -27,14 +27,6 @@ package object reactivemongo {
     }
   }
   
-  def RefManyByIdWriter[T <: HasStringId](c:Class[T]) = new BSONWriter[RefManyById[T, String], BSONArray] {
-    def write(r:RefManyById[T, String]) = {
-      val s = for (v <- r.getIds) yield {
-        scala.util.Try{ new BSONObjectID(v) }
-      }
-      new BSONArray(s.toStream)
-    }
-  }
    
   implicit val RefCourseReader = RefReader(classOf[Course])
   implicit val RefUserReader = RefReader(classOf[User])
@@ -45,8 +37,6 @@ package object reactivemongo {
   implicit val RefTaskOutputReader = RefReader(classOf[TaskOutput])
   implicit val RefManyUserReader = RefManyByIdReader(classOf[User])
   implicit val RefManyGroupReader = RefManyByIdReader(classOf[Group])
-  implicit val RefManyUserWriter = RefManyByIdWriter(classOf[User])
-  implicit val RefManyGroupWriter = RefManyByIdWriter(classOf[Group])
   
   implicit object identityLookupFormat extends BSONHandler[BSONDocument, IdentityLookup] {
     def read(doc:BSONDocument) = {

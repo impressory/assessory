@@ -7,11 +7,12 @@ import play.api.Play
 import Play.current
 import com.wbillingsley.encrypt.Encrypt
 import com.wbillingsley.handy._
-import com.wbillingsley.handy.playoauth.UserRecord
+import com.wbillingsley.handy.playoauth.{OAuthDetails, UserRecord}
 import Ref._
 import play.api.mvc.AnyContent
 import com.assessory.api._
 import com.wbillingsley.handy.appbase.DataAction
+import scala.util.Try
 
 /**
  * Controller for the interstitial form confirming that a new account should be registered
@@ -27,11 +28,11 @@ object InterstitialController extends Controller {
   /**
    * Handles the completion of OAuth authorisations
    */
-  def onOAuth(rur:Ref[UserRecord]) = dataAction.result { implicit request =>
+  def onOAuth(rur:Try[OAuthDetails]) = dataAction.result { implicit request =>
     
     val res = for (
-      mem <- rur;
-      user <- optionally(UserDAO.byIdentity("github", mem.id))
+      mem <- rur.toRef;
+      user <- optionally(UserDAO.byIdentity(mem.userRecord.service, mem.userRecord.id))
     ) yield {
       
       user match {
@@ -41,11 +42,11 @@ object InterstitialController extends Controller {
           ) yield Redirect(com.assessory.play.controllers.routes.Application.index)
         } 
         case None => {          
-          val session = request.session + (InterstitialController.sessionVar -> mem.toJsonString) - "oauth_state"
+          val session = request.session + (InterstitialController.sessionVar ->  mem.toJson.toString) - "oauth_state"
           for (u <- optionally(request.user)) yield {
 		      u match {
-		        case Some(user) => Ok(views.html.interstitials.addOAuth(Some(mem.service), mem, user)).withSession(session)
-		        case None => Ok(views.html.interstitials.registerOAuth(Some(mem.service), mem)).withSession(session)
+		        case Some(user) => Ok(views.html.interstitials.addOAuth(Some(mem.userRecord.service), mem.userRecord, user)).withSession(session)
+		        case None => Ok(views.html.interstitials.registerOAuth(Some(mem.userRecord.service), mem.userRecord)).withSession(session)
 		      }            
           }
         }

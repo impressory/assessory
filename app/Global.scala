@@ -58,5 +58,21 @@ object Global extends GlobalSettings with AcceptExtractors {
     }
 
   }
+  
+  
+  /**
+   * We have many routes that only exist on the client side. 
+   */
+  override def onHandlerNotFound(request:play.api.mvc.RequestHeader) = {
+    import scala.concurrent.Future
+    import play.api.mvc.Results
+    import play.api.libs.json.Json
+    
+    request match {
+      case Accepts.Html() => Future.successful(Results.Ok(views.html.main()))
+      case Accepts.Json() => Future.successful(Results.NotFound(Json.obj("error" -> "not found")))
+      case _ => Future.successful(Results.NotFound)
+    }
+  }  
 
 }

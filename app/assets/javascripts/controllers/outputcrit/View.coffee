@@ -24,7 +24,7 @@ define(["./base"], (l) ->
 
     $scope.myOutputs = TaskOutputService.myOutputs($scope.task.id).then((output) -> 
       for o in output
-        myomap[o.body.forOutput] = o
+        myomap[o.body?.forOutput] = o
     )
     
     $scope.getMyResponseFor = (o) -> 
