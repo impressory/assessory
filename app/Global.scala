@@ -23,39 +23,6 @@ object Global extends GlobalSettings with AcceptExtractors {
     com.wbillingsley.handy.playoauth.PlayAuth.onAuth = { r =>
       com.assessory.auth.controllers.InterstitialController.onOAuth(r)
     }
-    
-    val lookupPf = UserDAO.lookupPf orElse 
-                   CourseDAO.lookupPf orElse
-                   GroupSetDAO.lookupPf orElse
-                   GroupDAO.lookupPf orElse
-                   PreenrolDAO.lookupPf orElse
-                   GPreenrolDAO.lookupPf orElse
-                   TaskDAO.lookupPf orElse
-                   TaskOutputDAO.lookupPf orElse
-                   GroupCritAllocationDAO.lookupPf
-    
-    val lookupManyPf = UserDAO.lookupManyPf orElse
-                       CourseDAO.lookupManyPf orElse
-                       GroupSetDAO.lookupManyPf orElse
-                       GroupDAO.lookupManyPf orElse
-                       PreenrolDAO.lookupManyPf orElse
-                       GPreenrolDAO.lookupManyPf orElse
-                       TaskDAO.lookupManyPf orElse
-                       TaskOutputDAO.lookupManyPf orElse
-                       GroupCritAllocationDAO.lookupManyPf
-
-    // Set the home action
-    DataAction.homeAction = com.assessory.play.controllers.Application.index
-      
-    RefById.lookUpMethod = new RefById.LookUp {      
-      def lookup[T](r: RefById[T, _]) = 
-        lookupPf.apply(r).asInstanceOf[Ref[T]]
-    }
-    
-    RefManyById.lookUpMethod = new RefManyById.LookUp {
-      def lookup[T](r: RefManyById[T, _]) = 
-        lookupManyPf.apply(r).asInstanceOf[RefMany[T]]
-    }
 
   }
   

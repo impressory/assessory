@@ -11,8 +11,10 @@ import com.assessory.api._
 import course._
 import group._
 
-object GPreenrolDAO extends DAO[GPreenrol] {
+object GPreenrolDAO extends DAO {
 
+  type DataT = GPreenrol
+  
   val clazz = classOf[GPreenrol]
   
   val collName = "gpreenrol"

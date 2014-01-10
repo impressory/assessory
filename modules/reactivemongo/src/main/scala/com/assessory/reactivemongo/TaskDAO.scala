@@ -13,8 +13,10 @@ import group._
 import groupcrit._
 import question._
 
-object TaskDAO extends DAO[Task] {
+object TaskDAO extends DAO {
 
+  type DataT = Task
+  
   val clazz = classOf[Task]
   
   val collName = "task"

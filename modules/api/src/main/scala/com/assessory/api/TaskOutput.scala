@@ -18,9 +18,9 @@ case class TaskOutput (
   
   val byGroup:Ref[Group] = RefNone,
   
-  val attnUsers: RefManyById[User, String] = new RefManyById(classOf[User], Seq()),
+  val attnUsers: RefManyById[User, String] = RefManyById.empty(classOf[User]),
 
-  val attnGroups: RefManyById[Group, String] = new RefManyById(classOf[Group], Seq()),
+  val attnGroups: RefManyById[Group, String] = RefManyById.empty(classOf[Group]),
   
   val body: Option[TaskOutputBody] = None,
   

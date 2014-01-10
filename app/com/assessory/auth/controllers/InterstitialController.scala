@@ -19,6 +19,8 @@ import scala.util.Try
  */
 object InterstitialController extends Controller {
   
+  implicit val dataActionConfig = com.assessory.config.AssessoryDataActionConfig 
+  
   val sessionVar = "interstitialMemory"
     
   implicit val UserDAO = com.assessory.reactivemongo.UserDAO

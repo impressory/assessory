@@ -9,7 +9,9 @@ import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.appbase.UserProvider
 import com.assessory.api.course.Registration
 
-object UserDAO extends DAO[User] with UserProvider[User] {
+object UserDAO extends DAO with UserProvider[User] {
+  
+  type DataT = User
   
   val clazz = classOf[User]
   

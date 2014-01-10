@@ -10,8 +10,10 @@ import com.wbillingsley.handy.appbase.UserProvider
 import com.assessory.api._
 import course._
 
-object CourseDAO extends DAO[Course] {
+object CourseDAO extends DAO {
 
+  type DataT = Course
+  
   val clazz = classOf[Course]
   
   val collName = "course"

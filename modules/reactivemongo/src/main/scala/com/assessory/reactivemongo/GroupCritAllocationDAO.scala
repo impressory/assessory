@@ -12,7 +12,9 @@ import course._
 import group._
 import groupcrit._
 
-object GroupCritAllocationDAO extends DAO[GroupCritAllocation] {
+object GroupCritAllocationDAO extends DAO {
+  
+  type DataT = GroupCritAllocation
   
   val clazz = classOf[GroupCritAllocation]
   

@@ -1,7 +1,7 @@
 package com.assessory.play.controllers
 
 import play.api.mvc.{Action, Controller}
-import com.assessory.reactivemongo.UserDAO
+import com.assessory.reactivemongo._
 import com.assessory.play.json.UserToJson
 import play.api.mvc.AnyContent
 

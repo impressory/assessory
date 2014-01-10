@@ -12,8 +12,10 @@ import com.assessory.api._
 import course._
 import group._
 
-object GroupSetDAO extends DAO[GroupSet] {
+object GroupSetDAO extends DAO {
 
+  type DataT = GroupSet
+  
   val clazz = classOf[GroupSet]
   
   val collName = "groupSet"

@@ -13,8 +13,10 @@ import group._
 import groupcrit._
 import question._
 
-object TaskOutputDAO extends DAO[TaskOutput] {
+object TaskOutputDAO extends DAO {
 
+  type DataT = TaskOutput
+  
   val clazz = classOf[TaskOutput]
   
   val collName = "taskOutput"
@@ -32,8 +34,8 @@ object TaskOutputDAO extends DAO[TaskOutput] {
         task = doc.getAs[Ref[Task]]("task").getOrElse(RefNone),
         byUser = doc.getAs[Ref[User]]("byUser").getOrElse(RefNone),
         byGroup = doc.getAs[Ref[Group]]("byGroup").getOrElse(RefNone),
-        attnUsers = doc.getAs[RefManyById[User, String]]("attnUsers").getOrElse(new RefManyById(classOf[User], Seq.empty)),
-        attnGroups = doc.getAs[RefManyById[Group, String]]("attnGroups").getOrElse(new RefManyById(classOf[Group], Seq.empty)),
+        attnUsers = doc.getAs[RefManyById[User, String]]("attnUsers").getOrElse(RefManyById.empty(classOf[User])),
+        attnGroups = doc.getAs[RefManyById[Group, String]]("attnGroups").getOrElse(RefManyById.empty(classOf[Group])),
         body = doc.getAs[TaskOutputBody]("body"),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis()),
         finalised = doc.getAs[Long]("finalised"),

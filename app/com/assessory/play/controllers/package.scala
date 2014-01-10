@@ -10,4 +10,6 @@ package object controllers {
    */
   implicit val userProvider = UserDAO
   
+  implicit val dataActionConfig = com.assessory.config.AssessoryDataActionConfig 
+  
 }

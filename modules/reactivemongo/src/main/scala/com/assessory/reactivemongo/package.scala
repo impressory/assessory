@@ -14,11 +14,11 @@ import groupcrit._
 
 package object reactivemongo {
   
-  def RefReader[T <: HasStringId](c:Class[T]) = new BSONReader[BSONObjectID, Ref[T]] {
+  def RefReader[T <: HasStringId](c:Class[T])(implicit l:LookUp[T, String]) = new BSONReader[BSONObjectID, Ref[T]] {
     def read(id:BSONObjectID) = new LazyId(c, id.stringify)
   }
 
-   def RefManyByIdReader[T <: HasStringId](c:Class[T]) = new BSONReader[BSONArray, RefManyById[T, String]] {
+  def RefManyByIdReader[T <: HasStringId](c:Class[T])(implicit l:LookUp[T, String]) = new BSONReader[BSONArray, RefManyById[T, String]] {
     def read(ids:BSONArray) = {
       val s = for (v <- ids.values) yield {
         v.asInstanceOf[BSONObjectID].stringify
@@ -27,16 +27,26 @@ package object reactivemongo {
     }
   }
   
-   
-  implicit val RefCourseReader = RefReader(classOf[Course])
-  implicit val RefUserReader = RefReader(classOf[User])
-  implicit val RefGroupReader = RefReader(classOf[Group])
-  implicit val RefGroupSetReader = RefReader(classOf[GroupSet])
-  implicit val RefGPreenrolReader = RefReader(classOf[GPreenrol])
-  implicit val RefTaskReader = RefReader(classOf[Task])
-  implicit val RefTaskOutputReader = RefReader(classOf[TaskOutput])
-  implicit val RefManyUserReader = RefManyByIdReader(classOf[User])
-  implicit val RefManyGroupReader = RefManyByIdReader(classOf[Group])
+  implicit val lookupUser = UserDAO.LookUp
+  implicit val lookupGroup = GroupDAO.LookUp
+  implicit val lookupGroupSet = GroupSetDAO.LookUp
+  implicit val lookupGPreenrol = GPreenrolDAO.LookUp
+  implicit val lookupCourse = CourseDAO.LookUp
+  implicit val lookupPreenrol = PreenrolDAO.LookUp
+  implicit val lookupTask = TaskDAO.LookUp
+  implicit val lookupTaskOutput = TaskOutputDAO.LookUp
+
+  implicit val lookupGroupCritAllocation = GroupCritAllocationDAO.LookUp
+  
+  implicit val RefCourseReader = RefReader(classOf[Course])(CourseDAO.LookUp)
+  implicit val RefUserReader = RefReader(classOf[User])(UserDAO.LookUp)
+  implicit val RefGroupReader = RefReader(classOf[Group])(GroupDAO.LookUp)
+  implicit val RefGroupSetReader = RefReader(classOf[GroupSet])(GroupSetDAO.LookUp)
+  implicit val RefGPreenrolReader = RefReader(classOf[GPreenrol])(GPreenrolDAO.LookUp)
+  implicit val RefTaskReader = RefReader(classOf[Task])(TaskDAO.LookUp)
+  implicit val RefTaskOutputReader = RefReader(classOf[TaskOutput])(TaskOutputDAO.LookUp)
+  implicit val RefManyUserReader = RefManyByIdReader(classOf[User])(UserDAO.LookUp)
+  implicit val RefManyGroupReader = RefManyByIdReader(classOf[Group])(GroupDAO.LookUp)
   
   implicit object identityLookupFormat extends BSONHandler[BSONDocument, IdentityLookup] {
     def read(doc:BSONDocument) = {

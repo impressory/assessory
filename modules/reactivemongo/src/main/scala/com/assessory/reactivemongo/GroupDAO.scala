@@ -11,8 +11,10 @@ import com.assessory.api._
 import course._
 import group._
 
-object GroupDAO extends DAO[Group] {
+object GroupDAO extends DAO {
 
+  type DataT = Group
+  
   val clazz = classOf[Group]
   
   val collName = "assessoryGroup"
@@ -29,7 +31,7 @@ object GroupDAO extends DAO[Group] {
         set = doc.getAs[Ref[GroupSet]]("set").getOrElse(RefNone),
         name= doc.getAs[String]("name"),
         provenance= doc.getAs[String]("provenance"),
-        members = doc.getAs[RefManyById[User, String]]("members").getOrElse(new RefManyById(classOf[User], Seq.empty)),
+        members = doc.getAs[RefManyById[User, String]]("members").getOrElse(RefManyById.empty(classOf[User])),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis)
       )
     }

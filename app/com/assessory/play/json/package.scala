@@ -1,10 +1,13 @@
 package com.assessory.play
 
-import com.wbillingsley.handy.{Ref, HasStringId, LazyId, RefManyById}
+import com.wbillingsley.handy._
 import com.assessory.api._
 import course._
 import group._
 import play.api.libs.json.{Json, JsValue, Writes, Reads}
+
+// Imports the lookups
+import com.assessory.reactivemongo._
 
 package object json {
 
@@ -20,7 +23,7 @@ package object json {
   }
   
   
-  def readsRef[T <: HasStringId](c:Class[T]) = new Reads[Ref[T]] {
+  def readsRef[T <: HasStringId](c:Class[T])(implicit lu:LookUp[T, String]) = new Reads[Ref[T]] {
     def reads(j:JsValue) = Reads.StringReads.reads(j).map(s => new LazyId(c, s))
   }
   

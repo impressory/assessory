@@ -2,8 +2,8 @@ libraryDependencies ++= Seq(
   "com.wbillingsley" %% "handy-appbase-core" % "0.5-SNAPSHOT",    
   "com.wbillingsley" %% "handy-reactivemongo" % "0.5-SNAPSHOT",
   "com.wbillingsley" %% "handy-play" % "0.5-SNAPSHOT",
-  "org.reactivemongo" %% "reactivemongo" % "0.10.0-SNAPSHOT" exclude("org.scala-stm", "scala-stm_2.10.0"),
-  "org.reactivemongo" %% "play2-reactivemongo" % "0.10.0-SNAPSHOT" exclude("org.scala-stm", "scala-stm_2.10.0"),
+  "org.reactivemongo" %% "reactivemongo" % "0.10.0" exclude("org.scala-stm", "scala-stm_2.10.0"),
+  "org.reactivemongo" %% "play2-reactivemongo" % "0.10.0" exclude("org.scala-stm", "scala-stm_2.10.0"),
   "org.specs2" %% "specs2" % "2.2" % "test"
 )
 

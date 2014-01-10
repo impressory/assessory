@@ -16,7 +16,7 @@ case class Group (
   
   provenance:Option[String] = None,
   
-  members:RefManyById[User, String] = new RefManyById(classOf[User], Seq.empty),
+  members:RefManyById[User, String] = RefManyById.empty(classOf[User]),
   
   created:Long = System.currentTimeMillis
 
