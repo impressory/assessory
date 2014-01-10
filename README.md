@@ -58,15 +58,15 @@ GitHub:
    The authorisation callback URL is `{your server URL}` + `/oauth/github/callback`
 
 2. Set the Client ID and Client Secret before starting Assessory. This can be done by setting these environment variables
-
-       ${?ASSESSORY_AUTH_GITHUB_CKEY}
-       ${?ASSESSORY_AUTH_GITHUB_CSECRET}
-
+```
+   ${ASSESSORY_AUTH_GITHUB_CKEY}
+   ${ASSESSORY_AUTH_GITHUB_CSECRET}
+```
    or by passing them as arguments to the start script
-
-       -Dauth.github.ckey=
-       -Dauth.github.csecret=
-
+```
+   -Dauth.github.ckey=
+   -Dauth.github.csecret=
+```
 
 Twitter:
 
@@ -75,11 +75,12 @@ Twitter:
    The authorisation callback URL is `{your server URL}` + `/oauth/twitter/callback`
 
 2. Set the Client ID and Client Secret before starting Assessory. This can be done by setting these environment variables
-
-       ${?ASSESSORY_AUTH_TWITTER_CKEY}
-       ${?ASSESSORY_AUTH_TWITTER_CSECRET}
-
+```
+    ${ASSESSORY_AUTH_TWITTER_CKEY}
+    ${ASSESSORY_AUTH_TWITTER_CSECRET}
+```
    or by passing them as arguments to the start script
-
-       -Dauth.twitter.ckey=
-       -Dauth.twitter.csecret=
+```
+   -Dauth.twitter.ckey=
+   -Dauth.twitter.csecret=
+```
