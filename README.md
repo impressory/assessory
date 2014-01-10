@@ -9,6 +9,16 @@ The original application was written in a week for DECO2800 at The University of
 
 So if you find it doesn't do what you need, [raise an issue](http://github.com/impressory/assessory/issues) and it probably won't take very long to make it do what you want. 
 
+
+### Using the distribution zip
+
+1. Download the [distribution zip file](https://docs.google.com/uc?id=0Byc3ursv9OXJdUVjdC14Yk5zMWs&export=download) 
+2. Unpack the zip file
+3. Set the environment variables for your database config and social logins (see below)
+4. Run the `bin/assessory` script from the zip file. 
+   You might need to give it execute permissions using `chmod u+x bin/assessory`, and should run it using `nohup` so that the process won't terminate when you close the shell.
+5. The server will now be running, listening on port 9000
+
 ### Compiling from source
 
 Setting up Assessory requires
@@ -22,14 +32,17 @@ Setting up Assessory requires
    sbt will automatically locate and download the required dependencies.
 3. Unpack the zip file
 4. Set the environment variables for your database config and social logins (see below)
-5. Run the `start` script from the zip file. 
-   You might need to give it execute permissions using `chmod u+x start`, and should run it using `nohup` so that the process won't terminate when you close the shell.
+5. Run the `bin/assessory` script from the zip file. 
+   You might need to give it execute permissions using `chmod u+x bin/assessory`, and should run it using `nohup` so that the process won't terminate when you close the shell.
 6. The server will now be running, listening on port 9000
 
-Note that by default it's listening using HTTP rather than HTTPS. To listen using HTTPS, you'll need to pass a few different parameters to the start script, as described [here](http://www.playframework.com/documentation/2.2.x/ConfiguringHttps)
+
+### HTTPS
+
+To make Assessory listen using HTTPS, you'll need to pass a few more parameters to the start script, as described [here](http://www.playframework.com/documentation/2.2.x/ConfiguringHttps)
 
    
-### Environment variables
+### Databaase environment variables
 
 The following environment variables configure the MongoDB connection:
 
