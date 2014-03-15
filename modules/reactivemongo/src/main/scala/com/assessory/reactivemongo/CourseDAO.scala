@@ -3,7 +3,7 @@ package com.assessory.reactivemongo
 import com.wbillingsley.handy.reactivemongo._
 import reactivemongo.api._
 import reactivemongo.bson._
-import com.wbillingsley.handy.{Ref, RefNone}
+import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.appbase.UserProvider
 
@@ -21,7 +21,9 @@ object CourseDAO extends DAO {
   val db = DBConnector
   
   def unsaved = Course(id = allocateId)
-  
+
+  val executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
+
   implicit object bsonReader extends BSONDocumentReader[Course] {
     def read(doc:BSONDocument):Course = {
       new Course(
@@ -31,7 +33,7 @@ object CourseDAO extends DAO {
         shortDescription = doc.getAs[String]("shortDescription"),
         website = doc.getAs[String]("website"),
         coverImage = doc.getAs[String]("coverImage"),
-        addedBy = doc.getAs[Ref[User]]("addedBy").getOrElse(RefNone),
+        addedBy = doc.getAs[RefWithId[User]]("addedBy").getOrElse(RefNone),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis())
       )
     }

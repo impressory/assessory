@@ -24,13 +24,11 @@ object InterstitialController extends Controller {
   val sessionVar = "interstitialMemory"
     
   implicit val UserDAO = com.assessory.reactivemongo.UserDAO
-  
-  val dataAction = new DataAction
-    
+
   /**
    * Handles the completion of OAuth authorisations
    */
-  def onOAuth(rur:Try[OAuthDetails]) = dataAction.result { implicit request =>
+  def onOAuth(rur:Try[OAuthDetails]) = DataAction.returning.result { implicit request =>
     
     val res = for (
       mem <- rur.toRef;
@@ -63,7 +61,7 @@ object InterstitialController extends Controller {
   /**
    * Register the user as a new user on this system
    */
-  def registerUser = dataAction.result { implicit request => 
+  def registerUser = DataAction.returning.result { implicit request =>
     val memString = request.session.get(sessionVar)
     val mem = for (s <- memString; m <- Json.parse(s).asOpt[UserRecord]) yield m
     
@@ -89,7 +87,7 @@ object InterstitialController extends Controller {
   /**
    * Adds the remembered identity to the currently logged in user.
    */
-  def addIdentity = dataAction.result { implicit request => 
+  def addIdentity = DataAction.returning.result { implicit request =>
     val memString = request.session.get(sessionVar)
     val mem = for (s <- memString; m <- Json.parse(s).asOpt[UserRecord]) yield m
     

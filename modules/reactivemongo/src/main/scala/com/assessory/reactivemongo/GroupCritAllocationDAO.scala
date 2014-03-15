@@ -3,7 +3,7 @@ package com.assessory.reactivemongo
 import com.wbillingsley.handy.reactivemongo._
 import reactivemongo.api._
 import reactivemongo.bson._
-import com.wbillingsley.handy.{Ref, RefNone, RefManyById}
+import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.appbase.UserProvider
 
@@ -19,14 +19,16 @@ object GroupCritAllocationDAO extends DAO {
   val clazz = classOf[GroupCritAllocation]
   
   val collName = "groupCritAllocation"
-    
+
+  val executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
+
   val db = DBConnector
   
   implicit object GCAllocatedCritHandler extends BSONHandler[BSONDocument, GCAllocatedCrit] {
     def read(doc:BSONDocument) = {
       GCAllocatedCrit(
-        group = doc.getAs[Ref[Group]]("group").getOrElse(RefNone),
-        critique = doc.getAs[Ref[TaskOutput]]("critique").getOrElse(RefNone)
+        group = doc.getAs[RefWithId[Group]]("group").getOrElse(RefNone),
+        critique = doc.getAs[RefWithId[TaskOutput]]("critique").getOrElse(RefNone)
       )
     }
     
@@ -42,18 +44,29 @@ object GroupCritAllocationDAO extends DAO {
     def read(doc:BSONDocument):GroupCritAllocation = {
       new GroupCritAllocation(
         id = doc.getAs[BSONObjectID]("_id").get.stringify,
-        task = doc.getAs[Ref[Task]]("task").getOrElse(RefNone),
-        user = doc.getAs[Ref[User]]("user").getOrElse(RefNone),
+        task = doc.getAs[RefWithId[Task]]("task").getOrElse(RefNone),
+        user = doc.getAs[RefWithId[User]]("user").getOrElse(RefNone),
         preallocate = doc.getAs[IdentityLookup]("preallocate"),
         allocation = doc.getAs[Seq[GCAllocatedCrit]]("allocation").getOrElse(Seq.empty)
       )
     }
   }  
   
-  def byTask(t:Ref[Task]) = findMany(BSONDocument("task" -> t))
+  def byTask(t:Ref[Task]) = {
+    for {
+      tId <- id(t)
+      d <- findMany(BSONDocument("task" -> tId))
+    } yield d
+  }
   
-  def byUserAndTask(u:Ref[User], t:Ref[Task]) = findMany(BSONDocument("task" -> t, "user" -> u))
-  
+  def byUserAndTask(u:Ref[User], t:Ref[Task]) = {
+    for {
+      uId <- id(u)
+      tId <- id(t)
+      d <- findMany(BSONDocument("task" -> tId, "user" -> uId))
+    } yield d
+  }
+
   def saveNew(gca:GroupCritAllocation) = {
     saveSafe(
       BSONDocument(
@@ -67,11 +80,11 @@ object GroupCritAllocationDAO extends DAO {
     )
   }
   
-  def markTaskAllocated(t:Ref[Task]) = {
+  def markTaskAllocated(t:RefWithId[Task]) = {
     TaskDAO.updateAndFetch(BSONDocument("_id" -> t), BSONDocument("$set" -> BSONDocument("body.allocated" -> true)))
   }
   
-  def byIdentity(task:Ref[Task], service:String, value:Option[String], username:Option[String]) = {
+  def byIdentity(task:RefWithId[Task], service:String, value:Option[String], username:Option[String]) = {
     val s = Seq(
       for (v <- value) yield BSONDocument("preallocate.service" -> service, "preallocate.value" -> value, "preallocate.used" -> false),
       for (u <- username) yield BSONDocument("preallocate.service" -> service, "preallocate.username" -> username, "preallocate.used" -> false)
@@ -82,17 +95,18 @@ object GroupCritAllocationDAO extends DAO {
     )
   }
   
-  def useRow(task:Ref[Task], user:Ref[User], service:String, value:Option[String], username:Option[String]) = {
-    for (
+  def useRow(task:RefWithId[Task], user:Ref[User], service:String, value:Option[String], username:Option[String]) = {
+    for {
       p <- byIdentity(task, service, value, username);
+      uId <- id(user)
       u <- updateAndFetch(
         query=BSONDocument(idIs(p.id)),
-        update=BSONDocument("$set" -> BSONDocument("user" -> user, "preallocate.used" -> true))
+        update=BSONDocument("$set" -> BSONDocument("user" -> uId, "preallocate.used" -> true))
       ) 
-    ) yield u
+    } yield u
   }
   
-  def setOutput(alloc:Ref[GroupCritAllocation], group:Ref[Group], output:Ref[TaskOutput]) = updateAndFetch(
+  def setOutput(alloc:RefWithId[GroupCritAllocation], group:RefWithId[Group], output:RefWithId[TaskOutput]) = updateAndFetch(
     query=BSONDocument("_id" -> alloc, "allocation.group" -> group),
     update=BSONDocument("$set" -> BSONDocument("allocation.$.critique" -> output))
   )

@@ -6,18 +6,18 @@ import group._
 
 case class GCAllocatedCrit(
 
-  group: Ref[Group] = RefNone,
+  group: RefWithId[Group] = RefNone,
   
-  critique: Ref[TaskOutput] = RefNone
+  critique: RefWithId[TaskOutput] = RefNone
 )
 
 case class GroupCritAllocation(
     
   id: String,
   
-  task: Ref[Task] = RefNone,
+  task: RefWithId[Task] = RefNone,
     
-  user: Ref[User] = RefNone,
+  user: RefWithId[User] = RefNone,
   
   preallocate: Option[IdentityLookup] = None, 
   

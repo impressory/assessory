@@ -18,11 +18,11 @@ object GroupController extends Controller {
   implicit val gpToJson = GPreenrolToJson
   implicit val groupToJson = GroupToJson
   
-  def refCourse(id:String) = new LazyId(classOf[Course], id)
+  def refCourse(id:String) = LazyId(id).of[Course]
   
-  def refGroupSet(id:String) = new LazyId(classOf[GroupSet], id)
+  def refGroupSet(id:String) =  LazyId(id).of[GroupSet]
   
-  def refGroup(id:String) = new LazyId(classOf[Group], id)
+  def refGroup(id:String) = LazyId(id).of[Group]
 
   def groupSet(id:String) = DataAction.returning.one { implicit request =>     
     val cache = request.approval.cache
@@ -109,14 +109,14 @@ object GroupController extends Controller {
   def findMany = DataAction.returning.many(parse.json) { implicit request => 
     for (
       ids <- Ref((request.body \ "ids").asOpt[Seq[String]]) orIfNone UserError("No ids requested");
-      g <- new RefManyById(classOf[Group], ids)
+      g <- RefManyById(ids).of[Group]
     ) yield g  
   }
   
   /**
    * Searches for course pre-enrolments, and performs them
    */
-  def doPreenrolments(course:Ref[Course], user:Ref[User]):RefMany[Group]= {
+  def doPreenrolments(course:RefWithId[Course], user:Ref[User]):RefMany[Group]= {
     for (
       u <- user;
       i <- u.identities.toRefMany;
@@ -129,7 +129,7 @@ object GroupController extends Controller {
    * Creates a group pre-enrolment from submitted CSV data
    * groupName,service,id,username
    */
-  def gpreenrolFromCsv(course: Ref[Course], set:Ref[GroupSet], csv:String):Ref[GPreenrol] = {
+  def gpreenrolFromCsv(course: RefWithId[Course], set:RefWithId[GroupSet], csv:String):Ref[GPreenrol] = {
     import au.com.bytecode.opencsv.CSVReader
     import java.io.StringReader
     

@@ -16,8 +16,8 @@ object CourseController extends Controller {
   implicit val courseToJson = CourseToJson
   implicit val preenrolToJson = PreenrolToJson
   
-  def refCourse(id:String) = new LazyId(classOf[Course], id)
-  def refPreenrol(id:String) = new LazyId(classOf[Preenrol], id)
+  def refCourse(id:String) = LazyId(id).of[Course]
+  def refPreenrol(id:String) = LazyId(id).of[Preenrol]
   
   /**
    * Retrieves a course
@@ -34,15 +34,16 @@ object CourseController extends Controller {
    */  
   def create = DataAction.returning.result(parse.json) { implicit request =>
     val cache = request.approval.cache
-    for (
+    for {
+      u <- request.user
       approved <- request.approval ask Permissions.CreateCourse;
-      unsaved = CourseToJson.update(CourseDAO.unsaved.copy(addedBy=request.user), request.body);
+      unsaved = CourseToJson.update(CourseDAO.unsaved.copy(addedBy=u.itself), request.body);
       saved <- CourseDAO.saveNew(unsaved);
       regPushed <- UserDAO.pushRegistration(request.user, Registration(course=saved.itself, roles=Seq(CourseRole.student, CourseRole.staff)));
       
       // When the request began, the user was not registered with this course. We need to produce json for the updated version that is
       j <- CourseToJson.toJsonFor(saved, Approval(regPushed.itself))
-    ) yield Ok(j)
+    } yield Ok(j)
   }
   
   /**
@@ -54,7 +55,7 @@ object CourseController extends Controller {
     val cache = request.approval.cache
     
     for (
-      course <- new RefManyById(classOf[Course], ids.toSeq);
+      course <- RefManyById(ids.toSeq).of[Course];
       approved <- request.approval ask Permissions.ViewCourse(course.itself)
     ) yield course
   }
@@ -117,7 +118,7 @@ object CourseController extends Controller {
     
     for (
       ids <- rIds.toRefOne;
-      c <- new RefManyById(classOf[Course], ids.toSeq);
+      c <- RefManyById(ids.toSeq).of[Course];
       approved <- approval ask Permissions.ViewCourse(c.itself);
       j <- CourseToJson.toJsonFor(c, approval)
     ) yield j

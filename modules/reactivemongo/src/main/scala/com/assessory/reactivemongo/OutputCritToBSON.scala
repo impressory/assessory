@@ -11,17 +11,10 @@ object OutputCritToBSON extends BSONDocumentReader[OutputCritTask] {
   
   implicit val qhandler = QuestionHandler
   implicit val qqhandler = QuestionnaireHandler
-  
-  implicit def refWriter[T <: HasStringId] = new BSONWriter[Ref[T], BSONValue] {
-    // TODO: this may fail if id is None (which it shouldn't be)
-    def write(r:Ref[T]) = {
-      r.getId.map(new BSONObjectID(_)).getOrElse(BSONNull)
-    }
-  }
-  
+
   def read(doc:BSONDocument) = {
     OutputCritTask(
-      taskToCrit=doc.getAs[Ref[Task]]("taskToCrit").getOrElse(RefNone),
+      taskToCrit=doc.getAs[RefWithId[Task]]("taskToCrit").getOrElse(RefNone),
       questionnaire=doc.getAs[Questionnaire]("questionnaire").getOrElse(new Questionnaire)
     )
   }  
@@ -53,7 +46,7 @@ object OCritiqueToBSON {
   implicit object gcReader extends BSONDocumentReader[OCritique] {
     def read(doc:BSONDocument) = {
       OCritique(
-        forOutput = doc.getAs[Ref[TaskOutput]]("forOutput").getOrElse(RefNone),
+        forOutput = doc.getAs[RefWithId[TaskOutput]]("forOutput").getOrElse(RefNone),
         answers = doc.getAs[Seq[Answer]]("answers").getOrElse(Seq.empty)
       )
     }

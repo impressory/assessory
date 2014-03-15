@@ -12,15 +12,15 @@ case class TaskOutput (
   
   val id:String,
 
-  val task:Ref[Task] = RefNone,
+  val task:RefWithId[Task] = RefNone,
   
-  val byUser:Ref[User] = RefNone,
+  val byUser:RefWithId[User] = RefNone,
   
-  val byGroup:Ref[Group] = RefNone,
+  val byGroup:RefWithId[Group] = RefNone,
   
-  val attnUsers: RefManyById[User, String] = RefManyById.empty(classOf[User]),
+  val attnUsers: RefManyById[User, String] = RefManyById.empty,
 
-  val attnGroups: RefManyById[Group, String] = RefManyById.empty(classOf[Group]),
+  val attnGroups: RefManyById[Group, String] = RefManyById.empty,
   
   val body: Option[TaskOutputBody] = None,
   

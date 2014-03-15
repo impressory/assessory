@@ -1,6 +1,6 @@
 package com.assessory.api
 
-import com.wbillingsley.handy.appbase.PasswordLogin._
+import com.wbillingsley.handy.user.PasswordLogin._
 
 case class PasswordLogin (
     
@@ -12,4 +12,4 @@ case class PasswordLogin (
     
     email:Option[String] = None
     
-) extends com.wbillingsley.handy.appbase.PasswordLogin
+) extends com.wbillingsley.handy.user.PasswordLogin

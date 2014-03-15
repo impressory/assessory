@@ -14,17 +14,14 @@ object UserController extends Controller {
   
   implicit val userToJson = UserToJson
   
-  // TODO: Fix this. It's an ugly hack around making the implicits work
-  val dataAction = new DataAction
-  
-  def self = dataAction.one { implicit request =>
+  def self = DataAction.returning.one { implicit request =>
     request.approval.who 
   }
   
   /**
    * Creates a user and logs them in
    */  
-  def signUp = dataAction.one(parse.json) { implicit request =>     
+  def signUp = DataAction.returning.one(parse.json) { implicit request =>
     for (
       email <- Ref((request.body \ "email").asOpt[String]) orIfNone UserError("Email must not be blank");
       password <- Ref((request.body \ "password").asOpt[String]) orIfNone UserError("Password must not be blank");
@@ -43,7 +40,7 @@ object UserController extends Controller {
    * Logging a user in involves finding the user (if the password hash matches), and pushing the
    * current session key as an active session
    */
-  def logIn = dataAction.one(parse.json) { implicit request =>     
+  def logIn = DataAction.returning.one(parse.json) { implicit request =>
     for (
       email <- Ref((request.body \ "email").asOpt[String]) orIfNone UserError("Email must not be blank");
       password <- Ref((request.body \ "password").asOpt[String]) orIfNone UserError("Password must not be blank");
@@ -55,7 +52,7 @@ object UserController extends Controller {
   /**
    * To log a user out, we just have to remove the current session from their active sessions
    */
-  def logOut = dataAction.one { implicit request =>     
+  def logOut = DataAction.returning.one { implicit request =>
     for (      
       u <- request.user;  
       user <- UserDAO.deleteSession(u.itself, ActiveSession(request.sessionKey, ip=request.remoteAddress))
@@ -67,7 +64,7 @@ object UserController extends Controller {
   def findMany = DataAction.returning.many(parse.json) { implicit request => 
     for (
       ids <- Ref((request.body \ "ids").asOpt[Seq[String]]) orIfNone UserError("No ids requested");
-      u <- new RefManyById(classOf[User], ids)
+      u <- RefManyById(ids).of[User]
     ) yield u
   }
 

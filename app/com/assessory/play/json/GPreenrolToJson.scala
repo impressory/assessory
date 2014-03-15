@@ -2,6 +2,7 @@ package com.assessory.play.json
 
 import com.wbillingsley.handy.appbase.JsonConverter
 import com.assessory.api._
+import com.assessory.reactivemongo._
 import course._
 import group._
 import com.wbillingsley.handy._
@@ -20,7 +21,7 @@ object GPreenrolToJson extends JsonConverter[GPreenrol, User] {
   def toJsonFor(gp:GPreenrol, a:Approval[User]) = {
     
     val permissions = for (
-      course <- a.cache(gp.course, classOf[Course]);
+      course <- a.cache(gp.course);
       view <- optionally(a ask Permissions.ViewCourse(course.itself));
       edit <- optionally(a ask Permissions.EditCourse(course.itself))
     ) yield Json.obj(

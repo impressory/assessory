@@ -3,7 +3,7 @@ package com.assessory.reactivemongo
 import com.wbillingsley.handy.reactivemongo._
 import reactivemongo.api._
 import reactivemongo.bson._
-import com.wbillingsley.handy.{Ref, RefNone}
+import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.appbase.UserProvider
 
@@ -19,14 +19,16 @@ object PreenrolDAO extends DAO {
   val collName = "preenrol"
     
   val db = DBConnector
-  
+
+  val executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
+
   def unsaved = Preenrol(id = allocateId)
   
   implicit object bsonReader extends BSONDocumentReader[Preenrol] {
     def read(doc:BSONDocument):Preenrol = {
       new Preenrol(
         id = doc.getAs[BSONObjectID]("_id").get.stringify,
-        course = doc.getAs[Ref[Course]]("course").getOrElse(RefNone),
+        course = doc.getAs[RefWithId[Course]]("course").getOrElse(RefNone),
         roles = doc.getAs[Set[CourseRole.T]]("roles").getOrElse(Set.empty),
         name = doc.getAs[String]("name"),
         identities = doc.getAs[Seq[IdentityLookup]]("identities").getOrElse(Seq.empty),
@@ -51,7 +53,12 @@ object PreenrolDAO extends DAO {
     p
   )
   
-  def byCourse(c:Ref[Course]) = findMany(BSONDocument("course" -> c))
+  def byCourse(c:Ref[Course]) = {
+    for {
+      cid <- id(c)
+      p <- findMany(BSONDocument("course" -> cid))
+    } yield p
+  }
   
   def byIdentity(service:String, value:Option[String], username:Option[String]) =  {
     val s = Seq(

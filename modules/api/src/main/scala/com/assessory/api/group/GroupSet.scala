@@ -1,6 +1,6 @@
 package com.assessory.api.group
 
-import com.wbillingsley.handy.{Ref, RefNone, HasStringId}
+import com.wbillingsley.handy._
 import com.assessory.api.course.Course
 
 case class GroupSet (
@@ -11,9 +11,9 @@ case class GroupSet (
     
     description:Option[String] = None,
     
-    course: Ref[Course] = RefNone,
+    course: RefWithId[Course] = RefNone,
     
-    preenrol: Ref[GPreenrol] = RefNone,
+    preenrol: RefWithId[GPreenrol] = RefNone,
     
     created: Long = System.currentTimeMillis
     

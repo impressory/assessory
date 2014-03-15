@@ -4,7 +4,7 @@ package com.assessory.reactivemongo
 import com.wbillingsley.handy.reactivemongo._
 import reactivemongo.api._
 import reactivemongo.bson._
-import com.wbillingsley.handy.{Ref, RefNone}
+import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.appbase.UserProvider
 
@@ -21,7 +21,9 @@ object GroupSetDAO extends DAO {
   val collName = "groupSet"
     
   val db = DBConnector
-  
+
+  val executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
+
   def unsaved = GroupSet(id = allocateId)
   
   implicit object bsonReader extends BSONDocumentReader[GroupSet] {
@@ -30,8 +32,8 @@ object GroupSetDAO extends DAO {
         id = doc.getAs[BSONObjectID]("_id").get.stringify,
         name = doc.getAs[String]("name"),
         description = doc.getAs[String]("description"),
-        course = doc.getAs[Ref[Course]]("course").getOrElse(RefNone),
-        preenrol = doc.getAs[Ref[GPreenrol]]("preenrol").getOrElse(RefNone),
+        course = doc.getAs[RefWithId[Course]]("course").getOrElse(RefNone),
+        preenrol = doc.getAs[RefWithId[GPreenrol]]("preenrol").getOrElse(RefNone),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis())
       )
     }
@@ -63,12 +65,21 @@ object GroupSetDAO extends DAO {
     g
   )
   
-  def setPreenrol(gs:Ref[GroupSet], gp:Ref[GPreenrol]) = updateAndFetch(
-    query=BSONDocument("_id" -> gs),
-    update=BSONDocument("$set" -> BSONDocument("preenrol" -> gp))
-  )
+  def setPreenrol(gs:Ref[GroupSet], gp:Ref[GPreenrol]) = {
+    for {
+      gsid <- id(gs)
+      gpid <- id(gp)
+      gs <- updateAndFetch(
+        query=BSONDocument("_id" -> gsid),
+        update=BSONDocument("$set" -> BSONDocument("preenrol" -> gpid))
+      )
+    } yield gs
+  }
   
-  def byCourse(c:Ref[Course]) = findMany(BSONDocument("course" -> c))
+  def byCourse(c:Ref[Course]) = for {
+    cid <- id(c)
+    gs <- findMany(BSONDocument("course" -> cid))
+  } yield gs
   
   
 }

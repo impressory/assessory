@@ -1,13 +1,13 @@
 package com.assessory.api
 
-import com.wbillingsley.handy.{Ref, RefNone, HasStringId}
+import com.wbillingsley.handy._
 import com.assessory.api.course.Course
 
 case class Task(
     
    id: String,
    
-   course: Ref[Course] = RefNone,
+   course: RefWithId[Course] = RefNone,
     
    details: TaskDetails = new TaskDetails,
 

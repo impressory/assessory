@@ -3,7 +3,7 @@ package com.assessory.reactivemongo
 import com.wbillingsley.handy.reactivemongo._
 import reactivemongo.api._
 import reactivemongo.bson._
-import com.wbillingsley.handy.{Ref, RefNone, RefManyById}
+import com.wbillingsley.handy.{RefWithId, Ref, RefNone, RefManyById}
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.appbase.UserProvider
 
@@ -22,7 +22,9 @@ object TaskDAO extends DAO {
   val collName = "task"
     
   val db = DBConnector
-  
+
+  val executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
+
   implicit val tdHandler = Macros.handler[TaskDetails]
   implicit val tbHandler = TaskBodyHandler
   
@@ -32,7 +34,7 @@ object TaskDAO extends DAO {
     def read(doc:BSONDocument):Task = {
       new Task(
         id = doc.getAs[BSONObjectID]("_id").get.stringify,
-        course = doc.getAs[Ref[Course]]("course").getOrElse(RefNone),
+        course = doc.getAs[RefWithId[Course]]("course").getOrElse(RefNone),
         details = doc.getAs[TaskDetails]("details").getOrElse(new TaskDetails),
         body = doc.getAs[TaskBody]("body")
       )
@@ -63,7 +65,12 @@ object TaskDAO extends DAO {
     ) yield updated
   }  
   
-  def byCourse(c:Ref[Course]) = findMany(BSONDocument("course" -> c))
+  def byCourse(c:Ref[Course]) = {
+    for {
+      cid <- id(c)
+      t <- findMany(BSONDocument("course" -> cid))
+    } yield t
+  }
   
 
 }

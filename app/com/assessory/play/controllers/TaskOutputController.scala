@@ -18,9 +18,9 @@ import com.assessory.api.outputcrit._
 
 object TaskOutputController extends Controller {
 
-  def refOutput(id:String) = new LazyId(classOf[TaskOutput], id)
-  def refCourse(id:String) = new LazyId(classOf[Course], id)
-  def refTask(id:String) = new LazyId(classOf[Task], id)
+  def refOutput(id:String) = LazyId(id).of[TaskOutput]
+  def refCourse(id:String) = LazyId(id).of[Course]
+  def refTask(id:String) = LazyId(id).of[Task]
   
   implicit val toToJSON = TaskOutputToJson
   
@@ -46,8 +46,9 @@ object TaskOutputController extends Controller {
   
   def create(taskId:String) = DataAction.returning.one(parse.json) { implicit request =>
     val rTask = refTask(taskId)
-    val to = TaskOutputDAO.unsaved.copy(byUser=request.user, task=rTask);
     for (
+      u <- request.user;
+      to = TaskOutputDAO.unsaved.copy(byUser=u.itself, task=rTask);
       task <- rTask;
       approved <- request.approval ask Permissions.ViewCourse(task.course);
       saved <- { 
@@ -105,9 +106,9 @@ object TaskOutputController extends Controller {
       line <- output.body match {
         case Some(gc:GCritique) => {
           for (
-            user <- request.approval.cache(output.byUser, classOf[User]);
+            user <- request.approval.cache(output.byUser);
             userName = user.nickname.getOrElse("Anonymous");
-            group <- request.approval.cache(gc.forGroup, classOf[Group]);
+            group <- request.approval.cache(gc.forGroup);
             groupName = group.name.getOrElse("Unnamed group")
           ) yield {
             val as = gc.answers.map { a => "\"" + a.answerAsString.replace("\"", "\"\"") + "\"," }
@@ -118,16 +119,16 @@ object TaskOutputController extends Controller {
         }
         case Some(oct:OCritique) => {
           for (
-            user <- request.approval.cache(output.byUser, classOf[User]);
+            user <- request.approval.cache(output.byUser);
             userName = user.nickname.getOrElse("Anonymous");
-            output <- request.approval.cache(oct.forOutput, classOf[TaskOutput]);
-            otherUser <- request.approval.cache(output.byUser, classOf[User]);
+            output <- request.approval.cache(oct.forOutput);
+            otherUser <- request.approval.cache(output.byUser);
             otherUserName = otherUser.nickname.getOrElse("Anonymous");
             gc <- output.body match {
               case Some(gc:GCritique) => gc.itself
               case _ => RefFailed(new IllegalStateException("Wasn't critiquing a group crit"))
             };
-            group <- request.approval.cache(gc.forGroup, classOf[Group]);
+            group <- request.approval.cache(gc.forGroup);
             groupName = group.name.getOrElse("Unnamed group")
           ) yield {
             val as = oct.answers.map { a => "\"" + a.answerAsString.replace("\"", "\"\"") + "\"," }
@@ -143,6 +144,7 @@ object TaskOutputController extends Controller {
       
     val enum = for (h <- header) yield {
       import com.wbillingsley.handyplay.RefConversions._
+      import play.api.libs.concurrent.Execution.Implicits.defaultContext
       val en = Enumerator(h) andThen body.enumerate
       Ok.chunked(en)
     }

@@ -2,6 +2,7 @@ package com.assessory.play.json
 
 import com.wbillingsley.handy.appbase.JsonConverter
 import com.assessory.api._
+import com.assessory.reactivemongo._
 import course._
 import group._
 import com.wbillingsley.handy._
@@ -21,7 +22,7 @@ object TaskToJson extends JsonConverter[Task, User] {
   
   def toJsonFor(t:Task, a:Approval[User]) = {    
     val permissions = for (
-      course <- a.cache(t.course, classOf[Course]);
+      course <- a.cache(t.course);
       view <- optionally(a ask Permissions.ViewCourse(course.itself));
       edit <- optionally(a ask Permissions.EditCourse(course.itself))
     ) yield Json.obj(
@@ -74,14 +75,14 @@ object TaskBodyFormat extends Format[TaskBody] {
       case GroupCritTask.kind => {
         new GroupCritTask(
           number = (j \ "number").asOpt[Int].getOrElse(1),
-          groupToCrit = (j \ "groupToCrit").asOpt[Ref[GroupSet]].getOrElse(RefNone),
-          withinSet = (j \ "withinSet").asOpt[Ref[GroupSet]].getOrElse(RefNone),
+          groupToCrit = (j \ "groupToCrit").asOpt[RefWithId[GroupSet]].getOrElse(RefNone),
+          withinSet = (j \ "withinSet").asOpt[RefWithId[GroupSet]].getOrElse(RefNone),
           questionnaire = (j \ "questionnaire").asOpt[Questionnaire].getOrElse(new Questionnaire)
         )
       }
       case OutputCritTask.kind => {
         new OutputCritTask(
-          taskToCrit = (j \ "taskToCrit").asOpt[Ref[Task]].getOrElse(RefNone),
+          taskToCrit = (j \ "taskToCrit").asOpt[RefWithId[Task]].getOrElse(RefNone),
           questionnaire = (j \ "questionnaire").asOpt[Questionnaire].getOrElse(new Questionnaire)
         )
       }

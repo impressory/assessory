@@ -18,7 +18,9 @@ object UserDAO extends DAO with UserProvider[User] {
   val collName = "assessoryUser"
     
   val db = DBConnector
-  
+
+  val executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
+
   def unsaved = User(id = allocateId)
 
   /** Converts PasswordLogin to and from BSON */
@@ -93,22 +95,35 @@ object UserDAO extends DAO with UserProvider[User] {
    * Adds an identity to this user
    */
   def pushIdentity(ru:Ref[User], i:Identity) = {
-    updateAndFetch(
-        query = BSONDocument("_id" -> ru), 
-        update = BSONDocument("$push" -> BSONDocument("identities" -> i)) 
-    )
+    for {
+      uid <- id(ru)
+      u <- updateAndFetch(
+        query = BSONDocument("_id" -> uid),
+        update = BSONDocument("$push" -> BSONDocument("identities" -> i))
+      )
+    } yield u
   }  
   
   /** Adds a session to this user. Typically this happens at login. */
-  def pushSession(ru:Ref[User], as:ActiveSession) = updateAndFetch(
-    query = BSONDocument("_id" -> ru), 
-    update = BSONDocument("$push" -> BSONDocument("activeSessions" -> as))
-  )
+  def pushSession(ru:Ref[User], as:ActiveSession) = {
+    for {
+      uid <- id(ru)
+      u <- updateAndFetch(
+        query = BSONDocument("_id" -> uid),
+        update = BSONDocument("$push" -> BSONDocument("activeSessions" -> as))
+      )
+    } yield u
+  }
   
-  def deleteSession(ru:Ref[User], as:ActiveSession) = updateAndFetch(
-    query = BSONDocument("_id" -> ru), 
-    update = BSONDocument("$pull" -> BSONDocument("activeSessions" -> BSONDocument("key" -> as.key))) 
-  )
+  def deleteSession(ru:Ref[User], as:ActiveSession) = {
+    for {
+      uid <- id(ru)
+      u <- updateAndFetch(
+        query = BSONDocument("_id" -> uid),
+        update = BSONDocument("$pull" -> BSONDocument("activeSessions" -> BSONDocument("key" -> as.key)))
+      )
+    } yield u
+  }
   
   def bySessionKey(sessionKey:String):Ref[User] = {
     findOne(query=BSONDocument("activeSessions.key" -> sessionKey))
@@ -141,15 +156,16 @@ object UserDAO extends DAO with UserProvider[User] {
   }
   
   def pushRegistration(ru:Ref[User], r:Registration) = {
-    for (
+    for {
+      uid <- id(ru)
       updated <- updateAndFetch(
-        query=BSONDocument("_id" -> ru, "registrations.course" -> r.course),
+        query=BSONDocument("_id" -> uid, "registrations.course" -> r.course),
         update=BSONDocument("$addToSet" -> BSONDocument("registrations.$.roles" -> BSONDocument("$each" -> r.roles)))
       ) orIfNone updateAndFetch(
-        query=BSONDocument("_id" -> ru),
+        query=BSONDocument("_id" -> uid),
         update=BSONDocument("$addToSet" -> BSONDocument("registrations" -> r))
       )
-    ) yield updated
+    } yield updated
   }
   
 }

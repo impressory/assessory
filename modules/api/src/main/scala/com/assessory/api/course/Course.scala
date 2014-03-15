@@ -1,6 +1,6 @@
 package com.assessory.api.course
 
-import com.wbillingsley.handy.{Ref, RefNone, HasStringId}
+import com.wbillingsley.handy._
 import com.assessory.api._
 
 case class Course (
@@ -17,7 +17,7 @@ case class Course (
     
     coverImage:Option[String] = None,
 
-    addedBy:Ref[User] = RefNone,
+    addedBy:RefWithId[User] = RefNone,
     
     created:Long = System.currentTimeMillis
     

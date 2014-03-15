@@ -2,7 +2,7 @@ package com.assessory.api
 
 import com.wbillingsley.handy.HasStringId
 
-import com.wbillingsley.handy.appbase.User._
+import com.wbillingsley.handy.user.User._
 import com.assessory.api.course._
 
 case class User(
@@ -25,6 +25,6 @@ case class User(
     
     created: Long = defaultCreated
     
-) extends com.wbillingsley.handy.appbase.User[Identity, PasswordLogin] with HasStringId {
+) extends com.wbillingsley.handy.user.User[Identity, PasswordLogin] with HasStringId {
 
 }

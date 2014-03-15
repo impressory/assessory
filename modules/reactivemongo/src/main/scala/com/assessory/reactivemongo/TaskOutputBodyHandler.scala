@@ -17,8 +17,8 @@ object TaskOutputBodyHandler extends BSONHandler[BSONDocument, TaskOutputBody]{
     def read(doc:BSONDocument) = {
       GroupCritTask(
         number=doc.getAs[Int]("number").getOrElse(1),
-        groupToCrit=doc.getAs[Ref[GroupSet]]("groupToCrit").getOrElse(RefNone),
-        withinSet=doc.getAs[Ref[GroupSet]]("withinSet").getOrElse(RefNone),
+        groupToCrit=doc.getAs[RefWithId[GroupSet]]("groupToCrit").getOrElse(RefNone),
+        withinSet=doc.getAs[RefWithId[GroupSet]]("withinSet").getOrElse(RefNone),
         preallocate=doc.getAs[Boolean]("preallocate").getOrElse(true),
         questionnaire=doc.getAs[Questionnaire]("questionnaire").getOrElse(new Questionnaire),
         allocated=doc.getAs[Boolean]("allocated").getOrElse(false)

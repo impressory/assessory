@@ -29,25 +29,29 @@ object UserToJson extends JsonConverter[User, User] {
     
   }
   
-  def toJsonFor(u:User, a:Approval[User]) = {    
-    if (u.itself.getId == a.who.getId) {      
-      Json.obj(
-        "id" -> u.id,
-        "nickname" -> u.nickname,
-        "avatar" -> u.avatar,
-        "identities" -> u.identities,
-        "activeSessions" -> u.activeSessions,
-        "registrations" -> u.registrations,
-        "pwlogin" -> u.pwlogin
-      ).itself      
-    } else {
-      // We don't hand out user details to other users at the moment
-      Json.obj(
-        "id" -> u.id,
-        "nickname" -> u.nickname,
-        "avatar" -> u.avatar
-      ).itself
-    }    
+  def toJsonFor(u:User, a:Approval[User]) = {
+    for {
+      whoId <- a.who.refId
+    } yield {
+      if (u.itself.getId == whoId) {
+        Json.obj(
+          "id" -> u.id,
+          "nickname" -> u.nickname,
+          "avatar" -> u.avatar,
+          "identities" -> u.identities,
+          "activeSessions" -> u.activeSessions,
+          "registrations" -> u.registrations,
+          "pwlogin" -> u.pwlogin
+        )
+      } else {
+        // We don't hand out user details to other users at the moment
+        Json.obj(
+          "id" -> u.id,
+          "nickname" -> u.nickname,
+          "avatar" -> u.avatar
+        )
+      }
+    }
   }
   
   def toJson(u:User) = toJsonFor(u, Approval(RefNone))

@@ -12,7 +12,7 @@ case class Preenrol (
     
     roles: Set[CourseRole.T] = Set(CourseRole.student),
     
-    course: Ref[Course] = RefNone,
+    course: RefWithId[Course] = RefNone,
     
     identities: Seq[IdentityLookup] = Seq.empty,
     
@@ -23,7 +23,7 @@ case class Preenrol (
 
 object Preenrol {
   
-  def fromCsv(id:String, name:Option[String], roles:Set[CourseRole.T], course: Ref[Course], csv:String):Ref[Preenrol] = {
+  def fromCsv(id:String, name:Option[String], roles:Set[CourseRole.T], course: RefWithId[Course], csv:String):Ref[Preenrol] = {
     import au.com.bytecode.opencsv.CSVReader
     import java.io.StringReader
     

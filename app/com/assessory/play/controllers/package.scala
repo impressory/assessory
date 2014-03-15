@@ -1,6 +1,6 @@
 package com.assessory.play
 
-import com.assessory.reactivemongo.UserDAO
+import com.assessory.reactivemongo._
 
 package object controllers {
 
@@ -9,7 +9,8 @@ package object controllers {
    * from our database classes. (It includes methods for bySessionKey, etc) 
    */
   implicit val userProvider = UserDAO
-  
+
+
   implicit val dataActionConfig = com.assessory.config.AssessoryDataActionConfig 
   
 }

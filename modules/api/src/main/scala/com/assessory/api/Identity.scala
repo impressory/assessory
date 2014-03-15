@@ -1,6 +1,6 @@
 package com.assessory.api
 
-import com.wbillingsley.handy.appbase.Identity._
+import com.wbillingsley.handy.user.Identity._
 
 /**
  * A representation of a social login, such as a GitHub account.
@@ -19,4 +19,4 @@ case class Identity (
     
     since: Long = defaultSince
     
-) extends com.wbillingsley.handy.appbase.Identity
+) extends com.wbillingsley.handy.user.Identity

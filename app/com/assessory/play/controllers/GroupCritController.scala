@@ -16,9 +16,9 @@ import com.assessory.reactivemongo.GroupCritAllocationDAO
 
 object GroupCritController extends Controller {
 
-  def refTask(id:String) = new LazyId(classOf[Task], id)
-  def refAlloc(id:String) = new LazyId(classOf[GroupCritAllocation], id)
-  def refGroup(id:String) = new LazyId(classOf[Group], id)
+  def refTask(id:String) = LazyId(id).of[Task]
+  def refAlloc(id:String) = LazyId(id).of[GroupCritAllocation]
+  def refGroup(id:String) = LazyId(id).of[Group]
   
   implicit val gcaToJson = GroupCritAllocationToJson
   implicit val toToJSON = TaskOutputToJson
@@ -26,7 +26,7 @@ object GroupCritController extends Controller {
   /**
    * Searches for course pre-enrolments, and performs them
    */
-  def doPreallocation(rTask:Ref[Task]):RefMany[GroupCritAllocation]= {
+  def doPreallocation(rTask:RefWithId[Task]):RefMany[GroupCritAllocation]= {
     
     val rr = for (
       task <- rTask;
@@ -98,7 +98,7 @@ object GroupCritController extends Controller {
     allocations
   }
   
-  def doPreallocation(t:Ref[Task], user:Ref[User]) = {
+  def doPreallocation(t:RefWithId[Task], user:Ref[User]) = {
     for (
       u <- user;
       i <- u.identities.toRefMany;
@@ -124,6 +124,7 @@ object GroupCritController extends Controller {
     val group = refGroup(groupId)
     
     for (
+      u <- request.user;
       allocation <- alloc;
       approved <- request.approval ask Permissions.WriteCritique(allocation.itself);
       g <- group;
@@ -134,8 +135,8 @@ object GroupCritController extends Controller {
       };
       unsaved = TaskOutputDAO.unsaved.copy(
         task = task.itself,
-        byUser = request.user,
-        attnGroups = new RefManyById(classOf[Group], Seq(g.id)),
+        byUser = u.itself,
+        attnGroups = RefManyById(Seq(g.id)).of[Group],
         attnUsers = g.members,
         body = Some(GCritique(forGroup = g.itself, answers={
           for (q <- taskBody.questionnaire.questions) yield {
@@ -164,7 +165,7 @@ object GroupCritController extends Controller {
       
         val groups = for (
                        allocation <- alloc.allocation.toRefMany;
-                       g <- request.approval.cache(allocation.group, classOf[Group]);
+                       g <- request.approval.cache(allocation.group);
                        name <- Ref(g.name)
                      ) yield name
       
@@ -173,6 +174,7 @@ object GroupCritController extends Controller {
       }
     
       import com.wbillingsley.handyplay.RefConversions._
+      import play.api.libs.concurrent.Execution.Implicits.defaultContext
       val en = line.flatten.enumerate
         
       Ok.chunked(en)

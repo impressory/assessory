@@ -22,7 +22,9 @@ object GPreenrolDAO extends DAO {
   val db = DBConnector
   
   def unsaved = GPreenrol(id = allocateId)
-  
+
+  val executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
+
   import GPreenrol._
   
   implicit val groupDataReader = Macros.reader[GroupData]
@@ -37,8 +39,8 @@ object GPreenrolDAO extends DAO {
     def read(doc:BSONDocument):GPreenrol = {
       new GPreenrol(
         id = doc.getAs[BSONObjectID]("_id").get.stringify,
-        course = doc.getAs[Ref[Course]]("course").getOrElse(RefNone),
-        set = doc.getAs[Ref[GroupSet]]("set").getOrElse(RefNone),
+        course = doc.getAs[RefWithId[Course]]("course").getOrElse(RefNone),
+        set = doc.getAs[RefWithId[GroupSet]]("set").getOrElse(RefNone),
         groupData = doc.getAs[Seq[GroupData]]("groupData").getOrElse(Seq.empty),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis())
       )
@@ -60,9 +62,9 @@ object GPreenrolDAO extends DAO {
     p
   )
   
-  def byCourse(c:Ref[Course]) = findMany(BSONDocument("course" -> c))
+  def byCourse(c:RefWithId[Course]) = findMany(BSONDocument("course" -> c))
   
-  def byIdentity(course:Ref[Course], service:String, value:Option[String], username:Option[String]) = {
+  def byIdentity(course:RefWithId[Course], service:String, value:Option[String], username:Option[String]) = {
     val s = Seq(
       for (v <- value) yield BSONDocument("groupData.lookups.service" -> service, "groupData.lookups.value" -> value, "groupData.lookups.used" -> false),
       for (u <- username) yield BSONDocument("groupData.lookups.service" -> service, "groupData.lookups.username" -> username, "groupData.lookups.used" -> false)
@@ -73,7 +75,7 @@ object GPreenrolDAO extends DAO {
     )
   }
   
-  def useRow(course:Ref[Course], service:String, value:Option[String], username:Option[String]):RefMany[Group] = {
+  def useRow(course:RefWithId[Course], service:String, value:Option[String], username:Option[String]):RefMany[Group] = {
     val rr = for (p <- byIdentity(course, service, value, username)) yield {
       
       for (

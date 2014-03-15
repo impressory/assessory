@@ -11,14 +11,7 @@ object GroupCritToBSON {
   
   implicit val qhandler = QuestionHandler
   implicit val qqhandler = QuestionnaireHandler
-  
-  implicit def refWriter[T <: HasStringId] = new BSONWriter[Ref[T], BSONValue] {
-    // TODO: this may fail if id is None (which it shouldn't be)
-    def write(r:Ref[T]) = {
-      r.getId.map(new BSONObjectID(_)).getOrElse(BSONNull)
-    }
-  }
-  
+
   def newBSON(g:GroupCritTask) = BSONDocument(
         "groupToCrit" -> g.groupToCrit,
         "withinSet" -> g.withinSet,
@@ -53,7 +46,7 @@ object GCritiqueToBSON {
   implicit object gcReader extends BSONDocumentReader[GCritique] {
     def read(doc:BSONDocument) = {
       GCritique(
-        forGroup = doc.getAs[Ref[Group]]("forGroup").getOrElse(RefNone),
+        forGroup = doc.getAs[RefWithId[Group]]("forGroup").getOrElse(RefNone),
         answers = doc.getAs[Seq[Answer]]("answers").getOrElse(Seq.empty)
       )
     }

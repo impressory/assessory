@@ -1,9 +1,9 @@
 package com.assessory.api.course
 
-import com.wbillingsley.handy.Ref
+import com.wbillingsley.handy._
 
 case class Registration(
-  course: Ref[Course],
+  course: RefWithId[Course],
   
   roles: Seq[CourseRole.T]
 )

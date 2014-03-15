@@ -16,8 +16,8 @@ object TaskController extends Controller {
   
   implicit val taskToJson = TaskToJson
   
-  def refTask(id:String) = new LazyId(classOf[Task], id)
-  def refCourse(id:String) = new LazyId(classOf[Course], id)
+  def refTask(id:String) = LazyId(id).of[Task]
+  def refCourse(id:String) = LazyId(id).of[Course]
   
   def get(id:String) = DataAction.returning.one { implicit request => 
     for (

@@ -3,7 +3,7 @@ package com.assessory.reactivemongo
 import com.wbillingsley.handy.reactivemongo._
 import reactivemongo.api._
 import reactivemongo.bson._
-import com.wbillingsley.handy.{Ref, RefNone, RefManyById}
+import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.appbase.UserProvider
 
@@ -20,18 +20,20 @@ object GroupDAO extends DAO {
   val collName = "assessoryGroup"
     
   val db = DBConnector
-  
+
+  val executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
+
   def unsaved = Group(id = allocateId)
     
   implicit object bsonReader extends BSONDocumentReader[Group] {
     def read(doc:BSONDocument):Group = {
       new Group(
         id = doc.getAs[BSONObjectID]("_id").get.stringify,
-        course = doc.getAs[Ref[Course]]("course").getOrElse(RefNone),
-        set = doc.getAs[Ref[GroupSet]]("set").getOrElse(RefNone),
+        course = doc.getAs[RefWithId[Course]]("course").getOrElse(RefNone),
+        set = doc.getAs[RefWithId[GroupSet]]("set").getOrElse(RefNone),
         name= doc.getAs[String]("name"),
         provenance= doc.getAs[String]("provenance"),
-        members = doc.getAs[RefManyById[User, String]]("members").getOrElse(RefManyById.empty(classOf[User])),
+        members = doc.getAs[RefManyById[User, String]]("members").getOrElse(RefManyById.empty),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis)
       )
     }
@@ -54,16 +56,37 @@ object GroupDAO extends DAO {
     g
   )
   
-  def addMember(g:Ref[Group], u:Ref[User]) = updateAndFetch(
-    query=BSONDocument("_id" -> g),
-    update=BSONDocument("$addToSet" -> BSONDocument("members" -> u))
-  )
+  def addMember(g:Ref[Group], u:Ref[User]) = {
+    for {
+      gid <- id(g)
+      uid <- id(u)
+      query = BSONDocument("_id" -> gid)
+      update = BSONDocument("$addToSet" -> BSONDocument("members" -> uid))
+      updated <- updateAndFetch(query, update)
+    } yield updated
+  }
   
-  def byCourse(c:Ref[Course]) = findMany(BSONDocument("course" -> c))
+  def byCourse(c:Ref[Course]) = {
+    for {
+      cid <- id(c)
+      g <- findMany(BSONDocument("course" -> cid))
+    } yield g
+  }
   
-  def byCourseAndUser(c:Ref[Course], u:Ref[User]) = findMany(BSONDocument("course" -> c, "members" -> u))
+  def byCourseAndUser(c:Ref[Course], u:Ref[User]) = {
+    for {
+      cid <- id(c)
+      uid <- id(u)
+      g <- findMany(BSONDocument("course" -> cid, "members" -> uid))
+    } yield g
+  }
   
-  def bySet(gs:Ref[GroupSet]) = findMany(BSONDocument("set" -> gs))
+  def bySet(gs:Ref[GroupSet]) = {
+    for {
+      gid <- id(gs)
+      g <- findMany(BSONDocument("set" -> gid))
+    } yield g
+  }
   
   def byNames(names:Set[String]) = findMany(BSONDocument("name" -> BSONDocument("$in" -> names)))
 }
