@@ -7,25 +7,43 @@ import course._
 import group._
 import com.wbillingsley.handy._
 import Ref._
-import play.api.libs.json.Json
-import play.api.libs.json.JsValue
+import play.api.libs.json.{Writes, Json, JsValue}
 
 object GroupToJson extends JsonConverter[Group, User] {
   
-  implicit val gFormat = Json.writes[Group]
-  
-  def toJsonFor(g:Group, a:Approval[User]) = {
-    
-    val permissions = for (
-      course <- a.cache(g.course);
-      view <- optionally(a ask Permissions.ViewCourse(course.itself));
-      edit <- optionally(a ask Permissions.EditCourse(course.itself))
-    ) yield Json.obj(
-      "view" -> view.isDefined,
-      "edit" -> edit.isDefined
+  implicit val gFormat = new Writes[Group] {
+
+    def writes(g:Group) = Json.obj(
+      "id" -> g.id,
+      "parent" -> g.parent,
+      "course" -> g.course,
+      "set" -> g.set,
+      "name" -> g.name,
+      "provenance" -> g.provenance,
+      "members" -> g.members,
+      "created" -> g.created
     )
-    
-    for (p <- permissions) yield gFormat.writes(g) ++ Json.obj("permissions" -> p)
+
+  }
+  
+  def toJsonFor(g:Group, a:Approval[User]):Ref[JsValue] = {
+
+    import Permissions._
+
+    for {
+      // We only return the JSON if they can view it...
+      mayView <- a ask ViewGroup(g.itself)
+      view = true
+      edit <- a askBoolean EditGroup(g.itself)
+    } yield {
+      val p = Json.obj(
+        "permissions" -> Json.obj(
+          "view" -> view,
+          "edit" -> edit
+        )
+      )
+      gFormat.writes(g) ++ p
+    }
   }
   
   def toJson(gp:Group) = gFormat.writes(gp).itself

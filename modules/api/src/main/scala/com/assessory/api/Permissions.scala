@@ -2,6 +2,7 @@ package com.assessory.api
 
 import com.wbillingsley.handy._
 import course._
+import group._
 import com.assessory.api.groupcrit.GroupCritAllocation
 
 import wiring.Lookups._
@@ -23,7 +24,35 @@ object Permissions {
   case class ViewCourse(course:Ref[Course]) extends PermOnIdRef[User, Course](course) {
     def resolve(prior:Approval[User]) = hasRole(course, prior.who, CourseRole.student, prior.cache)
   }
-  
+
+  val ViewGroupSet = Perm.cacheOnId[User, GroupSet] { case (prior, rGroupSet) =>
+    for {
+      gs <- rGroupSet
+      a <- prior ask ViewCourse(gs.course)
+    } yield Approved("Course viewers can view group sets")
+  }
+
+  val EditGroupSet = Perm.cacheOnId[User, GroupSet] { case (prior, rGroupSet) =>
+    for {
+      gs <- rGroupSet
+      a <- prior ask EditCourse(gs.course)
+    } yield Approved("Course editors can edit group sets")
+  }
+
+  val ViewGroup = Perm.cacheOnId[User, Group] { case (prior, rGroup) =>
+    for {
+      g <- rGroup
+      a <- prior ask ViewCourse(g.course)
+    } yield Approved("Course viewers can view groups")
+  }
+
+  val EditGroup = Perm.cacheOnId[User, Group] { case (prior, rGroup) =>
+    for {
+      g <- rGroup
+      a <- prior ask EditCourse(g.course)
+    } yield Approved("Course editors can edit groups")
+  }
+
   case class EditCourse(course:Ref[Course]) extends PermOnIdRef[User, Course](course) {
     def resolve(prior:Approval[User]) = hasRole(course, prior.who, CourseRole.staff, prior.cache)
   }  
@@ -68,7 +97,7 @@ object Permissions {
     for {
        u <- user
        cId <- course.refId
-       r <- u.registrations.find(_.course.getId == cId)
+       r <- u.registrations.find(_.course.getId == Some(cId))
     } yield r.roles
   }
   

@@ -1,13 +1,27 @@
 package com.assessory.play.controllers
 
 import play.api.mvc.{Action, Controller}
-import com.wbillingsley.handy.appbase.DataAction
-import com.assessory.reactivemongo.UserDAO
-import com.wbillingsley.handy.RefNone
+import com.wbillingsley.handy.appbase.{HeaderInfo, WithHeaderInfo, DataAction}
 import com.assessory.api.UserError
-import com.wbillingsley.handy.RefFailed
+import com.wbillingsley.handy._
+import Ref._
 
 object Application extends Controller {
+
+  /**
+   * A response to all OPTIONS requests, to support CORS
+   */
+  def options(path:String) = DataAction.returning.resultWH { implicit request =>
+    WithHeaderInfo(
+      Status(200).itself,
+      HeaderInfo(headers=Seq(
+        "Access-Control-Allow-Origin" -> uiBaseUrl,
+        "Access-Control-Allow-Headers" -> request.headers.get("Access-Control-Request-Headers").getOrElse("accept, content-type"),
+        "Access-Control-Allow-Method" -> request.headers.get("Access-Control-Request-Method").getOrElse("GET, POST, OPTIONS"),
+        "Access-Control-Allow-Credentials" -> "true"
+      )).itself
+    )
+  }
   
   /**
    * The HTML and Javascript for the client side of the app.
@@ -16,7 +30,7 @@ object Application extends Controller {
    */
   def index = DataAction.forceSession(
     Action { 
-      Ok(views.html.main())  
+      Redirect(uiBaseUrl)
     }
   )
   

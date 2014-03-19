@@ -1,3 +1,5 @@
+OPTIONS /*path                        com.assessory.play.controllers.Application.options(path)
+
 # Task Output
 GET     /taskoutput/:toId                           com.assessory.play.controllers.TaskOutputController.get(toId)
 POST    /taskoutput/:toId                           com.assessory.play.controllers.TaskOutputController.updateBody(toId)
