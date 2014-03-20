@@ -62,9 +62,6 @@ POST	/logOut						com.assessory.play.controllers.UserController.logOut
 POST    /auth/interstitial/register com.assessory.auth.controllers.InterstitialController.registerUser
 POST    /auth/interstitial/add      com.assessory.auth.controllers.InterstitialController.addIdentity
 
-# Angular.js Partials
-GET     /partials/*template         com.assessory.play.controllers.Application.partial(template:String)
-
 # Index
 GET     /                           com.assessory.play.controllers.Application.index
 

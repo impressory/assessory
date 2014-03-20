@@ -43,42 +43,6 @@ object Application extends Controller {
    * Instead, we have a default route that returns the index page.
    */
   def defaultRoute(path:String) = index
-
-  /**
-   * We put the partial templates into this method so that adding a partial 
-   * template does not require editing the routes file. 
-   * 
-   * Editing the routes file would (in dev mode) cause a complete recompilation
-   * of all sources, which takes much longer than just recompiling this controller
-   */
-  def partial(templ:String) = Action { 
-    templ match {
-      case "main.html" => Ok(views.html.partials.main())
-      case "signUp.html" => Ok(views.html.partials.signUp())
-      case "logIn.html" => Ok(views.html.partials.logIn())
-      case "self.html" => Ok(views.html.partials.self())
-      
-      case "course/create.html" => Ok(views.html.partials.course.create())
-      case "course/view.html" => Ok(views.html.partials.course.view())
-      case "course/admin.html" => Ok(views.html.partials.course.admin())
-      case "course/createPreenrol.html" => Ok(views.html.partials.course.createPreenrol())
-      case "course/viewPreenrol.html" => Ok(views.html.partials.course.viewPreenrol())
-
-      case "group/view.html" => Ok(views.html.partials.group.view())
-      case "group/createGroupSet.html" => Ok(views.html.partials.group.createGroupSet())
-      case "group/viewGroupSet.html" => Ok(views.html.partials.group.viewGroupSet())
-
-      case "task/view.html" => Ok(views.html.partials.task.view())
-      case "task/admin.html" => Ok(views.html.partials.task.admin())
-      case "groupcrit/createTask.html" => Ok(views.html.partials.groupcrit.createTask())
-      case "outputcrit/createTask.html" => Ok(views.html.partials.outputcrit.createTask())
-
-      case "taskoutput/view.html" => Ok(views.html.partials.taskoutput.view())
-      case "taskoutput/edit.html" => Ok(views.html.partials.taskoutput.edit())
-      
-      case _ => NotFound(s"No such partial template: $templ")
-    }
-  }
   
   def notFound = DataAction.returning.result { RefNone }
   

@@ -15,7 +15,7 @@ object Global extends GlobalSettings with AcceptExtractors {
     DBConnector.connectionString = Play.configuration.getString("mongo.connection").getOrElse("localhost:27017")
     DBConnector.dbUser = Play.configuration.getString("mongo.dbuser")
     DBConnector.dbPwd = Play.configuration.getString("mongo.dbpwd")
-    
+
     // Set the execution context (ie the thread pool) that RefFuture work should happen on
     RefFuture.executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
@@ -36,7 +36,7 @@ object Global extends GlobalSettings with AcceptExtractors {
     import play.api.libs.json.Json
     
     request match {
-      case Accepts.Html() => Future.successful(Results.Ok(views.html.main()))
+      case Accepts.Html() => Future.successful(Results.Redirect(com.assessory.play.controllers.uiBaseUrl))
       case Accepts.Json() => Future.successful(Results.NotFound(Json.obj("error" -> "not found")))
       case _ => Future.successful(Results.NotFound)
     }

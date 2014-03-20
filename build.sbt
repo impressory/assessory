@@ -1,20 +1,44 @@
+import play.Project._
+
 scalaVersion in ThisBuild := "2.10.3"
 
 organization in ThisBuild := "com.impressory"
 
-scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
+version in ThisBuild := "0.1-SNAPSHOT"
 
-resolvers in ThisBuild += "typesafe snaps" at "http://repo.typesafe.com/typesafe/snapshots/"
+scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-feature")
 
-resolvers in ThisBuild += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/"
+resolvers in ThisBuild ++= Seq(
+  "typesafe snaps" at "http://repo.typesafe.com/typesafe/snapshots/",
+  "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/",
+  "sonatype snaps" at "https://oss.sonatype.org/content/repositories/snapshots/",
+  "sonatype releases" at "https://oss.sonatype.org/content/repositories/releases/",
+  "bintrayW" at "http://dl.bintray.com/wbillingsley/maven",
+  DefaultMavenRepository
+)
 
-resolvers in ThisBuild  += "sonatype snaps" at "https://oss.sonatype.org/content/repositories/snapshots/"
+name := "assessory"
 
-resolvers in ThisBuild  += "sonatype releases" at "https://oss.sonatype.org/content/repositories/releases/"
+playScalaSettings
 
-resolvers in ThisBuild += "bintrayW" at "http://dl.bintray.com/wbillingsley/maven"
+lazy val assessory = project.in(file("."))
+  .aggregate(assessoryApi, assessoryReactiveMongo)
+  .dependsOn(assessoryApi, assessoryReactiveMongo)
 
-resolvers in ThisBuild  += DefaultMavenRepository
+libraryDependencies ++= Seq(
+  "com.wbillingsley" %% "handy-appbase-core" % "0.5.0-SNAPSHOT",
+  "com.wbillingsley" %% "handy-play-oauth" % "0.2-SNAPSHOT",
+  "net.sf.opencsv" % "opencsv" % "2.0"
+)
 
-resolvers in ThisBuild  += JavaNet1Repository
+templatesImport += "com.wbillingsley.handy._"
 
+// Modular routes in Play 2.1 requires reflective calls
+routesImport ++= Seq("language.reflectiveCalls")
+
+requireJs ++= Seq(
+)
+
+lazy val assessoryApi = project.in(file("modules/api"))
+
+lazy val assessoryReactiveMongo = project.in(file("modules/reactivemongo")).dependsOn(assessoryApi)
