@@ -11,9 +11,8 @@ import group._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.appbase.{WithHeaderInfo, DataAction}
-import com.assessory.api.groupcrit._
+import com.assessory.api.critique._
 import play.api.libs.iteratee.Enumerator
-import com.assessory.api.outputcrit._
 import com.assessory.model.TaskOutputModel
 
 

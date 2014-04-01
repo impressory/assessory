@@ -9,11 +9,18 @@ import com.wbillingsley.handy.appbase.UserProvider
 import com.assessory.api._
 import course._
 import group._
-import groupcrit._
+import critique._
 import com.assessory.api.IdentityLookup
 import scala.Some
 
 package object reactivemongo {
+
+  def r[T](d:BSONDocument, n:String)(implicit lu:LookUpOne[T, String]):RefWithId[T] = {
+    d.getAs[BSONObjectID](n) match {
+      case Some(id) => LazyId(id.stringify).of(lu)
+      case _ => RefNone
+    }
+  }
 
   implicit def refReader[T <: HasStringId](implicit lu:LookUp[T, String]) = new BSONReader[BSONObjectID, Ref[T]] {
     def read(id:BSONObjectID) = LazyId(id.stringify).of(lu)
@@ -55,7 +62,7 @@ package object reactivemongo {
   implicit val lookupTask = TaskDAO.LookUp
   implicit val lookupTaskOutput = TaskOutputDAO.LookUp
 
-  implicit val lookupGroupCritAllocation = GroupCritAllocationDAO.LookUp
+  implicit val lookupCritAllocation = CritAllocationDAO.LookUp
 
   implicit object identityLookupFormat extends BSONHandler[BSONDocument, IdentityLookup] {
     def read(doc:BSONDocument) = {
@@ -79,7 +86,7 @@ package object reactivemongo {
 
   implicit def RefWithStringIdWriter[T <: HasStringId] = new BSONWriter[RefWithId[T], BSONValue] {
     def write(r:RefWithId[T]) = {
-      r.getId.map(BSONString(_)).getOrElse(BSONNull)
+      r.getId.map(new BSONObjectID(_)).getOrElse(BSONNull)
     }
   }
   

@@ -40,6 +40,17 @@ object UserModel {
   }
 
   /**
+   * Logs a user in using their system-set secret
+   */
+  def secretLogIn(ru:Ref[User], secret:String, activeSession:ActiveSession) = {
+    for {
+      oldUser <- optionally(UserDAO.deleteSession(ru, activeSession))
+      u <- ru if (u.secret == secret)
+      pushed <- UserDAO.pushSession(u.itself, activeSession)
+    } yield pushed
+  }
+
+  /**
    * To log a user out, we just have to remove the current session from their active sessions
    */
   def logOut(rUser:Ref[User], session:ActiveSession) = {

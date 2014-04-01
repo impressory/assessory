@@ -4,12 +4,26 @@ import com.wbillingsley.handy.reactivemongo._
 import com.assessory.api.{User, PasswordLogin, Identity, ActiveSession}
 import reactivemongo.api._
 import reactivemongo.bson._
-import com.wbillingsley.handy.{Ref, RefNone}
+import com.wbillingsley.handy.{Refused, LazyId, Ref, RefNone}
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.appbase.UserProvider
-import com.assessory.api.course.Registration
+import com.assessory.api.course.{Course, Registration}
+import play.api.mvc.{RequestHeader, Request}
 
 object UserDAO extends DAO with UserProvider[User] {
+
+  override def user(r:RequestHeader):Ref[User] = {
+    r.headers.get("Authorization") match {
+      case Some(auth) if (auth.trim.startsWith("Bearer")) => {
+        val trimmed = auth.trim.drop(6).trim
+        val Array(userId, secret) = trimmed.split(" ")
+        (for {
+          u <- LazyId(userId).of(LookUp) if (u.secret == secret)
+        } yield u) orIfNone Refused("Incorrect ID or secret")
+      }
+      case _ => super.user(r)
+    }
+  }
   
   type DataT = User
   
@@ -51,6 +65,7 @@ object UserDAO extends DAO with UserProvider[User] {
         avatar = doc.getAs[String]("avatar"),
         pwlogin = doc.getAs[PasswordLogin]("pwlogin").getOrElse(PasswordLogin()),
         identities = doc.getAs[Seq[Identity]]("identities").getOrElse(Seq.empty),
+        secret = doc.getAs[String]("secret").getOrElse(""),
         activeSessions = doc.getAs[Seq[ActiveSession]]("activeSessions").getOrElse(Seq.empty),
         registrations = doc.getAs[Seq[Registration]]("registrations").getOrElse(Seq.empty),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis())
@@ -80,9 +95,13 @@ object UserDAO extends DAO with UserProvider[User] {
     BSONDocument(
       idIs(u.id),
       "name" -> u.name,
+      "surname" -> u.surname,
+      "givenName" -> u.givenName,
+      "preferredName" -> u.preferredName,
       "nickname" -> u.nickname,
       "avatar" -> u.avatar,
       "pwlogin" -> u.pwlogin,
+      "secret" -> u.secret,
       "identities" -> u.identities,
       "activeSessions" -> u.activeSessions,
       "registrations" -> u.registrations,
@@ -154,7 +173,13 @@ object UserDAO extends DAO with UserProvider[User] {
       }      
     ) yield user
   }
-  
+
+  def byCourse(c:Ref[Course]) = findMany {
+    for {
+      cid <- id(c)
+    } yield BSONDocument("registrations.course" -> cid)
+  }
+
   def pushRegistration(ru:Ref[User], r:Registration) = {
     for {
       uid <- id(ru)

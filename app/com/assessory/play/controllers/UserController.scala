@@ -6,7 +6,11 @@ import com.assessory.play.json.UserToJson
 import com.assessory.model._
 
 import com.assessory.api._
+import com.assessory.reactivemongo._
 import com.wbillingsley.handy.appbase.{WithHeaderInfo, DataAction}
+import com.wbillingsley.handy._
+import Ref._
+import com.assessory.reactivemongo.UserDAO
 
 object UserController extends Controller {
   
@@ -44,6 +48,21 @@ object UserController extends Controller {
         oPassword = (request.body \ "password").asOpt[String],
         session = ActiveSession(request.sessionKey, ip=request.remoteAddress)
       ),
+      headerInfo
+    )
+  }
+
+  def autologin(userId:String, secret:String) = DataAction.returning.resultWH { implicit request =>
+    val loggedIn = for {
+      u <- UserModel.secretLogIn(
+        ru = LazyId(userId).of[User],
+        secret = secret,
+        activeSession = ActiveSession(request.sessionKey, request.remoteAddress)
+      )
+    } yield Redirect(uiBaseUrl)
+
+    WithHeaderInfo(
+      loggedIn,
       headerInfo
     )
   }

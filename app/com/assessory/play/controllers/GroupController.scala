@@ -13,6 +13,8 @@ import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.appbase.{WithHeaderInfo, DataAction}
 import com.assessory.model.GroupModel
 
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+
 object GroupController extends Controller {
   
   implicit val gsToJson = GroupSetToJson
@@ -72,6 +74,37 @@ object GroupController extends Controller {
         a=request.approval,
         rGS=LazyId(gsId).of[GroupSet],
         oCsv=(request.body \ "csv").asOpt[String]
+      ),
+      headerInfo
+    )
+  }
+
+  def testCsv = DataAction.returning.resultWH(parse.tolerantText) { implicit request =>
+    import au.com.bytecode.opencsv.CSVReader
+    import java.io.StringReader
+
+    import scala.collection.JavaConverters._
+    import com.wbillingsley.handyplay.RefConversions._
+
+    val reader = new CSVReader(new StringReader(request.body.trim()))
+    val lines = reader.readAll().asScala.toSeq.toRefMany.map(_.toSeq.toString)
+
+    val r = for { e <- lines.enumerateR } yield Ok.chunked(e)
+    WithHeaderInfo(
+      r,
+      headerInfo
+    )
+  }
+
+  /**
+   * Creates groups from submitted CSV data
+   */
+  def importFromCsv(gsId:String) = DataAction.returning.manyWH(parse.tolerantText) { implicit request =>
+    WithHeaderInfo(
+      GroupModel.importFromCsv(
+        a=request.approval,
+        rSet=LazyId(gsId).of[GroupSet],
+        csv=request.body
       ),
       headerInfo
     )

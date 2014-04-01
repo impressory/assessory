@@ -10,7 +10,6 @@ import com.wbillingsley.handy.appbase.UserProvider
 import com.assessory.api._
 import course._
 import group._
-import groupcrit._
 import question._
 
 object TaskOutputDAO extends DAO {

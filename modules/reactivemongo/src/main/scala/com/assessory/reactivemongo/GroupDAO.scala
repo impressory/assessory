@@ -31,6 +31,7 @@ object GroupDAO extends DAO {
         id = doc.getAs[BSONObjectID]("_id").get.stringify,
         course = doc.getAs[RefWithId[Course]]("course").getOrElse(RefNone),
         set = doc.getAs[RefWithId[GroupSet]]("set").getOrElse(RefNone),
+        parent = r(doc, "parent")(LookUp),
         name= doc.getAs[String]("name"),
         provenance= doc.getAs[String]("provenance"),
         members = doc.getAs[RefManyById[User, String]]("members").getOrElse(RefManyById.empty),
@@ -48,6 +49,7 @@ object GroupDAO extends DAO {
       idIs(g.id),
       "course" -> g.course,
       "set" -> g.set,
+      "parent" -> g.parent,
       "name" -> g.name,
       "provenance" -> g.provenance,
       "members" -> g.members,
@@ -70,6 +72,13 @@ object GroupDAO extends DAO {
     for {
       cid <- id(c)
       g <- findMany(BSONDocument("course" -> cid))
+    } yield g
+  }
+
+  def byCourseAndName(c:Ref[Course], name:String) = {
+    for {
+      cid <- id(c)
+      g <- findOne(BSONDocument("course" -> cid, "name" -> name))
     } yield g
   }
   

@@ -15,9 +15,9 @@ object GroupModel {
 
   def createGroupSet(a:Approval[User], rCourse:Ref[Course], json:JsValue) = {
     for {
-      course <- rCourse;
-      approved <- a ask Permissions.EditCourse(course.itself);
-      unsaved = GroupSetToJson.update(GroupSetDAO.unsaved.copy(course=course.itself), json);
+      course <- rCourse
+      approved <- a ask Permissions.EditCourse(course.itself)
+      unsaved = GroupSetToJson.update(GroupSetDAO.unsaved.copy(course=course.itself), json)
       saved <- GroupSetDAO.saveNew(unsaved)
     } yield saved
   }
@@ -72,7 +72,7 @@ object GroupModel {
   def myGroups(a:Approval[User], rCourse:Ref[Course]) = {
     for {
       course <- rCourse
-      newlyPreenrolled <- doPreenrolments(course.itself, a.who).toRefOne;
+      newlyPreenrolled <- doPreenrolments(course.itself, a.who).toRefOne
       group <- GroupDAO.byCourseAndUser(course.itself, a.who)
     } yield group
   }
@@ -94,6 +94,84 @@ object GroupModel {
       g <- GPreenrolDAO.useRow(course, service=i.service, value=Some(i.value), username=i.username);
       added <- GroupDAO.addMember(g.itself, u.itself)
     ) yield g
+  }
+
+
+  /**
+   * Creates users and groups from a CSV
+   *
+   * group name, parent group name, student number, last name, first name, preferred name, email address
+   */
+  def importFromCsv(a:Approval[User], rSet:RefWithId[GroupSet], csv:String):RefMany[Group] = {
+    import au.com.bytecode.opencsv.CSVReader
+    import java.io.StringReader
+
+    import scala.collection.JavaConverters._
+
+    val reader = new CSVReader(new StringReader(csv.trim()))
+    val lines = reader.readAll().asScala.toSeq
+    reader.close()
+
+    val byGroup = lines.drop(1).groupBy(_(0))
+
+    val groupCache = scala.collection.mutable.Map.empty[String, Ref[Group]]
+    val userCache = scala.collection.mutable.Map.empty[String, Ref[User]]
+
+    for {
+      set <- rSet orIfNone UserError("We do need a group set for this")
+      course <- set.course orIfNone UserError("We do need a course for this")
+
+      (gname, glines) <- byGroup.toRefMany
+      userIds <- {
+        for {
+          line <- glines.toRefMany
+
+          Array(groupName, parent, studentNumber, surname, givenName, prefName, email) = line
+
+          /*
+           * Get the student. They may exist in the database, if not we need to create them.
+           * Also memoize the result of either our creation or our search in case of duplicate rows in the CSV
+           */
+          user <- userCache.getOrElseUpdate(studentNumber.trim, {
+            UserDAO.byIdentity(course.id, studentNumber) orIfNone {
+              val user = UserDAO.unsaved.copy(
+                surname = Option(surname).filter(_.trim.nonEmpty),
+                givenName = Option(givenName).filter(_.trim.nonEmpty),
+                nickname = Option(prefName).filter(_.trim.nonEmpty) orElse Option(givenName).filter(_.trim.nonEmpty),
+                pwlogin = PasswordLogin(email=Option(email).filter(_.trim.nonEmpty)),
+                registrations = Seq(Registration(
+                  course = course.itself,
+                  roles = Seq(CourseRole.student)
+                )),
+                identities = Seq(Identity(service=course.id, value=studentNumber.trim))
+              )
+              UserDAO.saveNew(user)
+            }
+          })
+        } yield user.id
+      }.toRefOne
+
+      // Find the parent group if there is one
+      parent <- optionally {
+        val parentName = glines(0)(1)
+        if (parentName.trim.isEmpty) {
+          RefNone
+        } else {
+          groupCache.getOrElseUpdate(parentName, GroupDAO.byCourseAndName(course.itself, parentName))
+        }
+      }
+
+      // Create the group
+      group = GroupDAO.unsaved.copy(
+        name = Some(gname),
+        course = course.itself,
+        set = set.itself,
+        parent = Ref(parent),
+        members = RefManyById(userIds.toSeq).of[User],
+        provenance = Some("csv")
+      )
+      saved <- GroupDAO.saveNew(group)
+    } yield saved
   }
 
   /**

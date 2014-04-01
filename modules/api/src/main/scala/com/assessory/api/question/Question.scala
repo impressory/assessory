@@ -15,5 +15,7 @@ trait Question extends HasStringId {
    * only mark them as inactive.
    */
   val active:Boolean
+
+  def blankAnswer: Answer
   
 } 

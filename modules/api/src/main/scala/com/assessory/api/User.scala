@@ -9,6 +9,12 @@ case class User(
     
     id:String,
     
+    surname:Option[String] = None,
+
+    givenName:Option[String] = None,
+
+    preferredName:Option[String] = None,
+
     name:Option[String] = None,
     
     nickname:Option[String] = None,
@@ -16,6 +22,8 @@ case class User(
     avatar:Option[String] = None,
     
     pwlogin: PasswordLogin = PasswordLogin(),
+
+    secret: String = scala.util.Random.alphanumeric.take(8).mkString,
     
     identities:Seq[Identity] = Seq.empty,
     

@@ -1,17 +1,12 @@
 package com.assessory.reactivemongo
 
 import com.wbillingsley.handy.reactivemongo._
-import reactivemongo.api._
 import reactivemongo.bson._
 import com.wbillingsley.handy.{RefWithId, Ref, RefNone, RefManyById}
 import com.wbillingsley.handy.Ref._
-import com.wbillingsley.handy.appbase.UserProvider
 
 import com.assessory.api._
 import course._
-import group._
-import groupcrit._
-import question._
 
 object TaskDAO extends DAO {
 

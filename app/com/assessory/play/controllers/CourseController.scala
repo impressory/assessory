@@ -12,6 +12,8 @@ import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.appbase.{DataAction, HeaderInfo, WithHeaderInfo}
 import com.assessory.model._
 
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+
 object CourseController extends Controller {
   
   implicit val courseToJson = CourseToJson
@@ -106,6 +108,29 @@ object CourseController extends Controller {
       ),
       headerInfo
     )
+  }
+
+
+  /**
+   * Generates a CSV of the autologin links
+   */
+  def autolinks(courseId:String) = DataAction.returning.resultWH { implicit request =>
+    val lines = for {
+      c <- LazyId(courseId).of[Course]
+      appr <- request.approval ask Permissions.EditCourse(c.itself)
+      u <- UserDAO.byCourse(c.itself)
+      studentIdent <- u.identities.find(_.service == c.id).toRef
+      url = routes.UserController.autologin(u.id, u.secret).absoluteURL()
+    } yield s"${studentIdent.value},${u.nickname.getOrElse("")},${url}\n"
+
+    import com.wbillingsley.handyplay.RefConversions._
+    WithHeaderInfo(
+      for {
+        e <- lines.enumerateR
+      } yield Ok.chunked(e).as("application/csv"),
+      headerInfo
+    )
+
   }
   
 }

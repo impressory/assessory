@@ -5,13 +5,23 @@ import com.assessory.api._
 import group._
 import com.wbillingsley.handy._
 import Ref._
-import play.api.libs.json.Json
-import play.api.libs.json.JsValue
+import play.api.libs.json.{Writes, Json, JsValue}
 
 object GroupSetToJson extends JsonConverter[GroupSet, User] {
-  
-  implicit val gsFormat = Json.writes[GroupSet]
-  
+
+  implicit val gsFormat = new Writes[GroupSet] {
+
+    def writes(g:GroupSet) = Json.obj(
+      "id" -> g.id,
+      "name" -> g.name,
+      "description" -> g.description,
+      "course" -> g.course,
+      "parent" -> g.parent,
+      "preenrol" -> g.preenrol,
+      "created" -> g.created
+    )
+  }
+
   def toJsonFor(gs:GroupSet, a:Approval[User]) = {
 
     import Permissions._

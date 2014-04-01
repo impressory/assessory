@@ -13,6 +13,8 @@ case class TickBoxQuestion(
 ) extends Question {
   
   val kind = TickBoxQuestion.kind
+
+  def blankAnswer = TickBoxAnswer(question=Some(id), None)
   
 }
 

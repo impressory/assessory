@@ -12,6 +12,8 @@ case class GroupSet (
     description:Option[String] = None,
     
     course: RefWithId[Course] = RefNone,
+
+    parent: RefWithId[GroupSet] = RefNone,
     
     preenrol: RefWithId[GPreenrol] = RefNone,
     

@@ -11,9 +11,8 @@ import group._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.appbase.DataAction
-import com.assessory.api.groupcrit._
+import com.assessory.api.critique._
 import play.api.libs.iteratee.Enumerator
-import com.assessory.api.outputcrit._
 import play.api.libs.json.JsValue
 
 
@@ -76,13 +75,9 @@ object TaskOutputModel {
       task <- rTask;
       approved <- a ask Permissions.EditCourse(task.course);
       h <- task.body match {
-        case Some(gct:GroupCritTask) => {
+        case Some(gct:CritiqueTask) => {
           val qs =  gct.questionnaire.questions.map { q => "\"" + q.prompt.replace("\"", "\"\"") + "\"," }
-          (qs.fold("student, group, ")(_ + _) + "\n").itself
-        }
-        case Some(oct:OutputCritTask) => {
-          val qs =  oct.questionnaire.questions.map { q => "\"" + q.prompt.replace("\"", "\"\"") + "\"," }
-          (qs.fold("student, crit by, crit for group,")(_ + _) + "\n").itself
+          (qs.fold("student, target, ")(_ + _) + "\n").itself
         }
         case _ => RefFailed(new IllegalStateException("Unknown task body type"))
       }
@@ -92,38 +87,26 @@ object TaskOutputModel {
       h <- header;
       output <- TaskOutputDAO.byTask(rTask);
       line <- output.body match {
-        case Some(gc:GCritique) => {
-          for (
+        case Some(gc:Critique) => {
+          for {
             user <- a.cache(output.byUser);
             userName = user.nickname.getOrElse("Anonymous");
-            group <- a.cache(gc.forGroup);
-            groupName = group.name.getOrElse("Unnamed group")
-          ) yield {
+            targetName <- gc.target match {
+              case CTGroup(rg) => (for {
+                g <- a.cache(rg)
+                n <- g.name
+              } yield n) orIfNone "Unnamed group".itself
+              case CTTaskOutput(rto) => (for {
+                to <- a.cache(rto)
+                u <- a.cache(to.byUser)
+                n <- u.name
+              } yield n) orIfNone "Unnamed user".itself
+            }
+          } yield {
             val as = gc.answers.map { a => "\"" + a.answerAsString.replace("\"", "\"\"") + "\"," }
             val unr = userName.replace("\"","\"\"")
-            val gnr = groupName.replace("\"","\"\"")
+            val gnr = targetName.replace("\"","\"\"")
             as.fold("\"" + unr + "\",\"" + gnr + "\",")(_ + _) + "\n"
-          }
-        }
-        case Some(oct:OCritique) => {
-          for (
-            user <- a.cache(output.byUser);
-            userName = user.nickname.getOrElse("Anonymous");
-            output <- a.cache(oct.forOutput);
-            otherUser <- a.cache(output.byUser);
-            otherUserName = otherUser.nickname.getOrElse("Anonymous");
-            gc <- output.body match {
-              case Some(gc:GCritique) => gc.itself
-              case _ => RefFailed(new IllegalStateException("Wasn't critiquing a group crit"))
-            };
-            group <- a.cache(gc.forGroup);
-            groupName = group.name.getOrElse("Unnamed group")
-          ) yield {
-            val as = oct.answers.map { a => "\"" + a.answerAsString.replace("\"", "\"\"") + "\"," }
-            val unr = userName.replace("\"","\"\"")
-            val ounr = otherUserName.replace("\"","\"\"")
-            val gnr = groupName.replace("\"","\"\"")
-            as.fold("\"" + unr + "\",\"" + ounr + "\",\"" + gnr + "\",")(_ + _) + "\n"
           }
         }
         case _ => RefFailed(new IllegalStateException("Unknown task output body type"))

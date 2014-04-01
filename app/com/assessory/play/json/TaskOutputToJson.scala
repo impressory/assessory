@@ -8,8 +8,7 @@ import group._
 import com.wbillingsley.handy._
 import Ref._
 import play.api.libs.json.{Json, JsValue, JsObject, Writes, Format}
-import groupcrit._
-import outputcrit._
+import critique._
 import question._
 import com.assessory.reactivemongo.TaskDAO
 import play.api.libs.json.JsSuccess
@@ -47,23 +46,21 @@ object TaskOutputToJson extends JsonConverter[TaskOutput, User] {
 
 
 object TaskOutputBodyFormat extends Format[TaskOutputBody] {
-  
+
+  import CritiqueJson._
+
   implicit val qFormat = AnswerFormat
-  implicit val gctFormat = Json.format[GCritique]
-  implicit val ocFormat = Json.format[OCritique]
-  
+
   def writes(b:TaskOutputBody):JsValue = {
     val base = b match {
-      case g:GCritique => gctFormat.writes(g)
-      case o:OCritique => ocFormat.writes(o)
+      case g:Critique => gctFormat.writes(g)
     }
     Json.obj("kind" -> b.kind) ++ base
   }
   
   def reads(j:JsValue) = {
     val tb = (j \ "kind").asOpt[String] match {
-      case Some(GCritique.kind) => gctFormat.reads(j)
-      case Some(OCritique.kind) => ocFormat.reads(j)
+      case Some(Critique.kind) => gctFormat.reads(j)
       case x => {
         Logger.error("Kind of task output body not found: " + x)
         JsError("Kind of task output body not found: " + x)

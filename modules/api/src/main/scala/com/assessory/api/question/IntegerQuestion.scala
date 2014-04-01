@@ -17,6 +17,8 @@ case class IntegerQuestion(
 ) extends Question {
   
   val kind = IntegerQuestion.kind
+
+  def blankAnswer = IntegerAnswer(question=Some(id), None)
   
 }
 

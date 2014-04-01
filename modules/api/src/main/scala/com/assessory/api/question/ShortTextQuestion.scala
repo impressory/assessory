@@ -15,6 +15,8 @@ case class ShortTextQuestion(
 ) extends Question {
   
   val kind = ShortTextQuestion.kind
+
+  def blankAnswer = ShortTextAnswer(Some(id), None)
   
 }
 
@@ -26,9 +28,9 @@ object ShortTextQuestion {
 
 
 case class ShortTextAnswer(
-  
+
   question: Option[String],
-  
+
   answer: Option[String]
 
 ) extends Answer {

@@ -3,7 +3,7 @@ package com.assessory.api
 import com.wbillingsley.handy._
 import course._
 import group._
-import com.assessory.api.groupcrit.GroupCritAllocation
+import critique._
 
 import wiring.Lookups._
 import com.wbillingsley.handy.HasStringId.GetsStringId
@@ -80,8 +80,8 @@ object Permissions {
       } yield Approved("You may write edit your own output")) orIfNone Refused("You may only edit your own critiques, before they have been finalised")
     }
   }  
-  
-  case class WriteCritique(gca:Ref[GroupCritAllocation]) extends PermOnIdRef[User, GroupCritAllocation](gca) {
+
+  case class WriteCritique(gca:Ref[CritAllocation]) extends PermOnIdRef[User, CritAllocation](gca) {
     def resolve(prior:Approval[User]) = {
       (
         for {
@@ -89,10 +89,10 @@ object Permissions {
           uId <- g.user.refId
           whoId <- prior.who.refId if (uId == whoId)
         } yield Approved("You may write critiques that are allocated to you")
-      ) orIfNone Refused("You may only write crtitiques that are allocated to you")
+        ) orIfNone Refused("You may only write crtitiques that are allocated to you")
     }
-  }  
-  
+  }
+
   def getRoles(course: Ref[Course], user: Ref[User]) = {
     for {
        u <- user
