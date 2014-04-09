@@ -66,6 +66,6 @@ object TaskDAO extends DAO {
       t <- findMany(BSONDocument("course" -> cid))
     } yield t
   }
-  
+
 
 }

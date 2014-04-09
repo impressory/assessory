@@ -1,6 +1,7 @@
 package com.assessory.api
 
 import com.wbillingsley.handy._
+import Ref._
 import course._
 import group._
 import critique._
@@ -73,11 +74,22 @@ object Permissions {
 
   case class EditOutput(to:Ref[TaskOutput]) extends PermOnIdRef[User, TaskOutput](to) {
     def resolve(prior:Approval[User]) = {
-      (for {
+      for {
         o <- to
         byId <- o.byUser.refId
-        whoId <- prior.who.refId if (!o.finalised.isDefined && byId == whoId)
-      } yield Approved("You may write edit your own output")) orIfNone Refused("You may only edit your own critiques, before they have been finalised")
+        whoId <- prior.who.refId
+        task <- o.task
+        result <- {
+          if (byId != whoId) {
+            RefFailed(Refused("You may only edit your own work"))
+          } else {
+            val overdue = for {
+              due <- task.details.due if (due < System.currentTimeMillis())
+            } yield RefFailed(Refused("You may only edit work before it is due"))
+            overdue.getOrElse(Approved("You may edit this").itself)
+          }
+        }
+      } yield result
     }
   }  
 

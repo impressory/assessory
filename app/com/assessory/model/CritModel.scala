@@ -91,9 +91,26 @@ object CritModel {
     for {
       u <- a.who
       t <- rTask
-      alloc <- CritAllocationDAO.byUserAndTask(u.itself, t.itself)
-      ac <- alloc.allocation.toRefMany
-    } yield ac.target
+      ct <- t.body match {
+        case Some(ct:CritiqueTask) => ct.itself
+        case _ => RefFailed(UserError("This was not a critique task"))
+      }
+      target <- ct.strategy match {
+        case psg:PreallocateGroupStrategy => for {
+          alloc <- CritAllocationDAO.byUserAndTask(u.itself, t.itself)
+          ac <- alloc.allocation.toRefMany
+        } yield ac.target
+        case mos:OfMyGroupsStrategy => {
+          for {
+            group <- GroupModel.myGroups(a, t.course)
+            output <- {
+              println(group)
+              TaskOutputDAO.byPartialBody(mos.task, Critique(CTGroup(group.itself), Seq.empty), Seq("answers"))
+            }
+          } yield CTTaskOutput(output.itself)
+        }
+      }
+    } yield target
   }
 
 

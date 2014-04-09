@@ -24,10 +24,9 @@ object TaskOutputBodyHandler extends BSONHandler[BSONDocument, TaskOutputBody]{
   
   def write(b:TaskOutputBody):BSONDocument = {
     
-    val base = b match {
+    b match {
       case g:Critique => CritiqueToBSON.newBSON(g)
     }
-    BSONDocument("kind" -> b.kind) ++ base
     
   }
   

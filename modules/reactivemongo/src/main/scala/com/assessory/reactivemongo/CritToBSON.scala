@@ -16,9 +16,12 @@ object CritiqueTaskToBSON {
 
     override def read(bson: BSONDocument): CritTargetStrategy = {
       bson.getAs[String]("kind").get match {
-        case "group" => PreallocateGroupStrategy(
+        case PreallocateGroupStrategy.kind => PreallocateGroupStrategy(
           set = bson.getAs[RefWithId[GroupSet]]("set").get,
           number = bson.getAs[Int]("number").get
+        )
+        case OfMyGroupsStrategy.kind => OfMyGroupsStrategy(
+          task = bson.getAs[RefWithId[Task]]("task").get
         )
       }
     }
@@ -29,6 +32,10 @@ object CritiqueTaskToBSON {
           "kind" -> t.kind,
           "set" -> set,
           "number" -> number
+        )
+        case OfMyGroupsStrategy(fromt) => BSONDocument(
+          "kind" -> t.kind,
+          "task" -> fromt
         )
       }
     }

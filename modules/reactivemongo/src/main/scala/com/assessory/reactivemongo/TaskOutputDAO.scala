@@ -88,6 +88,22 @@ object TaskOutputDAO extends DAO {
       to <- findMany(BSONDocument("task" -> tid, "byUser" -> uid))
     } yield to
   }
+
+  def byPartialBody(t:Ref[Task], b:TaskOutputBody, without:Seq[String]) = {
+    for {
+      tid <- id(t)
+      bson = TaskOutputBodyHandler.write(b)
+      filtered = BSONDocument(
+        for {
+          (el, v) <- bson.elements if (!without.contains(el))
+        } yield (s"body.${el}", v)
+      )
+      to <- {
+        val query = BSONDocument("task" -> tid) ++ filtered
+        findMany(query)
+      }
+    } yield to
+  }
   
   def relevantTo(t:Task, u:Ref[User]) = {
     val groupIds = GroupDAO.byCourseAndUser(t.course, u).map(_.id)

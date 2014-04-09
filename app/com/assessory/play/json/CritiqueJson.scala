@@ -2,6 +2,7 @@ package com.assessory.play.json
 
 import com.wbillingsley.handy._
 import play.api.libs.json._
+import com.assessory.api._
 import com.assessory.api.critique._
 import com.assessory.api.group._
 
@@ -19,15 +20,18 @@ object CritiqueJson {
   implicit object CTSFormat extends Format[CritTargetStrategy] {
     override def reads(json: JsValue): JsResult[CritTargetStrategy] = {
       (json \ "kind").as[String] match {
-        case "group" => JsSuccess(PreallocateGroupStrategy(
+        case PreallocateGroupStrategy.kind => JsSuccess(PreallocateGroupStrategy(
           set = (json \ "set").as[RefWithId[GroupSet]],
           number = (json \ "number").as[Int]
+        ))
+        case OfMyGroupsStrategy.kind => JsSuccess(OfMyGroupsStrategy(
+          task = (json \ "task").as[RefWithId[Task]]
         ))
       }
     }
 
     override def writes(o: CritTargetStrategy): JsValue = o match {
-      case MyOutputStrategy(t) => Json.obj(
+      case OfMyGroupsStrategy(t) => Json.obj(
         "kind" -> o.kind,
         "task" -> t
       )

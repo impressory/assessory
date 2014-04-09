@@ -36,13 +36,23 @@ case class MyOutputStrategy(
   task: RefWithId[Task]
 ) extends CritTargetStrategy("outputs relevant to me")
 
+case class OfMyGroupsStrategy(
+  task: RefWithId[Task]
+) extends CritTargetStrategy(OfMyGroupsStrategy.kind)
+
+object OfMyGroupsStrategy {
+  val kind = "critiques of my groups"
+}
 
 case class PreallocateGroupStrategy(
   set: RefWithId[GroupSet],
 
   number: Int
-) extends CritTargetStrategy("group")
+) extends CritTargetStrategy(PreallocateGroupStrategy.kind)
 
+object PreallocateGroupStrategy {
+  val kind = "group"
+}
 
 
 case class CritiqueTask (

@@ -7,7 +7,6 @@ import group._
 import com.wbillingsley.handy._
 import Ref._
 import play.api.libs.json.{Json, JsValue, JsObject, Writes, Format, JsSuccess}
-import groupcrit._
 import question._
 import com.assessory.reactivemongo.TaskDAO
 
