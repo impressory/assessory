@@ -72,24 +72,28 @@ object TaskOutputModel {
 
   def asCsv(a:Approval[User], rTask:Ref[Task]) = {
     val header = for (
-      task <- rTask;
+      task <- a.cache(rTask);
       approved <- a ask Permissions.EditCourse(task.course);
       h <- task.body match {
         case Some(gct:CritiqueTask) => {
           val qs =  gct.questionnaire.questions.map { q => "\"" + q.prompt.replace("\"", "\"\"") + "\"," }
-          (qs.fold("student, target, ")(_ + _) + "\n").itself
+          (qs.fold("student number, nickname, target, ")(_ + _) + "\n").itself
         }
         case _ => RefFailed(new IllegalStateException("Unknown task body type"))
       }
     ) yield h
 
-    val body = for (
+    val body = for {
       h <- header;
+      task <- a.cache(rTask)
       output <- TaskOutputDAO.byTask(rTask);
       line <- output.body match {
-        case Some(gc:Critique) => {
+        case Some(gc: Critique) => {
           for {
             user <- a.cache(output.byUser);
+            courseStr <- task.course.getId.toRef
+            sIdentity <- user.getIdentity(courseStr).toRef
+            sId = sIdentity.value
             userName = user.nickname.getOrElse("Anonymous");
             targetName <- gc.target match {
               case CTGroup(rg) => (for {
@@ -99,19 +103,21 @@ object TaskOutputModel {
               case CTTaskOutput(rto) => (for {
                 to <- a.cache(rto)
                 u <- a.cache(to.byUser)
-                n <- u.name
-              } yield n) orIfNone "Unnamed user".itself
+                sIdentity <- u.getIdentity(courseStr).toRef
+              } yield sIdentity.value) orIfNone "Unnamed user".itself
             }
           } yield {
-            val as = gc.answers.map { a => "\"" + a.answerAsString.replace("\"", "\"\"") + "\"," }
-            val unr = userName.replace("\"","\"\"")
-            val gnr = targetName.replace("\"","\"\"")
-            as.fold("\"" + unr + "\",\"" + gnr + "\",")(_ + _) + "\n"
+            def cell(s:String) = "\"" + s.replace("\"", "\"\"") + "\","
+
+            val as = gc.answers.map {
+              a => cell(a.answerAsString)
+            }
+            as.fold(cell(sId) concat cell(userName) concat cell(targetName))(_ + _) + "\n"
           }
         }
         case _ => RefFailed(new IllegalStateException("Unknown task output body type"))
       }
-    ) yield line
+    } yield line
 
     val enum = for (h <- header) yield {
       import com.wbillingsley.handyplay.RefConversions._
