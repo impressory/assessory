@@ -4,6 +4,10 @@ import com.assessory.api._
 import question._
 import reactivemongo.bson._
 
+import CommonFormats._
+import com.wbillingsley.handy.Id
+import Id._
+
 object QuestionHandler extends BSONHandler[BSONDocument, Question] {
   
   val shortTextWriter = Macros.writer[ShortTextQuestion]
@@ -12,7 +16,7 @@ object QuestionHandler extends BSONHandler[BSONDocument, Question] {
   
   object shortTextReader extends BSONDocumentReader[ShortTextQuestion] {
     def read(doc:BSONDocument) = ShortTextQuestion(
-       id=doc.getAs[String]("id").getOrElse(TaskDAO.allocateId),
+       id=doc.getAs[Id[Question,String]]("id").getOrElse(TaskDAO.allocateId.asId[Question]),
        prompt=doc.getAs[String]("prompt").getOrElse(""),
        maxLength=doc.getAs[Int]("maxLength")
     )
@@ -20,14 +24,14 @@ object QuestionHandler extends BSONHandler[BSONDocument, Question] {
   
   object tickBoxReader extends BSONDocumentReader[TickBoxQuestion] {
     def read(doc:BSONDocument) = TickBoxQuestion(
-       id=doc.getAs[String]("id").getOrElse(TaskDAO.allocateId),
+       id=doc.getAs[Id[Question,String]]("id").getOrElse(TaskDAO.allocateId.asId),
        prompt=doc.getAs[String]("prompt").getOrElse("")
     )
   }
 
   object integerReader extends BSONDocumentReader[IntegerQuestion] {
     def read(doc:BSONDocument) = IntegerQuestion(
-       id=doc.getAs[String]("id").getOrElse(TaskDAO.allocateId),
+       id=doc.getAs[Id[Question,String]]("id").getOrElse(TaskDAO.allocateId.asId),
        prompt=doc.getAs[String]("prompt").getOrElse(""),
        max=doc.getAs[Int]("max"),
        min=doc.getAs[Int]("min")

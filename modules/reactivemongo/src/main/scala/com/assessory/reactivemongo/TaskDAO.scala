@@ -2,8 +2,12 @@ package com.assessory.reactivemongo
 
 import com.wbillingsley.handy.reactivemongo._
 import reactivemongo.bson._
-import com.wbillingsley.handy.{RefWithId, Ref, RefNone, RefManyById}
+import com.wbillingsley.handy.{RefWithId, Id, Ref, RefNone, RefManyById}
 import com.wbillingsley.handy.Ref._
+import com.wbillingsley.handy.Id._
+
+import CommonFormats._
+import com.assessory.api.wiring.Lookups._
 
 import com.assessory.api._
 import course._
@@ -23,12 +27,12 @@ object TaskDAO extends DAO {
   implicit val tdHandler = Macros.handler[TaskDetails]
   implicit val tbHandler = TaskBodyHandler
   
-  def unsaved = Task(id = allocateId)
+  def unsaved = Task(id = allocateId.asId[Task])
   
   implicit object bsonReader extends BSONDocumentReader[Task] {
     def read(doc:BSONDocument):Task = {
       new Task(
-        id = doc.getAs[BSONObjectID]("_id").get.stringify,
+        id = doc.getAs[Id[Task,String]]("_id").get,
         course = doc.getAs[RefWithId[Course]]("course").getOrElse(RefNone),
         details = doc.getAs[TaskDetails]("details").getOrElse(new TaskDetails),
         body = doc.getAs[TaskBody]("body")

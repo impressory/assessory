@@ -4,11 +4,14 @@ import com.wbillingsley.handy.reactivemongo._
 import com.assessory.api.{User, PasswordLogin, Identity, ActiveSession}
 import reactivemongo.api._
 import reactivemongo.bson._
-import com.wbillingsley.handy.{Refused, LazyId, Ref, RefNone}
+import com.wbillingsley.handy.{Refused, Id, LazyId, Ref, RefNone}
 import com.wbillingsley.handy.Ref._
-import com.wbillingsley.handy.appbase.UserProvider
+import Id._
+import com.wbillingsley.handyplay.UserProvider
 import com.assessory.api.course.{Course, Registration}
 import play.api.mvc.{RequestHeader, Request}
+
+import CommonFormats._
 
 object UserDAO extends DAO with UserProvider[User] {
 
@@ -35,7 +38,7 @@ object UserDAO extends DAO with UserProvider[User] {
 
   val executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
-  def unsaved = User(id = allocateId)
+  def unsaved = User(id = allocateId.asId)
 
   /** Converts PasswordLogin to and from BSON */
   implicit val pwloginFormat = Macros.handler[PasswordLogin]
@@ -59,7 +62,7 @@ object UserDAO extends DAO with UserProvider[User] {
   implicit object bsonReader extends BSONDocumentReader[User] {
     def read(doc:BSONDocument):User = {
       val u = new User(
-        id = doc.getAs[BSONObjectID]("_id").get.stringify,    
+        id = doc.getAs[Id[User,String]]("_id").get,
         name = doc.getAs[String]("name"),
         nickname = doc.getAs[String]("nickname"),
         avatar = doc.getAs[String]("avatar"),
@@ -67,7 +70,6 @@ object UserDAO extends DAO with UserProvider[User] {
         identities = doc.getAs[Seq[Identity]]("identities").getOrElse(Seq.empty),
         secret = doc.getAs[String]("secret").getOrElse(""),
         activeSessions = doc.getAs[Seq[ActiveSession]]("activeSessions").getOrElse(Seq.empty),
-        registrations = doc.getAs[Seq[Registration]]("registrations").getOrElse(Seq.empty),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis())
       )
       u
@@ -95,16 +97,12 @@ object UserDAO extends DAO with UserProvider[User] {
     BSONDocument(
       idIs(u.id),
       "name" -> u.name,
-      "surname" -> u.surname,
-      "givenName" -> u.givenName,
-      "preferredName" -> u.preferredName,
       "nickname" -> u.nickname,
       "avatar" -> u.avatar,
       "pwlogin" -> u.pwlogin,
       "secret" -> u.secret,
       "identities" -> u.identities,
       "activeSessions" -> u.activeSessions,
-      "registrations" -> u.registrations,
       "created" -> u.created
     ),
     u

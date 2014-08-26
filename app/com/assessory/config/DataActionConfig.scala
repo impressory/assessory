@@ -1,6 +1,6 @@
 package com.assessory.config
 
-import com.wbillingsley.handy.appbase.DataActionConfig
+import com.wbillingsley.handyplay.DataActionConfig
 import com.assessory.reactivemongo._
 import com.assessory.api.UserError
 

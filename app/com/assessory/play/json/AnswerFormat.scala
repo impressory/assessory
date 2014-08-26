@@ -1,11 +1,11 @@
 package com.assessory.play.json
 
-import com.wbillingsley.handy.appbase.JsonConverter
+import com.wbillingsley.handyplay.JsonConverter
 import com.assessory.api._
 import course._
 import group._
 import com.wbillingsley.handy._
-import Ref._
+import Id._
 import play.api.libs.json.{Json, JsValue, JsObject, Writes, Format, JsSuccess}
 import question._
 import com.assessory.reactivemongo.TaskDAO
@@ -20,7 +20,7 @@ object AnswerFormat extends Format[Answer] {
     )
     
     def reads(j:JsValue) = JsSuccess(ShortTextAnswer(
-      question = (j \ "question").asOpt[String],
+      question = (j \ "question").asOpt[String].map(_.asId),
       answer = (j \ "answer").asOpt[String]
     ))
     
@@ -33,7 +33,7 @@ object AnswerFormat extends Format[Answer] {
     )
     
     def reads(j:JsValue) = JsSuccess(TickBoxAnswer(
-      question = (j \ "question").asOpt[String],
+      question = (j \ "question").asOpt[String].map(_.asId),
       answer = (j \ "answer").asOpt[Boolean].orElse(Some(false))
     ))
     
@@ -47,7 +47,7 @@ object AnswerFormat extends Format[Answer] {
     )
     
     def reads(j:JsValue) = JsSuccess(IntegerAnswer(
-      question = (j \ "question").asOpt[String],
+      question = (j \ "question").asOpt[String].map(_.asId),
       answer = (j \ "answer").asOpt[Int]
     ))
     

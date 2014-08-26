@@ -3,14 +3,17 @@ package com.assessory.reactivemongo
 import com.wbillingsley.handy.reactivemongo._
 import reactivemongo.api._
 import reactivemongo.bson._
-import com.wbillingsley.handy.{Ref, RefWithId, RefNone, RefManyById}
+import com.wbillingsley.handy.{Ref, Id, RefWithId, RefNone, RefManyById}
 import com.wbillingsley.handy.Ref._
-import com.wbillingsley.handy.appbase.UserProvider
+import com.wbillingsley.handy.Id._
 
 import com.assessory.api._
 import course._
 import group._
 import question._
+
+import CommonFormats._
+import com.assessory.api.wiring.Lookups._
 
 object TaskOutputDAO extends DAO {
 
@@ -26,12 +29,12 @@ object TaskOutputDAO extends DAO {
 
   implicit val tobHandler = TaskOutputBodyHandler
   
-  def unsaved = TaskOutput(id = allocateId)
+  def unsaved = TaskOutput(id = allocateId.asId[TaskOutput])
   
   implicit object bsonReader extends BSONDocumentReader[TaskOutput] {
     def read(doc:BSONDocument):TaskOutput = {
       new TaskOutput(
-        id = doc.getAs[BSONObjectID]("_id").get.stringify,
+        id = doc.getAs[Id[TaskOutput,String]]("_id").get,
         task = doc.getAs[RefWithId[Task]]("task").getOrElse(RefNone),
         byUser = doc.getAs[RefWithId[User]]("byUser").getOrElse(RefNone),
         byGroup = doc.getAs[RefWithId[Group]]("byGroup").getOrElse(RefNone),
@@ -53,7 +56,7 @@ object TaskOutputDAO extends DAO {
     val d = BSONDocument(
       idIs(t.id),
       "task" -> t.task,
-      "byUser" -> t.byUser, "byGroup" -> t.byGroup, "attnUsers" -> t.attnUsers, "attnGroups" -> t.attnGroups,
+      "byUser" -> t.byUser, "byGroup" -> t.byGroup, "attnUsers" -> t.attnUsers.getIds, "attnGroups" -> t.attnGroups.getIds,
       "body" -> t.body, "created" -> t.created, "updated" -> t.updated
     )
     saveSafe(d,t)
@@ -110,13 +113,12 @@ object TaskOutputDAO extends DAO {
     for {
       uid <- id(u)
       gids <- groupIds.toRefOne.map(_.toSeq);
-      gg = RefManyById(gids).of[Group]
       to <- {
         val d = BSONDocument(
         "task" -> (t.itself:RefWithId[Task]),
         "$or" -> BSONArray(
           BSONDocument("attnUsers" -> uid),
-          BSONDocument("attnGroups" -> BSONDocument("$in" -> gg))
+          BSONDocument("attnGroups" -> BSONDocument("$in" -> gids))
         )
         )
         findMany(d)

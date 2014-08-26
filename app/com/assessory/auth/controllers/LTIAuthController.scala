@@ -9,11 +9,11 @@ import course._
 import com.wbillingsley.handy.playoauth._
 import play.api.libs.json.Json
 import scala.util.Success
-import com.wbillingsley.handy.appbase.DataAction.BodyAction
+import com.wbillingsley.handyplay.DataAction.BodyAction
 import play.api.mvc.BodyParsers
 import play.api.mvc.EssentialAction
 
-import com.assessory.reactivemongo._
+import com.assessory.api.wiring.Lookups._
 
 
 object LTIAuthController extends Controller {

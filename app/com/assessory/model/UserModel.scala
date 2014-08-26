@@ -6,6 +6,8 @@ import com.assessory.api._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
 
+import com.assessory.api.wiring.Lookups._
+
 object UserModel {
 
   /**
@@ -18,7 +20,7 @@ object UserModel {
       user <- {
         val u = UserDAO.unsaved
         val set = u.copy(
-          pwlogin=u.pwlogin.copy(email=Some(email), pwhash=u.pwlogin.hash(password)),
+          pwlogin=u.pwlogin.copy(email=Some(email), pwhash=Some(u.pwlogin.hash(password))),
           activeSessions=Seq(session)
         )
         UserDAO.saveNew(set)

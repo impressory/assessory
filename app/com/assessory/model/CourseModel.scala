@@ -7,7 +7,10 @@ import com.assessory.api._
 import course._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
+import Ids._
 import play.api.libs.json.JsValue
+
+import com.assessory.api.wiring.Lookups._
 
 object CourseModel {
 
@@ -15,17 +18,15 @@ object CourseModel {
   /**
    * Creates a course
    */
-  def create(a:Approval[User], json:JsValue):Ref[JsValue] = {
+  def create(a:Approval[User], json:JsValue):Ref[Course] = {
     for {
       u <- a.who orIfNone Refused("You must be logged in to create courses")
       approved <- a ask Permissions.CreateCourse;
       unsaved = CourseToJson.update(CourseDAO.unsaved.copy(addedBy=u.itself), json);
       saved <- CourseDAO.saveNew(unsaved);
-      regPushed <- UserDAO.pushRegistration(u.itself, Registration(course=saved.itself, roles=Seq(CourseRole.student, CourseRole.staff)));
 
-      // When the request began, the user was not registered with this course. We need to produce json for the updated version that is
-      j <- CourseToJson.toJsonFor(saved, Approval(regPushed.itself))
-    } yield j
+      reg <- RegistrationDAO.register(u.id, saved.id, CourseRole.roles)
+    } yield saved
   }
 
   /**
@@ -59,11 +60,13 @@ object CourseModel {
    * Searches for course pre-enrolments, and performs them
    */
   def doPreenrolments(user:User)= {
-    val updates = for (
+    val updates = for {
       i <- user.identities.toRefMany;
-      p <- PreenrolDAO.useRow(service=i.service, value=Some(i.value), username=i.username);
-      pushed <- UserDAO.pushRegistration(user.itself, Registration(course=p.course, roles=p.roles.toSeq))
-    ) yield pushed
+      p <- PreenrolDAO.useRow(service = i.service, value = Some(i.value), username = i.username);
+
+      cId <- p.course.refId
+      reg <- RegistrationDAO.register(user.id, cId, p.roles)
+    } yield user
 
     // We want to return the user when they have been registered for everything: ie, the last item in the RefMany
     updates.fold(user)((last, updated) => updated)
@@ -81,17 +84,16 @@ object CourseModel {
 
     val rIds = for (
       u <- userAfterUpdates;
-      r <- u.registrations.toRefMany;
-      cid <- r.course.refId
-    ) yield cid
+      r <- RegistrationDAO.byUser(u.id)
+    ) yield r.course
 
 
-    for (
-      ids <- rIds.toRefOne;
-      c <- RefManyById(ids.toSeq).of[Course];
+    for {
+      ids <- rIds.toIds
+      c <- ids.lookUp
       approved <- approval ask Permissions.ViewCourse(c.itself);
       j <- CourseToJson.toJsonFor(c, approval)
-    ) yield j
+    } yield j
   }
 
 }

@@ -1,6 +1,6 @@
 package com.assessory.play.json
 
-import com.wbillingsley.handy.appbase.JsonConverter
+import com.wbillingsley.handyplay.JsonConverter
 import com.assessory.api._
 import course._
 import com.wbillingsley.handy._
@@ -9,11 +9,20 @@ import play.api.libs.json.Json
 import play.api.libs.json.JsValue
 
 object CourseToJson extends JsonConverter[Course, User] {
-  
-  implicit val courseFormat = Json.writes[Course]
-  
+
+  private def core(c:Course) = Json.obj(
+    "id" -> c.id,
+    "title" -> c.title,
+    "shortName" -> c.shortName,
+    "shortDescription" -> c.shortDescription,
+    "website" -> c.website,
+    "coverImage" -> c.coverImage,
+    "addedBy" -> c.addedBy,
+    "created" -> c.created
+  )
+
   def toJsonFor(c:Course, a:Approval[User]) = {
-    
+
     val permissions = for (
       view <- optionally(a ask Permissions.EditCourse(c.itself));
       edit <- optionally(a ask Permissions.EditCourse(c.itself))
@@ -22,10 +31,10 @@ object CourseToJson extends JsonConverter[Course, User] {
       "edit" -> edit.isDefined
     )
     
-    for (p <- permissions) yield courseFormat.writes(c) ++ Json.obj("permissions" -> p)
+    for (p <- permissions) yield core(c) ++ Json.obj("permissions" -> p)
   }
   
-  def toJson(c:Course) = courseFormat.writes(c).itself
+  def toJson(c:Course) = core(c).itself
   
   /**
    * Produces an update Course object

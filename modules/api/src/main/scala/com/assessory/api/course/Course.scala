@@ -5,7 +5,7 @@ import com.assessory.api._
 
 case class Course (
 
-    id:String,
+    id:Id[Course, String],
     
     title: Option[String] = None,
     
@@ -21,4 +21,4 @@ case class Course (
     
     created:Long = System.currentTimeMillis
     
-) extends HasStringId
+) extends HasStringId[Course]

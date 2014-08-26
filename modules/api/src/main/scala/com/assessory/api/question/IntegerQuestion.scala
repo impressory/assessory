@@ -1,8 +1,10 @@
 package com.assessory.api.question
 
+import com.wbillingsley.handy.Id
+
 case class IntegerQuestion(
   
-    id: String,
+    id: Id[Question,String],
     
     prompt: String,
     
@@ -30,7 +32,7 @@ object IntegerQuestion {
 
 case class IntegerAnswer(
   
-  question: Option[String],
+  question: Option[Id[Question,String]],
   
   answer: Option[Int]
 

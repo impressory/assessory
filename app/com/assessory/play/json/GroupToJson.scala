@@ -1,6 +1,6 @@
 package com.assessory.play.json
 
-import com.wbillingsley.handy.appbase.JsonConverter
+import com.wbillingsley.handyplay.JsonConverter
 import com.assessory.api._
 import com.assessory.reactivemongo._
 import course._

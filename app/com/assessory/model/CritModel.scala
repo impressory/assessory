@@ -11,7 +11,6 @@ import critique._
 import question._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
-import com.wbillingsley.handy.appbase.DataAction
 import com.assessory.reactivemongo.CritAllocationDAO
 import Ref._
 

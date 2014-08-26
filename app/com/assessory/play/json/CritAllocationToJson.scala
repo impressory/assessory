@@ -1,6 +1,6 @@
 package com.assessory.play.json
 
-import com.wbillingsley.handy.appbase.JsonConverter
+import com.wbillingsley.handyplay.JsonConverter
 import com.assessory.api._
 import group._
 import critique._
@@ -14,7 +14,14 @@ object CritAllocationToJson extends JsonConverter[CritAllocation, User] {
   
   implicit val gpFormat = Json.writes[IdentityLookup]
   implicit val gcacFormat = Json.writes[AllocatedCrit]
-  implicit val gcaFormat = Json.writes[CritAllocation]
+  implicit val gcaFormat = new Writes[CritAllocation] {
+    def writes(ca:CritAllocation) = Json.obj(
+      "id" -> ca.id,
+      "task" -> ca.task,
+      "user" -> ca.user,
+      "allocation" -> ca.allocation
+    )
+  }
   
   def toJsonFor(gca:CritAllocation, a:Approval[User]) = {
     val perm = for (write <- optionally(a ask Permissions.WriteCritique(gca.itself))) yield Json.obj(

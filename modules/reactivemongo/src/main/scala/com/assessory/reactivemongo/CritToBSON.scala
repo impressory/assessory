@@ -7,6 +7,8 @@ import critique._
 import group._
 import com.wbillingsley.handy._
 
+import com.assessory.api.wiring.Lookups._
+
 object CritiqueTaskToBSON {
   
   implicit val qhandler = QuestionHandler

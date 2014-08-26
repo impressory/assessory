@@ -6,8 +6,10 @@ import com.assessory.play.json._
 import com.assessory.api._
 import critique._
 import com.wbillingsley.handy._
-import com.wbillingsley.handy.appbase.{WithHeaderInfo, DataAction}
+import com.wbillingsley.handyplay.{WithHeaderInfo, DataAction}
 import com.assessory.reactivemongo.CritAllocationDAO
+
+import com.assessory.api.wiring.Lookups._
 
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 

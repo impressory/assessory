@@ -10,11 +10,12 @@ import course._
 import group._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
-import com.wbillingsley.handy.appbase.{WithHeaderInfo, DataAction}
+import com.wbillingsley.handyplay.{WithHeaderInfo, DataAction}
 import com.assessory.api.critique._
 import play.api.libs.iteratee.Enumerator
 import com.assessory.model.TaskOutputModel
 
+import com.assessory.api.wiring.Lookups._
 
 object TaskOutputController extends Controller {
 

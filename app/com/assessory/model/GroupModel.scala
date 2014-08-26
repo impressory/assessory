@@ -8,7 +8,10 @@ import course._
 import group._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
+import com.wbillingsley.handy.Ids._
 import play.api.libs.json.JsValue
+
+import com.assessory.api.wiring.Lookups._
 
 object GroupModel {
 
@@ -133,23 +136,18 @@ object GroupModel {
            * Also memoize the result of either our creation or our search in case of duplicate rows in the CSV
            */
           user <- userCache.getOrElseUpdate(studentNumber.trim, {
-            UserDAO.byIdentity(course.id, studentNumber) orIfNone {
+            UserDAO.byIdentity(I_STUDENT_NUMBER, studentNumber) orIfNone {
               val user = UserDAO.unsaved.copy(
-                surname = Option(surname).filter(_.trim.nonEmpty),
-                givenName = Option(givenName).filter(_.trim.nonEmpty),
                 nickname = Option(prefName).filter(_.trim.nonEmpty) orElse Option(givenName).filter(_.trim.nonEmpty),
                 pwlogin = PasswordLogin(email=Option(email).filter(_.trim.nonEmpty)),
-                registrations = Seq(Registration(
-                  course = course.itself,
-                  roles = Seq(CourseRole.student)
-                )),
-                identities = Seq(Identity(service=course.id, value=studentNumber.trim))
+                identities = Seq(Identity(service=course.id.id, value=studentNumber.trim))
               )
+              RegistrationDAO.register(user.id, course.id, Set(CourseRole.student))
               UserDAO.saveNew(user)
             }
           })
         } yield user.id
-      }.toRefOne
+      }.toIds
 
       // Find the parent group if there is one
       parent <- optionally {
@@ -167,7 +165,7 @@ object GroupModel {
         course = course.itself,
         set = set.itself,
         parent = Ref(parent),
-        members = RefManyById(userIds.toSeq).of[User],
+        members = RefManyById(userIds.ids).of[User],
         provenance = Some("csv")
       )
       saved <- GroupDAO.saveNew(group)

@@ -1,7 +1,7 @@
 package com.assessory.play.controllers
 
 import play.api.mvc.{Action, Controller}
-import com.wbillingsley.handy.appbase.{HeaderInfo, WithHeaderInfo, DataAction}
+import com.wbillingsley.handyplay.{HeaderInfo, WithHeaderInfo, DataAction}
 import com.assessory.api.UserError
 import com.wbillingsley.handy._
 import Ref._

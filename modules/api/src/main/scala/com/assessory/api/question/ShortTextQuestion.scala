@@ -1,8 +1,10 @@
 package com.assessory.api.question
 
+import com.wbillingsley.handy.Id
+
 case class ShortTextQuestion(
     
-  id:String, 
+  id:Id[Question,String],
   
   prompt: String,
   
@@ -29,7 +31,7 @@ object ShortTextQuestion {
 
 case class ShortTextAnswer(
 
-  question: Option[String],
+  question: Option[Id[Question,String]],
 
   answer: Option[String]
 

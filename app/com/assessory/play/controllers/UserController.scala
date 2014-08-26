@@ -7,7 +7,7 @@ import com.assessory.model._
 
 import com.assessory.api._
 import com.assessory.reactivemongo._
-import com.wbillingsley.handy.appbase.{WithHeaderInfo, DataAction}
+import com.wbillingsley.handyplay.{WithHeaderInfo, DataAction}
 import com.wbillingsley.handy._
 import Ref._
 import com.assessory.reactivemongo.UserDAO
@@ -52,10 +52,10 @@ object UserController extends Controller {
     )
   }
 
-  def autologin(userId:String, secret:String) = DataAction.returning.resultWH { implicit request =>
+  def autologin(user:Ref[User], secret:String) = DataAction.returning.resultWH { implicit request =>
     val loggedIn = for {
       u <- UserModel.secretLogIn(
-        ru = LazyId(userId).of[User],
+        ru = user,
         secret = secret,
         activeSession = ActiveSession(request.sessionKey, request.remoteAddress)
       )

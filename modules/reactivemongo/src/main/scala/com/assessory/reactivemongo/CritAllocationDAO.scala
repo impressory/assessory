@@ -4,13 +4,16 @@ import com.wbillingsley.handy.reactivemongo._
 import reactivemongo.api._
 import reactivemongo.bson._
 import com.wbillingsley.handy._
-import com.wbillingsley.handy.Ref._
-import com.wbillingsley.handy.appbase.UserProvider
+import com.wbillingsley.handy.Id._
+import com.wbillingsley.handyplay.UserProvider
 
 import com.assessory.api._
 import course._
 import group._
 import critique._
+
+import CommonFormats._
+import com.assessory.api.wiring.Lookups._
 
 object CritAllocationDAO extends DAO {
   
@@ -26,12 +29,12 @@ object CritAllocationDAO extends DAO {
 
   import CritiqueToBSON._
   
-  def unsaved = CritAllocation(id = allocateId)
+  def unsaved = CritAllocation(id = allocateId.asId[CritAllocation])
     
   implicit object bsonReader extends BSONDocumentReader[CritAllocation] {
     def read(doc:BSONDocument):CritAllocation = {
       new CritAllocation(
-        id = doc.getAs[BSONObjectID]("_id").get.stringify,
+        id = doc.getAs[Id[CritAllocation,String]]("_id").get,
         task = doc.getAs[RefWithId[Task]]("task").getOrElse(RefNone),
         user = doc.getAs[RefWithId[User]]("user").getOrElse(RefNone),
         allocation = doc.getAs[Seq[AllocatedCrit]]("allocation").getOrElse(Seq.empty)

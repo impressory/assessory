@@ -8,6 +8,6 @@ object CourseRole {
     
   val student:T = "student"
     
-  val roles:Seq[T] = Seq(staff, student)
+  val roles:Set[T] = Set(staff, student)
   
 }

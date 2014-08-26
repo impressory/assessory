@@ -54,9 +54,8 @@ object CritiqueJson {
     implicit val luto =com.assessory.reactivemongo.TaskOutputDAO.LookUp
 
     def reads(json:JsValue) = (json \ "kind").as[String] match {
-        // TODO: check why we needed to make readsRef explicit, when it should have been found implicitly
-      case "Group" => JsSuccess(CTGroup(g = (json\"ref").as[RefWithId[Group]](readsRef(lookupGroup))))
-      case "TaskOutput"  => JsSuccess(CTTaskOutput(t = (json\"ref").as[RefWithId[TaskOutput]](readsRef(lookupTaskOutput))))
+      case "Group" => JsSuccess(CTGroup(g = (json\"ref").as[Id[Group,String]].lazily))
+      case "TaskOutput"  => JsSuccess(CTTaskOutput(t = (json\"ref").as[Id[TaskOutput,String]].lazily))
     }
   }
 

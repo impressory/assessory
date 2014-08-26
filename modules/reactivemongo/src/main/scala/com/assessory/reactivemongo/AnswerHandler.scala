@@ -3,6 +3,7 @@ package com.assessory.reactivemongo
 import com.assessory.api._
 import question._
 import reactivemongo.bson._
+import CommonFormats._
 
 object AnswerHandler extends BSONHandler[BSONDocument, Answer] {
   

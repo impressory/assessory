@@ -5,7 +5,7 @@ import com.assessory.api.course.Course
 
 case class GroupSet (
     
-    id:String,
+    id:Id[GroupSet,String],
     
     name:Option[String] = None,
     
@@ -19,4 +19,4 @@ case class GroupSet (
     
     created: Long = System.currentTimeMillis
     
-) extends HasStringId
+) extends HasStringId[GroupSet]

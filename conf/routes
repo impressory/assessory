@@ -52,7 +52,7 @@ POST    /course/my                  com.assessory.play.controllers.CourseControl
 GET     /course/:id                 com.assessory.play.controllers.CourseController.get(id)
 POST    /course/create              com.assessory.play.controllers.CourseController.create
 POST    /course/findMany            com.assessory.play.controllers.CourseController.findMany
-GET     /course/:id/autolinks       com.assessory.play.controllers.CourseController.autolinks(id)
+GET     /course/:id/autolinks       com.assessory.play.controllers.CourseController.autolinks(id:Ref[course.Course])
 
 # Logged in user
 POST	/self						com.assessory.play.controllers.UserController.self
@@ -61,7 +61,7 @@ POST	/signUp						com.assessory.play.controllers.UserController.signUp
 POST	/logIn 						com.assessory.play.controllers.UserController.logIn
 POST	/logOut						com.assessory.play.controllers.UserController.logOut
 
-GET   /auto/:userId/:secret         com.assessory.play.controllers.UserController.autologin(userId, secret)
+GET   /auto/:user/:secret         com.assessory.play.controllers.UserController.autologin(user:Ref[User], secret)
 
 # Auth
 ->      /oauth                      handyplayoauth.Routes

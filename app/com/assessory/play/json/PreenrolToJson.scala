@@ -1,19 +1,29 @@
 package com.assessory.play.json
 
-import com.wbillingsley.handy.appbase.JsonConverter
+import com.wbillingsley.handyplay.JsonConverter
 import com.assessory.api._
 import com.assessory.reactivemongo._
 import course._
 import group._
 import com.wbillingsley.handy._
 import Ref._
-import play.api.libs.json.Json
-import play.api.libs.json.JsValue
+import play.api.libs.json.{Writes, Json, JsValue}
+
+import com.assessory.api.wiring.Lookups._
 
 object PreenrolToJson extends JsonConverter[Preenrol, User] {
   
   implicit val ppFormat = Json.writes[IdentityLookup]
-  implicit val peFormat = Json.writes[Preenrol]
+  implicit val peFormat = new Writes[Preenrol] {
+    def writes(p:Preenrol) = Json.obj(
+      "id" -> p.id,
+      "name" -> p.name,
+      "roles" -> p.roles,
+      "course" -> p.course,
+      "identities" -> p.identities,
+      "created" -> p.created
+    )
+  }
   
   def toJsonFor(preenrol:Preenrol, a:Approval[User]) = {
     
@@ -46,7 +56,7 @@ object PreenrolToJson extends JsonConverter[Preenrol, User] {
   def updateWithCsv(p:Preenrol, json:JsValue) = {
     
     Preenrol.fromCsv(
-      id = p.id, 
+      id = p.id.id,
       name = (json \ "name").asOpt[String], 
       roles = (json \ "roles").asOpt[Seq[String]].getOrElse(Seq.empty).toSet,
       course = p.course, 

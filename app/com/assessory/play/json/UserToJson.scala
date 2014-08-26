@@ -1,6 +1,6 @@
 package com.assessory.play.json
 
-import com.wbillingsley.handy.appbase.JsonConverter
+import com.wbillingsley.handyplay.JsonConverter
 import com.assessory.api._
 import com.wbillingsley.handy.{Approval, RefNone}
 import com.wbillingsley.handy.Ref._
@@ -16,8 +16,6 @@ object UserToJson extends JsonConverter[User, User] {
   implicit val identityFormat = Json.format[Identity]
   
   implicit val sessionFormat = Json.format[ActiveSession]
-  
-  implicit val registrationWrites = Json.writes[Registration]
   
   implicit object pwLoginWrites extends Writes[PasswordLogin] {
     
@@ -40,7 +38,6 @@ object UserToJson extends JsonConverter[User, User] {
           "avatar" -> u.avatar,
           "identities" -> u.identities,
           "activeSessions" -> u.activeSessions,
-          "registrations" -> u.registrations,
           "pwlogin" -> u.pwlogin
         )
       } else {

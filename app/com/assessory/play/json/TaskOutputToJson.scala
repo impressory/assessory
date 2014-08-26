@@ -1,6 +1,6 @@
 package com.assessory.play.json
 
-import com.wbillingsley.handy.appbase.JsonConverter
+import com.wbillingsley.handyplay.JsonConverter
 import com.assessory.api._
 import com.assessory.reactivemongo._
 import course._
@@ -18,7 +18,20 @@ import play.Logger
 object TaskOutputToJson extends JsonConverter[TaskOutput, User] {
   
   implicit val tbodyFormat = TaskOutputBodyFormat
-  implicit val tout = Json.writes[TaskOutput]
+  implicit val tout = new Writes[TaskOutput] {
+    def writes(to:TaskOutput) = Json.obj(
+      "id" -> to.id,
+      "task" -> to.task,
+      "byUser" -> to.byUser,
+      "byGroup" -> to.byGroup,
+      "attnUsers" -> to.attnUsers,
+      "attnGroups" -> to.attnGroups,
+      "body" -> to.body,
+      "created" -> to.created,
+      "finalised" -> to.finalised,
+      "updated" -> to.updated
+    )
+  }
   
   def toJsonFor(t:TaskOutput, a:Approval[User]) = {
         

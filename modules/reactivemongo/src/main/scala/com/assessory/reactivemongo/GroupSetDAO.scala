@@ -1,12 +1,14 @@
 package com.assessory.reactivemongo
 
-
 import com.wbillingsley.handy.reactivemongo._
 import reactivemongo.api._
 import reactivemongo.bson._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
-import com.wbillingsley.handy.appbase.UserProvider
+import Id._
+
+import CommonFormats._
+import com.assessory.api.wiring.Lookups._
 
 import com.assessory.api._
 import course._
@@ -24,12 +26,12 @@ object GroupSetDAO extends DAO {
 
   val executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
-  def unsaved = GroupSet(id = allocateId)
+  def unsaved = GroupSet(id = allocateId.asId[GroupSet])
   
   implicit object bsonReader extends BSONDocumentReader[GroupSet] {
     def read(doc:BSONDocument):GroupSet = {
       new GroupSet(
-        id = doc.getAs[BSONObjectID]("_id").get.stringify,
+        id = doc.getAs[Id[GroupSet,String]]("_id").get,
         name = doc.getAs[String]("name"),
         description = doc.getAs[String]("description"),
         course = doc.getAs[RefWithId[Course]]("course").getOrElse(RefNone),

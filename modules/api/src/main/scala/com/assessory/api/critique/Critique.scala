@@ -2,7 +2,7 @@ package com.assessory.api.critique
 
 import com.assessory.api.question.{Answer, Questionnaire}
 import com.assessory.api.group.{Group, GroupSet}
-import com.wbillingsley.handy.{HasStringId, RefNone, RefWithId}
+import com.wbillingsley.handy._
 import com.assessory.api._
 import com.assessory.api.IdentityLookup
 import com.assessory.api.group.GroupSet
@@ -81,7 +81,7 @@ case class AllocatedCrit(
 
 case class CritAllocation(
 
-  id: String,
+  id: Id[CritAllocation,String],
 
   task: RefWithId[Task] = RefNone,
 
@@ -89,4 +89,4 @@ case class CritAllocation(
 
   allocation: Seq[AllocatedCrit] = Seq.empty
 
-) extends HasStringId
+) extends HasStringId[CritAllocation]

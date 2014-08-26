@@ -3,10 +3,11 @@ package com.assessory.api.course
 import com.wbillingsley.handy._
 import Ref._
 import com.assessory.api._
+import Id._
 
 case class Preenrol (
         
-    id:String,
+    id:Id[Preenrol,String],
     
     name: Option[String] = None,
     
@@ -18,7 +19,7 @@ case class Preenrol (
     
     created: Long = System.currentTimeMillis
     
-) extends HasStringId
+) extends HasStringId[Preenrol]
 
 
 object Preenrol {
@@ -40,7 +41,7 @@ object Preenrol {
       case ex:Throwable => RefFailed(ex)
     }
     
-    for (seq <- rSeq) yield Preenrol(id, name, roles, course, seq)
+    for (seq <- rSeq) yield Preenrol(id.asId[Preenrol], name, roles, course, seq)
   }
   
 }

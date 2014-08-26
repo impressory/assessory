@@ -4,8 +4,13 @@ import com.wbillingsley.handy.reactivemongo._
 import reactivemongo.api._
 import reactivemongo.bson._
 import com.wbillingsley.handy._
-import com.wbillingsley.handy.Ref._
-import com.wbillingsley.handy.appbase.UserProvider
+import com.wbillingsley.handy.Id._
+import Ref._
+import com.wbillingsley.handyplay.UserProvider
+
+import CommonFormats._
+import com.assessory.api.wiring.Lookups._
+
 
 import com.assessory.api._
 import course._
@@ -21,7 +26,7 @@ object GPreenrolDAO extends DAO {
     
   val db = DBConnector
   
-  def unsaved = GPreenrol(id = allocateId)
+  def unsaved = GPreenrol(id = allocateId.asId[GPreenrol])
 
   val executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
@@ -38,7 +43,7 @@ object GPreenrolDAO extends DAO {
   implicit object bsonReader extends BSONDocumentReader[GPreenrol] {
     def read(doc:BSONDocument):GPreenrol = {
       new GPreenrol(
-        id = doc.getAs[BSONObjectID]("_id").get.stringify,
+        id = doc.getAs[Id[GPreenrol, String]]("_id").get,
         course = doc.getAs[RefWithId[Course]]("course").getOrElse(RefNone),
         set = doc.getAs[RefWithId[GroupSet]]("set").getOrElse(RefNone),
         groupData = doc.getAs[Seq[GroupData]]("groupData").getOrElse(Seq.empty),

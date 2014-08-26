@@ -6,7 +6,7 @@ import com.wbillingsley.handy._
 
 case class Group (
     
-  id:String,
+  id:Id[Group,String],
 
   parent:RefWithId[Group] = RefNone,
 
@@ -22,4 +22,4 @@ case class Group (
   
   created:Long = System.currentTimeMillis
 
-) extends HasStringId
+) extends HasStringId[Group]

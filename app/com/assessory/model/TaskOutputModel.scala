@@ -10,11 +10,11 @@ import course._
 import group._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
-import com.wbillingsley.handy.appbase.DataAction
 import com.assessory.api.critique._
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.json.JsValue
 
+import com.assessory.api.wiring.Lookups._
 
 object TaskOutputModel {
 
@@ -91,8 +91,7 @@ object TaskOutputModel {
         case Some(gc: Critique) => {
           for {
             user <- a.cache(output.byUser);
-            courseStr <- task.course.getId.toRef
-            sIdentity <- user.getIdentity(courseStr).toRef
+            sIdentity <- user.getIdentity(I_STUDENT_NUMBER).toRef
             sId = sIdentity.value
             userName = user.nickname.getOrElse("Anonymous");
             targetName <- gc.target match {
@@ -103,7 +102,7 @@ object TaskOutputModel {
               case CTTaskOutput(rto) => (for {
                 to <- a.cache(rto)
                 u <- a.cache(to.byUser)
-                sIdentity <- u.getIdentity(courseStr).toRef
+                sIdentity <- u.getIdentity(I_STUDENT_NUMBER).toRef
               } yield sIdentity.value) orIfNone "Unnamed user".itself
             }
           } yield {

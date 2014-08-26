@@ -5,13 +5,12 @@ import play.api.libs.ws.WS
 import play.api.libs.json.Json
 import play.api.Play
 import Play.current
-import com.wbillingsley.encrypt.Encrypt
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.playoauth.{OAuthDetails, UserRecord}
 import Ref._
 import play.api.mvc.AnyContent
 import com.assessory.api._
-import com.wbillingsley.handy.appbase.DataAction
+import com.wbillingsley.handyplay.DataAction
 import scala.util.Try
 
 /**
@@ -63,8 +62,8 @@ object InterstitialController extends Controller {
    */
   def registerUser = DataAction.returning.result { implicit request =>
     val memString = request.session.get(sessionVar)
-    val mem = for (s <- memString; m <- Json.parse(s).asOpt[UserRecord]) yield m
-    
+    val mem = for (s <- memString; m <- (Json.parse(s) \ "userRecord").asOpt[UserRecord]) yield m
+
     val resp = for (
       details <- Ref(mem) orIfNone Refused("There appear to be no user details to register");
       user <- {

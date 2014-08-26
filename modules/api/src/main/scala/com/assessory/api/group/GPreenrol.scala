@@ -11,7 +11,7 @@ object GPreenrol {
 
 case class GPreenrol (
 
-    id: String, 
+    id: Id[GPreenrol,String],
     
     course: RefWithId[Course] = None,
     
@@ -21,7 +21,7 @@ case class GPreenrol (
     
     created: Long = System.currentTimeMillis
 
-) extends HasStringId
+) extends HasStringId[GPreenrol]
 
 
 

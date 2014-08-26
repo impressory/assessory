@@ -2,7 +2,7 @@ package com.assessory.api.question
 
 import com.wbillingsley.handy.HasStringId
 
-trait Question extends HasStringId {
+trait Question extends HasStringId[Question] {
 
   val kind: String
   

@@ -4,8 +4,13 @@ import com.wbillingsley.handy.reactivemongo._
 import reactivemongo.api._
 import reactivemongo.bson._
 import com.wbillingsley.handy._
-import com.wbillingsley.handy.Ref._
-import com.wbillingsley.handy.appbase.UserProvider
+import Ref._
+import Id._
+import com.wbillingsley.handyplay.UserProvider
+
+import CommonFormats._
+import com.assessory.api.wiring.Lookups._
+
 
 import com.assessory.api._
 import course._
@@ -23,12 +28,12 @@ object GroupDAO extends DAO {
 
   val executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
-  def unsaved = Group(id = allocateId)
+  def unsaved = Group(id = allocateId.asId[Group])
     
   implicit object bsonReader extends BSONDocumentReader[Group] {
     def read(doc:BSONDocument):Group = {
       new Group(
-        id = doc.getAs[BSONObjectID]("_id").get.stringify,
+        id = doc.getAs[Id[Group,String]]("_id").get,
         course = doc.getAs[RefWithId[Course]]("course").getOrElse(RefNone),
         set = doc.getAs[RefWithId[GroupSet]]("set").getOrElse(RefNone),
         parent = r(doc, "parent")(LookUp),
@@ -52,7 +57,7 @@ object GroupDAO extends DAO {
       "parent" -> g.parent,
       "name" -> g.name,
       "provenance" -> g.provenance,
-      "members" -> g.members,
+      "members" -> g.members.getIds,
       "created" -> g.created
     ),
     g

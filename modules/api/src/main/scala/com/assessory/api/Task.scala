@@ -5,7 +5,7 @@ import com.assessory.api.course.Course
 
 case class Task(
     
-   id: String,
+   id: Id[Task,String],
    
    course: RefWithId[Course] = RefNone,
     
@@ -13,7 +13,7 @@ case class Task(
 
    body: Option[TaskBody] = None
    
-) extends HasStringId {
+) extends HasStringId[Task] {
   
   def kind = body.map(_.kind)
   

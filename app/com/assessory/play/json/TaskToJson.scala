@@ -1,6 +1,6 @@
 package com.assessory.play.json
 
-import com.wbillingsley.handy.appbase.JsonConverter
+import com.wbillingsley.handyplay.JsonConverter
 import com.assessory.api._
 import com.assessory.reactivemongo._
 import course._
@@ -10,15 +10,23 @@ import Ref._
 import play.api.libs.json.{Json, JsValue, JsObject, Writes, Format}
 import critique._
 import question._
-import com.assessory.reactivemongo.TaskDAO
 import play.api.libs.json.JsSuccess
 import com.assessory.api.critique.{CritTargetStrategy, CritiqueTask}
+
+import com.assessory.api.wiring.Lookups._
 
 object TaskToJson extends JsonConverter[Task, User] {
   
   implicit val tbodyFormat = TaskBodyFormat
   implicit val tdFormat = Json.writes[TaskDetails]
-  implicit val tFormat = Json.writes[Task]
+  implicit val tFormat = new Writes[Task] {
+    def writes(t:Task) = Json.obj(
+      "id" -> t.id,
+      "course" -> t.course,
+      "details" -> t.details,
+      "body" -> t.body
+    )
+  }
   
   def toJsonFor(t:Task, a:Approval[User]) = {    
     val permissions = for (

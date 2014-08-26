@@ -10,7 +10,7 @@ trait TaskOutputBody {
 
 case class TaskOutput (
   
-  val id:String,
+  val id:Id[TaskOutput,String],
 
   val task:RefWithId[Task] = RefNone,
   
@@ -29,4 +29,4 @@ case class TaskOutput (
   val finalised:Option[Long] = None,
   
   val updated:Long = System.currentTimeMillis
-) extends HasStringId 
+) extends HasStringId[TaskOutput]

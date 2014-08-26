@@ -1,11 +1,10 @@
 package com.assessory.play.json
 
-import com.wbillingsley.handy.appbase.JsonConverter
 import com.assessory.api._
 import course._
 import group._
 import com.wbillingsley.handy._
-import Ref._
+import Id._
 import play.api.libs.json.{Json, JsValue, JsObject, Writes, Format, JsSuccess}
 import question._
 import com.assessory.reactivemongo.TaskDAO
@@ -21,7 +20,7 @@ object QuestionFormat extends Format[Question] {
     )
     
     def reads(j:JsValue) = JsSuccess(ShortTextQuestion(
-      id = (j \ "id").asOpt[String].getOrElse(TaskDAO.allocateId),
+      id = (j \ "id").asOpt[String].map(_.asId).getOrElse(TaskDAO.allocateId.asId),
       prompt = (j \ "prompt").asOpt[String].getOrElse(""),
       maxLength = (j \ "maxLength").asOpt[Int],
       required = (j \ "required").asOpt[Boolean].getOrElse(false),
@@ -38,7 +37,7 @@ object QuestionFormat extends Format[Question] {
     )
     
     def reads(j:JsValue) = JsSuccess(TickBoxQuestion(
-      id = (j \ "id").asOpt[String].getOrElse(TaskDAO.allocateId),
+      id = (j \ "id").asOpt[String].map(_.asId).getOrElse(TaskDAO.allocateId.asId),
       prompt = (j \ "prompt").asOpt[String].getOrElse(""),
       required = (j \ "required").asOpt[Boolean].getOrElse(false),
       active = (j \ "active").asOpt[Boolean].getOrElse(true)
@@ -55,7 +54,7 @@ object QuestionFormat extends Format[Question] {
     )
     
     def reads(j:JsValue) = JsSuccess(IntegerQuestion(
-      id = (j \ "id").asOpt[String].getOrElse(TaskDAO.allocateId),
+      id = (j \ "id").asOpt[String].map(_.asId).getOrElse(TaskDAO.allocateId.asId),
       prompt = (j \ "prompt").asOpt[String].getOrElse(""),
       max = (j \ "max").asOpt[Int],
       min = (j \ "min").asOpt[Int],

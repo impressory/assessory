@@ -1,8 +1,10 @@
 package com.assessory.api.question
 
+import com.wbillingsley.handy.Id
+
 case class TickBoxQuestion(
     
-  id:String, 
+  id:Id[Question,String],
   
   prompt: String,
   
@@ -26,7 +28,7 @@ object TickBoxQuestion {
 
 case class TickBoxAnswer(
   
-  question: Option[String],
+  question: Option[Id[Question,String]],
   
   answer: Option[Boolean]
 

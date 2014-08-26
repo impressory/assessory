@@ -1,14 +1,14 @@
 package com.assessory.play.json
 
-import com.wbillingsley.handy.appbase.JsonConverter
+import com.wbillingsley.handyplay.JsonConverter
 import com.assessory.api._
-import com.assessory.reactivemongo._
 import course._
 import group._
 import com.wbillingsley.handy._
 import Ref._
-import play.api.libs.json.Json
-import play.api.libs.json.JsValue
+import play.api.libs.json.{Writes, Json, JsValue}
+
+import com.assessory.api.wiring.Lookups._
 
 object GPreenrolToJson extends JsonConverter[GPreenrol, User] {
   
@@ -16,7 +16,15 @@ object GPreenrolToJson extends JsonConverter[GPreenrol, User] {
   
   implicit val gpFormat = Json.writes[IdentityLookup]
   implicit val gdFormat = Json.writes[GroupData]
-  implicit val gpeFormat = Json.writes[GPreenrol]
+  implicit val gpeFormat = new Writes[GPreenrol] {
+    def writes(gp:GPreenrol) = Json.obj(
+      "id" -> gp.id,
+      "course" -> gp.course,
+      "set" -> gp.set,
+      "groupData" -> gp.groupData,
+      "created" -> gp.created
+    )
+  }
   
   def toJsonFor(gp:GPreenrol, a:Approval[User]) = {
     

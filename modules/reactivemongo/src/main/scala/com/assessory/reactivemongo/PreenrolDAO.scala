@@ -5,7 +5,10 @@ import reactivemongo.api._
 import reactivemongo.bson._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
-import com.wbillingsley.handy.appbase.UserProvider
+import Id._
+
+import CommonFormats._
+import com.assessory.api.wiring.Lookups._
 
 import com.assessory.api._
 import course._
@@ -22,12 +25,12 @@ object PreenrolDAO extends DAO {
 
   val executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
-  def unsaved = Preenrol(id = allocateId)
+  def unsaved = Preenrol(id = allocateId.asId[Preenrol])
   
   implicit object bsonReader extends BSONDocumentReader[Preenrol] {
     def read(doc:BSONDocument):Preenrol = {
       new Preenrol(
-        id = doc.getAs[BSONObjectID]("_id").get.stringify,
+        id = doc.getAs[Id[Preenrol,String]]("_id").get,
         course = doc.getAs[RefWithId[Course]]("course").getOrElse(RefNone),
         roles = doc.getAs[Set[CourseRole.T]]("roles").getOrElse(Set.empty),
         name = doc.getAs[String]("name"),

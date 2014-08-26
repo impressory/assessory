@@ -4,7 +4,6 @@ import _root_.reactivemongo.api._
 import _root_.reactivemongo.bson._
 import _root_.reactivemongo.bson.BSONString
 import com.wbillingsley.handy._
-import com.wbillingsley.handy.appbase.UserProvider
 
 import com.assessory.api._
 import course._
@@ -15,22 +14,22 @@ import scala.Some
 
 package object reactivemongo {
 
-  def r[T](d:BSONDocument, n:String)(implicit lu:LookUpOne[T, String]):RefWithId[T] = {
+  def r[T](d:BSONDocument, n:String)(implicit lu:LookUp[T, String]):RefWithId[T] = {
     d.getAs[BSONObjectID](n) match {
       case Some(id) => LazyId(id.stringify).of(lu)
       case _ => RefNone
     }
   }
 
-  implicit def refReader[T <: HasStringId](implicit lu:LookUp[T, String]) = new BSONReader[BSONObjectID, Ref[T]] {
+  implicit def refReader[T <: HasStringId[T]](implicit lu:LookUp[T, String]) = new BSONReader[BSONObjectID, Ref[T]] {
     def read(id:BSONObjectID) = LazyId(id.stringify).of(lu)
   }
 
-  implicit def refWithStringIdReader[T <: HasStringId](implicit lu:LookUp[T, String]) = new BSONReader[BSONObjectID, RefWithId[T]] {
+  implicit def refWithStringIdReader[T <: HasStringId[T]](implicit lu:LookUp[T, String]) = new BSONReader[BSONObjectID, RefWithId[T]] {
     def read(id:BSONObjectID) = LazyId(id.stringify).of(lu)
   }
 
-  implicit def refManyReader[T <: HasStringId](implicit lu:LookUp[T, String]) = new BSONReader[BSONArray, RefManyById[T, String]] {
+  implicit def refManyReader[T <: HasStringId[T]](implicit lu:LookUp[T, String]) = new BSONReader[BSONArray, RefManyById[T, String]] {
     def read(ids:BSONArray) = {
       val arr = ids.as[Seq[BSONObjectID]].map(_.stringify)
       RefManyById(arr).of(lu)
@@ -53,17 +52,6 @@ package object reactivemongo {
     }
   }
 
-  implicit val lookupUser = UserDAO.LookUp
-  implicit val lookupGroup = GroupDAO.LookUp
-  implicit val lookupGroupSet = GroupSetDAO.LookUp
-  implicit val lookupGPreenrol = GPreenrolDAO.LookUp
-  implicit val lookupCourse = CourseDAO.LookUp
-  implicit val lookupPreenrol = PreenrolDAO.LookUp
-  implicit val lookupTask = TaskDAO.LookUp
-  implicit val lookupTaskOutput = TaskOutputDAO.LookUp
-
-  implicit val lookupCritAllocation = CritAllocationDAO.LookUp
-
   implicit object identityLookupFormat extends BSONHandler[BSONDocument, IdentityLookup] {
     def read(doc:BSONDocument) = {
       IdentityLookup(
@@ -82,11 +70,15 @@ package object reactivemongo {
   /**
    * Our domain objects use String IDs, but we want them converted to BSONObjectIDs
    */
-  def id[T <: HasStringId](r:Ref[T]) = for (id <- r.refId) yield new BSONObjectID(id)
+  def id[T <: HasStringId[T]](r:Ref[T]) = for (id <- r.refId) yield BSONObjectID(id.id)
 
-  implicit def RefWithStringIdWriter[T <: HasStringId] = new BSONWriter[RefWithId[T], BSONValue] {
+  implicit def RefWithStringIdWriter[T <: HasStringId[T]] = new BSONWriter[RefWithId[T], BSONValue] {
     def write(r:RefWithId[T]) = {
-      r.getId.map(new BSONObjectID(_)).getOrElse(BSONNull)
+      (
+        for {
+          id <- r.getId
+        } yield BSONObjectID(id.id)
+      ).getOrElse(BSONNull)
     }
   }
   

@@ -1,6 +1,4 @@
-import play.Project._
-
-scalaVersion in ThisBuild := "2.10.3"
+scalaVersion in ThisBuild := "2.11.1"
 
 organization in ThisBuild := "com.impressory"
 
@@ -19,25 +17,36 @@ resolvers in ThisBuild ++= Seq(
 
 name := "assessory"
 
-playScalaSettings
-
 lazy val assessory = project.in(file("."))
   .aggregate(assessoryApi, assessoryReactiveMongo)
   .dependsOn(assessoryApi, assessoryReactiveMongo)
+  .enablePlugins(play.PlayScala)
+  .settings(
+    PlayKeys.routesImport ++= Seq(
+      "com.wbillingsley.handy._",
+      "com.assessory.api._",
+      "com.assessory.play.PathBinders._",
+      "scala.language.reflectiveCalls"
+    )
+  )
 
 libraryDependencies ++= Seq(
-  "com.wbillingsley" %% "handy-appbase-core" % "0.5.0-SNAPSHOT",
-  "com.wbillingsley" %% "handy-play-oauth" % "0.2-SNAPSHOT",
-  "net.sf.opencsv" % "opencsv" % "2.0"
+  "com.wbillingsley" %% "handy" % "0.6.0-SNAPSHOT",
+  "com.wbillingsley" %% "handy-user" % "0.6.0-SNAPSHOT",
+  "com.wbillingsley" %% "handy-play" % "0.6.0-SNAPSHOT",
+  "com.wbillingsley" %% "handy-play-oauth" % "0.3.0-SNAPSHOT",
+  "net.sf.opencsv" % "opencsv" % "2.0",
+  // JavaScript
+  "org.webjars" %% "webjars-play" % "2.3.0",
+  "org.webjars" % "bootstrap" % "3.1.1-2",
+  "org.webjars" % "font-awesome" % "4.1.0",
+  "org.webjars" % "angularjs" % "1.2.20",
+  "org.webjars" % "marked" % "0.3.2-1"
 )
 
-templatesImport += "com.wbillingsley.handy._"
+pipelineStages := Seq(rjs, digest, gzip)
 
-// Modular routes in Play 2.1 requires reflective calls
-routesImport ++= Seq("language.reflectiveCalls")
-
-requireJs ++= Seq(
-)
+includeFilter in (Assets, LessKeys.less) := "main.less"
 
 lazy val assessoryApi = project.in(file("modules/api"))
 

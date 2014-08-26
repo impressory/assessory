@@ -1,7 +1,7 @@
 package com.assessory.play
 
 import com.assessory.reactivemongo._
-import com.wbillingsley.handy.appbase.HeaderInfo
+import com.wbillingsley.handyplay.HeaderInfo
 import com.wbillingsley.handy._
 import Ref._
 import play.api.Play

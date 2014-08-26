@@ -1,14 +1,15 @@
 package com.assessory.reactivemongo
 
 import com.wbillingsley.handy.reactivemongo._
-import reactivemongo.api._
 import reactivemongo.bson._
 import com.wbillingsley.handy._
-import com.wbillingsley.handy.Ref._
-import com.wbillingsley.handy.appbase.UserProvider
+import com.wbillingsley.handy.Id._
 
 import com.assessory.api._
 import course._
+
+import CommonFormats._
+import com.assessory.api.wiring.Lookups._
 
 object CourseDAO extends DAO {
 
@@ -20,14 +21,14 @@ object CourseDAO extends DAO {
     
   val db = DBConnector
   
-  def unsaved = Course(id = allocateId)
+  def unsaved = Course(id = allocateId.asId[Course])
 
   val executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
   implicit object bsonReader extends BSONDocumentReader[Course] {
     def read(doc:BSONDocument):Course = {
       new Course(
-        id = doc.getAs[BSONObjectID]("_id").get.stringify,    
+        id = doc.getAs[Id[Course, String]]("_id").get,
         title = doc.getAs[String]("title"),
         shortName = doc.getAs[String]("shortName"),
         shortDescription = doc.getAs[String]("shortDescription"),
