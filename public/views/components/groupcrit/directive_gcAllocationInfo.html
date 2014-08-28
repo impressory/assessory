@@ -1,0 +1,16 @@
+<div class="groupcrit-allocation">
+
+  You have been asked to critique the following groups:
+  <table class="table">
+    <tr ng-repeat="alloc in allocation.allocation">
+      <td>{{ cachedGroups[alloc.group].name }}</td>
+      
+      <td ng-show="allocation.permissions.critique">
+        <a ng-show="alloc.critique" ng-href="/taskoutput/{{ alloc.critique }}" class="btn btn-sm">Go to critique</a>
+        <button ng-hide="alloc.critique" ng-click="createCritique(alloc)" class="btn btn-sm btn-primary">Create critique</button>
+      </td>
+    </li>
+  </ul>
+  
+
+</div>

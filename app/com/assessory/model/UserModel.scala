@@ -33,12 +33,12 @@ object UserModel {
    * current session key as an active session
    */
   def logIn(oEmail:Option[String], oPassword:Option[String], session:ActiveSession) = {
-    for (
+    for {
       email <- Ref(oEmail) orIfNone UserError("Email must not be blank");
       password <- Ref(oPassword) orIfNone UserError("Password must not be blank");
       user <- UserDAO.byEmailAndPassword(email, password);
       updated <- UserDAO.pushSession(user.itself, session)
-    ) yield updated
+    } yield updated
   }
 
   /**

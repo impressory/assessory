@@ -1,11 +1,14 @@
 package com.assessory.play.json
 
+import com.assessory.api.wiring.Lookups
 import com.wbillingsley.handyplay.JsonConverter
 import com.assessory.api._
 import group._
 import com.wbillingsley.handy._
 import Ref._
 import play.api.libs.json.{Writes, Json, JsValue}
+
+import Lookups._
 
 object GroupSetToJson extends JsonConverter[GroupSet, User] {
 
@@ -47,7 +50,9 @@ object GroupSetToJson extends JsonConverter[GroupSet, User] {
    */
   def update(gs:GroupSet, json:JsValue) = {
     gs.copy(
-        name = (json \ "name").asOpt[String]
+        name = (json \ "name").asOpt[String],
+        description = (json \ "description").asOpt[String],
+        parent = (json \ "parent").asOpt[Id[GroupSet,String]].lazily
     )
   }  
 

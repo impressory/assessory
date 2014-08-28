@@ -1,0 +1,49 @@
+<site-header></site-header>
+
+<div class="course-view">
+
+  <div class="container" ng-show="course.permissions.edit">
+  
+    <ol class="breadcrumb">
+      <li><a href="/">Home</a></li>
+      <li><a ng-href="/course/{{course.id}}">{{ course.title }}</a></li>
+      <li class="active">Admin</li>
+    </ol>  
+  
+    <course-info course="course"></course-info>
+
+    <div class="row">
+        <div class="col-sm-2">
+            <h4>Group sets</h4>
+            <p ng-repeat="gs in groupSets">
+                <a ui-sref="course.admin.groupSet.view({ courseId: course.id, groupSetId: gs.id })">{{ gs.name || 'Untitled '}}</a>
+            </p>
+            <p>
+                <a ui-sref="course.admin.groupSet__create({ courseId: course.id })" class="btn btn-sm btn-default">+ create set</a>
+            </p>
+
+            <h4>Tasks</h4>
+            <p ng-repeat="task in tasks">
+                <a ui-sref="course.admin.task.view({ taskId: task.id, courseId: course.id })">{{ task.details.name || 'Untitled '}}</a>
+            </p>
+            <p>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" >
+                        + create <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dlabel">
+                        <li><a ui-sref="course.admin.critique__create({ courseId: course.id })" >Critique</a></li>
+                    </ul>
+                </div>
+            </p>
+
+        </div>
+        <div class="col-sm-10">
+            <ui-view></ui-view>
+        </div>
+    </div>
+    
+  </div>
+
+
+</div>

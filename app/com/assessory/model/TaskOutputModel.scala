@@ -103,15 +103,20 @@ object TaskOutputModel {
                 to <- a.cache(rto)
                 u <- a.cache(to.byUser)
                 sIdentity <- u.getIdentity(I_STUDENT_NUMBER).toRef
-              } yield sIdentity.value) orIfNone "Unnamed user".itself
+                v <- sIdentity.value
+              } yield v) orIfNone "Unnamed user".itself
             }
           } yield {
-            def cell(s:String) = "\"" + s.replace("\"", "\"\"") + "\","
+            def cell(s:String):String = "\"" + s.replace("\"", "\"\"") + "\","
+            def cellO(o:Option[String]):String = o match {
+              case Some(s) => cell(s)
+              case _ => ""
+            }
 
             val as = gc.answers.map {
               a => cell(a.answerAsString)
             }
-            as.fold(cell(sId) concat cell(userName) concat cell(targetName))(_ + _) + "\n"
+            as.fold(cellO(sId) concat cell(userName) concat cell(targetName))(_ + _) + "\n"
           }
         }
         case _ => RefFailed(new IllegalStateException("Unknown task output body type"))

@@ -54,8 +54,8 @@ object CritiqueJson {
     implicit val luto =com.assessory.reactivemongo.TaskOutputDAO.LookUp
 
     def reads(json:JsValue) = (json \ "kind").as[String] match {
-      case "Group" => JsSuccess(CTGroup(g = (json\"ref").as[Id[Group,String]].lazily))
-      case "TaskOutput"  => JsSuccess(CTTaskOutput(t = (json\"ref").as[Id[TaskOutput,String]].lazily))
+      case "Group" => JsSuccess(CTGroup(g = (json\"ref").as[Id[Group,String]]))
+      case "TaskOutput"  => JsSuccess(CTTaskOutput(t = (json\"ref").as[Id[TaskOutput,String]]))
     }
   }
 

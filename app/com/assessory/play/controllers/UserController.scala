@@ -59,7 +59,7 @@ object UserController extends Controller {
         secret = secret,
         activeSession = ActiveSession(request.sessionKey, request.remoteAddress)
       )
-    } yield Redirect(uiBaseUrl)
+    } yield Redirect(routes.Application.index())
 
     WithHeaderInfo(
       loggedIn,

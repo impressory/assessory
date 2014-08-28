@@ -149,6 +149,21 @@ object UserDAO extends DAO with UserProvider[User] {
   def byIdentity(service:String, id:String):Ref[User] = {
     findOne(query=BSONDocument("identities.service" -> service, "identities.value" -> id))
   }
+
+  def bySocialIdOrUsername(service:String, optId:Option[String], optUserName:Option[String] = None):Ref[User] = {
+
+    def byId(service:String, oid:Option[String]) = for {
+      id <- oid.toRef
+      u <- findOne(query=BSONDocument("identities.service" -> service, "identities.value" -> id))
+    } yield u
+
+    def byUsername(service:String, oun:Option[String]) = for {
+      n <- oun.toRef
+      u <- findOne(query=BSONDocument("identities.service" -> service, "identities.username" -> n))
+    } yield u
+
+    byId(service, optId) orIfNone byUsername(service, optUserName)
+  }
   
   def byUsername(u:String) = findOne(BSONDocument("pwlogin.username" -> u))
   
@@ -165,10 +180,7 @@ object UserDAO extends DAO with UserProvider[User] {
 
   def byEmailAndPassword(email:String, password:String) = {
     for (
-      user <- byEmail(email) if {
-       val hash = user.pwlogin.hash(password)
-       hash == user.pwlogin.pwhash
-      }      
+      user <- byEmail(email) if user.pwlogin.checkPassword(password)
     ) yield user
   }
 

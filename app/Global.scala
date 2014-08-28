@@ -8,7 +8,10 @@ import com.assessory.reactivemongo._
 object Global extends GlobalSettings with AcceptExtractors {
   
   override def onStart(app: Application) {
-    
+    wire()
+  }
+
+  def wire() = {
     // Set up the database
     DBConnector.dbName = Play.configuration.getString("mongo.dbname").getOrElse("assessory")
     DBConnector.connectionString = Play.configuration.getString("mongo.connection").getOrElse("localhost:27017")
@@ -37,9 +40,8 @@ object Global extends GlobalSettings with AcceptExtractors {
     Lookups.luTaskOutput = TaskOutputDAO.LookUp
     Lookups.luUser = UserDAO.LookUp
     Lookups.registrationProvider = RegistrationDAO
-
   }
-  
+
   
   /**
    * We have many routes that only exist on the client side. 
@@ -50,7 +52,7 @@ object Global extends GlobalSettings with AcceptExtractors {
     import play.api.libs.json.Json
     
     request match {
-      case Accepts.Html() => Future.successful(Results.Redirect(com.assessory.play.controllers.uiBaseUrl))
+      case Accepts.Html() => super.onHandlerNotFound(request)
       case Accepts.Json() => Future.successful(Results.NotFound(Json.obj("error" -> "not found")))
       case _ => Future.successful(Results.NotFound)
     }

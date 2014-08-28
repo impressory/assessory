@@ -1,0 +1,42 @@
+<site-header></site-header>
+
+<div class="container">
+  <course-info course="course"></course-info>
+  
+  <h2>Create Output Critique Task</h2>
+  <p>
+    This task ask students to fill in a questionnaire about items produced by other students
+    that are relevant to them.
+  </p>
+  
+    <div class="form">
+      <div class="form-group">
+        <label>Name</label>
+        <input ng-model="task.details.name" type="text" class="form-control" placeholder="eg, project critique" />
+      </div>  
+      <div class="form-group">
+        <label>Description</label>
+        <textarea ng-model="task.details.description" type="text" class="form-control" placeholder="eg, project critique" ></textarea>
+      </div>
+      <div class="form-group">
+        <label>In which task did students produce the content that you now want students to review?</label>
+        <select ng-model="task.body.taskToCrit" ng-options="task.id as task.details.name for task in tasks"></select>
+      </div>  
+      
+      <h3>Questionnaire</h3>
+      
+      <questionnaire-edit questionnaire="task.body.questionnaire"></questionnaire-edit>
+
+      <hr />
+      <div ng-repeat="error in errors" class="alert alert-danger">
+      {{ error }} 
+      </div>
+
+      <div class="form-group">
+        <a class="btn btn-default" ng-href="/course/#{course.id}/admin">Cancel</a>
+        <button class="btn btn-primary" ng-click="submit(task)">Create</a>
+      </div>
+
+    </div>
+
+</div>

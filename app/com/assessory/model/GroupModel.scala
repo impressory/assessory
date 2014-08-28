@@ -94,7 +94,7 @@ object GroupModel {
     for (
       u <- user;
       i <- u.identities.toRefMany;
-      g <- GPreenrolDAO.useRow(course, service=i.service, value=Some(i.value), username=i.username);
+      g <- GPreenrolDAO.useRow(course, service=i.service, value=i.value, username=i.username);
       added <- GroupDAO.addMember(g.itself, u.itself)
     ) yield g
   }
@@ -105,17 +105,37 @@ object GroupModel {
    *
    * group name, parent group name, student number, last name, first name, preferred name, email address
    */
-  def importFromCsv(a:Approval[User], rSet:RefWithId[GroupSet], csv:String):RefMany[Group] = {
+  def importFromCsv(a:Approval[User], rSet:Ref[GroupSet], csv:String):RefMany[Group] = {
     import au.com.bytecode.opencsv.CSVReader
     import java.io.StringReader
 
     import scala.collection.JavaConverters._
 
+    class Row(
+      val groupName:String, val parentName:Option[String],
+      val studentNumber:Option[String], val name:Option[String], val nickname:Option[String],
+      val service:Option[String], val socialId:Option[String], val socialName:Option[String]
+    )
+    object Row {
+      def fromArr(arr:Array[String]):Row = {
+        new Row(
+          groupName = arr(0).trim(),
+          parentName = Option(arr(1).trim).filter(_.nonEmpty),
+          studentNumber = Option(arr(2).trim).filter(_.nonEmpty),
+          name = Option(arr(3).trim).filter(_.nonEmpty),
+          nickname = Option(arr(4).trim).filter(_.nonEmpty),
+          service = Option(arr(5).trim).filter(_.nonEmpty),
+          socialId = Option(arr(6).trim).filter(_.nonEmpty),
+          socialName = Option(arr(7).trim).filter(_.nonEmpty)
+        )
+      }
+    }
+
     val reader = new CSVReader(new StringReader(csv.trim()))
-    val lines = reader.readAll().asScala.toSeq
+    val lines = reader.readAll().asScala.toSeq.drop(1).map(Row.fromArr(_))
     reader.close()
 
-    val byGroup = lines.drop(1).groupBy(_(0))
+    val byGroup = lines.groupBy(_.groupName)
 
     val groupCache = scala.collection.mutable.Map.empty[String, Ref[Group]]
     val userCache = scala.collection.mutable.Map.empty[String, Ref[User]]
@@ -124,40 +144,43 @@ object GroupModel {
       set <- rSet orIfNone UserError("We do need a group set for this")
       course <- set.course orIfNone UserError("We do need a course for this")
 
+      // For each group
       (gname, glines) <- byGroup.toRefMany
+
+      // Find the parent
+      parent <- optionally {
+        for {
+          n <- glines(0).parentName.toRef
+          g <- groupCache.getOrElseUpdate(n, GroupDAO.byCourseAndName(course.itself, n))
+        } yield g
+      }
+
+      // Find or create the users
       userIds <- {
         for {
           line <- glines.toRefMany
-
-          Array(groupName, parent, studentNumber, surname, givenName, prefName, email) = line
 
           /*
            * Get the student. They may exist in the database, if not we need to create them.
            * Also memoize the result of either our creation or our search in case of duplicate rows in the CSV
            */
-          user <- userCache.getOrElseUpdate(studentNumber.trim, {
-            UserDAO.byIdentity(I_STUDENT_NUMBER, studentNumber) orIfNone {
-              val user = UserDAO.unsaved.copy(
-                nickname = Option(prefName).filter(_.trim.nonEmpty) orElse Option(givenName).filter(_.trim.nonEmpty),
-                pwlogin = PasswordLogin(email=Option(email).filter(_.trim.nonEmpty)),
-                identities = Seq(Identity(service=course.id.id, value=studentNumber.trim))
-              )
-              RegistrationDAO.register(user.id, course.id, Set(CourseRole.student))
-              UserDAO.saveNew(user)
-            }
-          })
+          user <- {
+            UserDAO.bySocialIdOrUsername(I_STUDENT_NUMBER, line.studentNumber).orIfNone(
+              line.service.toRef.flatMap(s => UserDAO.bySocialIdOrUsername(service=s, line.socialId, line.socialName)).orIfNone {
+                val user = UserDAO.unsaved.copy(
+                  name = line.name,
+                  nickname = line.nickname orElse line.socialName orElse line.name,
+                  identities = Seq.empty[Identity] ++
+                    line.studentNumber.map(s => Identity(I_STUDENT_NUMBER, Some(s))) ++
+                    line.service.map(s => Identity(s, value=line.socialId, username=line.socialName))
+                )
+                RegistrationDAO.register(user.id, course.id, Set(CourseRole.student))
+                UserDAO.saveNew(user)
+              }
+            )
+          }
         } yield user.id
       }.toIds
-
-      // Find the parent group if there is one
-      parent <- optionally {
-        val parentName = glines(0)(1)
-        if (parentName.trim.isEmpty) {
-          RefNone
-        } else {
-          groupCache.getOrElseUpdate(parentName, GroupDAO.byCourseAndName(course.itself, parentName))
-        }
-      }
 
       // Create the group
       group = GroupDAO.unsaved.copy(
@@ -165,7 +188,7 @@ object GroupModel {
         course = course.itself,
         set = set.itself,
         parent = Ref(parent),
-        members = RefManyById(userIds.ids).of[User],
+        members = userIds.toRefMany,
         provenance = Some("csv")
       )
       saved <- GroupDAO.saveNew(group)

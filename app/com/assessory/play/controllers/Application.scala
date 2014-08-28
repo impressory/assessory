@@ -30,7 +30,7 @@ object Application extends Controller {
    */
   def index = DataAction.forceSession(
     Action { 
-      Redirect(uiBaseUrl)
+      Ok(views.html.index())
     }
   )
   
@@ -54,7 +54,7 @@ object Application extends Controller {
     
     import com.wbillingsley.handy._
     def fut = new RefFuture[User](
-      scala.concurrent.future {
+      scala.concurrent.Future {
         throw new UserError("Testing a user error")
       }
     )

@@ -1,0 +1,46 @@
+<site-header></site-header>
+<div class="container">
+  <a href="/course/{{ groupSet.course }}/admin" class="btn btn-default">Return to course</a>
+
+  <h2>{{ groupSet.name || 'Unnamed' }}</h2>
+  
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th><th>Members</th><th>Provenance</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="group in groups">
+        <td><a ng-href="/group/{{ group.id}}">{{ group.name }}</a></td>
+        <td><user-many-info user-ids="group.members"></user-many-info></td>
+        <td>{{ group.provenance }}</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <div ng-show="groupSet.permissions.edit">
+  
+    <h3>Pre-create groups</h3>
+    <p>
+      You can pre-create groups, together with a "pre-enrolment" that will
+      place students in the group the next time they visit the course page.
+    </p>
+    
+    <button class="btn btn-sm btn-default" ng-hide="show_gpreenrol" ng-click="show_gpreenrol=true"><i class="icon-plus"></i></button>
+    <div ng-show="show_gpreenrol" ng-controller="Assessory.controllers.group.CreateGPreenrol">
+      <div class="form">
+        <div class="form-group">
+          <label>CSV data</label>
+          <textarea ng-model="preenrol.csv" class="form-control" placeholder="group-name,service,id,name"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <button class="btn btn-default" ng-click="show_gpreenrol=false">Cancel</button>
+          <button class="btn btn-primary" ng-click="submit(preenrol)">Create</button>
+        </div>
+      </div>  
+    </div>
+  </div>
+  
+</div>

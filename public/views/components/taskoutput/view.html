@@ -1,0 +1,35 @@
+<site-header></site-header>
+
+<div class="container">
+
+  <ol class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <li><a ng-href="/course/{{course.id}}">{{ course.title }}</a></li>
+    <li><a ng-href="/task/{{task.id}}">{{ task.details.name }}</a></li>
+    <li class="active">Task output</li>
+  </ol>
+
+  <div>
+    <course-info course="course"></course-info>
+  </div>
+  
+  <div ng-show="taskoutput.permissions.edit">
+    <a ng-href="/taskoutput/{{taskoutput.id}}/edit" class="btn btn-default">Edit</a>  
+  </div>
+
+  <h3>{{ taskoutput.kind }}</h3>
+  
+  <div ng-switch="task.body.kind">
+    <div ng-switch-when="Group critique by an individual">
+      <gcoutput-view task="task" taskoutput="taskoutput"></gcoutput-view>
+    </div>
+  </div>
+
+  <div ng-show="taskoutput.finalised" class="alert alert-success">
+    This critique has been finalised, and cannot be edited
+  </div>
+  <div ng-hide="taskoutput.finalised" class="alert alert-danger">
+    This critique has not been finalised, and is only in draft.
+  </div>
+
+</div>

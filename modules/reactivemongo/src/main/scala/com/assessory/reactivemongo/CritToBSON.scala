@@ -70,11 +70,14 @@ object CritiqueToBSON {
   implicit val ah = AnswerHandler
 
   implicit object CritTargetHandler extends BSONHandler[BSONDocument, CritTarget] {
+
+    import CommonFormats._
+
     def read(doc:BSONDocument) = {
       val kind = doc.getAs[String]("kind").get
       kind match {
-        case "TaskOutput" => CTTaskOutput(doc.getAs[RefWithId[TaskOutput]]("ref").get)
-        case "Group" => CTGroup(doc.getAs[RefWithId[Group]]("ref").get)
+        case "TaskOutput" => CTTaskOutput(doc.getAs[Id[TaskOutput,String]]("ref").get)
+        case "Group" => CTGroup(doc.getAs[Id[Group,String]]("ref").get)
       }
     }
 

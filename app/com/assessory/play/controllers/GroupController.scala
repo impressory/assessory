@@ -111,6 +111,19 @@ object GroupController extends Controller {
       headerInfo
     )
   }
+
+  def uploadGroups(gs:Ref[GroupSet]) = DataAction.returning.manyWH(parse.json) { implicit request =>
+    WithHeaderInfo(
+      (request.body \ "csv").asOpt[String].toRef flatMap { csv =>
+        GroupModel.importFromCsv(
+          a=request.approval,
+          rSet=gs,
+          csv=csv
+        )
+      },
+      headerInfo
+    )
+  }
   
   /**
    * The groups belonging to a particular group set

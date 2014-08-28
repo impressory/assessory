@@ -62,7 +62,7 @@ object CourseModel {
   def doPreenrolments(user:User)= {
     val updates = for {
       i <- user.identities.toRefMany;
-      p <- PreenrolDAO.useRow(service = i.service, value = Some(i.value), username = i.username);
+      p <- PreenrolDAO.useRow(service = i.service, value = i.value, username = i.username);
 
       cId <- p.course.refId
       reg <- RegistrationDAO.register(user.id, cId, p.roles)

@@ -1,0 +1,84 @@
+<site-header></site-header>
+
+<div class="about-self">
+
+  <div class="container">  
+  
+    <h2>About you</h2>
+       
+    <div class="alert alert-warning" ng-hide="user">You're not logged in.</div>
+       
+    <div class="row" ng-show="user">
+      
+      
+        <div class="col-sm-6">
+          <h3>Details          
+            <span class="btn-group pull-right"><button class="btn btn-sm btn-primary" ng-click="editDetails()" disabled>Edit</button></span>
+          </h3>
+          <div class="media">
+            <img class="pull-left media-object" ng-src="{{user.avatar || 'http://placehold.it/64x64'}}" /> 
+            <div class="media-body">
+              <table class="table">
+                <tr><td>Nickname</td><td>{{user.nickname}}</td></tr>
+                <tr><td>Name</td><td>{{user.name}}</td></tr>
+              </table>              
+            </div>
+          </div>
+
+          <h3>Login
+          </h3>
+
+          <table class="table">
+            <tr><td>Email</td><td>{{user.pwlogin.email}}</td></tr>
+            <tr><td>Username</td><td>{{user.pwlogin.username}}</td></tr>
+            <tr><td>Password</td><td>{{(user.pwlogin.passwordSet && "set") || "not set"}} </td></tr>
+          </table>              
+    
+        </div>
+        
+        <div class="col-sm-6">
+        
+          <h3>Your identities</h3>
+          <p>Other accounts you can log on with rather than your email and password</p>
+          
+          
+          <table class="table">
+          <tr ng-repeat="identity in user.identities">
+          <td><image class="identity-avatar" ng-src="{{identity.avatar}}"</td>
+          <td>{{ identity.username }}</td>
+          <td>{{identity.service}}</td>
+          </tr>
+          </table>
+          
+          <div class="btn-group">
+            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" >
+            Add <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dlabel">
+              <li><a href="/oauth/addTwitter" target="_self"><i class="icon-twitter"></i> Twitter</a></li>
+              <li><a href="/oauth/github" target="_self"><i class="icon-github"></i> GitHub</a></li>
+            </ul>
+          </div>
+        
+        </div>
+
+        <div class="col-sm-6">
+        
+          <h3>Your sessions</h3>
+          
+          <table class="table">
+          <tr ng-repeat="session in user.activeSessions">
+          <td>{{ session.ip }}</td>
+          <td>{{ session.since | date }}</td>
+          </tr>
+          </table>
+        
+        </div>
+            
+            
+      </div>
+        
+  
+  </div>
+
+</div>

@@ -1,0 +1,6 @@
+  <task-info task="task"></task-info>
+  <div ng-switch="task.body.kind">
+    <div ng-switch-when="Critique">
+      <critique-admin task="task"></critique-admin>
+    </div>
+  </div>

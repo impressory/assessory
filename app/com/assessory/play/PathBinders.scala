@@ -1,6 +1,7 @@
 package com.assessory.play
 
 import com.assessory.api._
+import com.assessory.api.group.GroupSet
 import com.assessory.api.wiring.Lookups
 import course._
 import play.api.mvc.PathBindable
@@ -31,5 +32,6 @@ object PathBinders {
 
   implicit val bindCourse = bindableRWI[Course]
   implicit val bindUser = bindableRWI[User]
+  implicit val bindGS = bindableRWI[GroupSet]
 
 }

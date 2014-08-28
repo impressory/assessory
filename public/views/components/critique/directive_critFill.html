@@ -1,0 +1,17 @@
+<div ng-if="taskOutput">
+
+  <div ng-if="taskOutput.permissions.edit">
+    <questionnaire-fill questionnaire="task.body.questionnaire" answers="taskOutput.body.answers" ></questionnaire-fill>
+    <div>
+
+      <save-button text="Save" action="save(false)"></save-button>
+      <!-- <button class="btn btn-primary" ng-click="save(false)">Save</button> -->
+      <!-- <button class="btn btn-primary"  ng-click="save(true)">Save &amp; publish</button> -->
+    </div>
+
+    <!-- <saved-message promise="promise" success-message="Saved"></saved-message> -->
+  </div>
+  <div ng-if="!taskOutput.permissions.edit">
+    <questionnaire-view questionnaire="task.body.questionnaire" answers="taskOutput.body.answers" ></questionnaire-view>
+  </div>
+</div>

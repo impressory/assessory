@@ -1,0 +1,26 @@
+<div class="groupcrit-allocation">
+
+  <h3>All allocations</h3>
+  
+  <a target="_blank" ng-href="/groupcrit/{{ task.id }}/allocations/csv">Download as CSV</a>
+
+  <table class="table table-striped table-bordered">
+  <thead>
+    <tr><th>User</th><th>Groups</th></tr>
+  </thead>
+  <tbody>
+  <tr ng-repeat="allocation in allocations">
+    <td><user-info user="cachedUsers[allocation.user]"></user-info></td>
+    <td><table class="table">
+      <tr ng-repeat="alloc in allocation.allocation">
+        <td><target-label target="alloc.target"></target-label></td>
+        <td><a ng-show="alloc.critique" ng-href="/taskoutput/{{ alloc.critique }}" class="btn btn-sm">Go to critique</a></td>
+      </tr>
+    </table></td>
+  </rt>
+  </tbody>
+  </table>
+  
+  <button ng-hide="allocations.length > 0" class="btn btn-primary" ng-click="allocate()">Allocate</button>
+
+</div>

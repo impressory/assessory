@@ -1,0 +1,42 @@
+<site-header></site-header>
+
+<div class="course-create">
+
+  <div class="container">
+    <h2>Create a course</h2>
+    <div class="form">
+      <div class="form-group">
+        <label>Title</label>
+        <input ng-model="course.title" type="text" class="form-control" placeholder="eg, Design Computing Studio 2" />
+      </div>
+      <div class="form-group">
+        <label>Short name</label>
+        <input ng-model="course.shortName" type="text" class="form-control" placeholder="eg, DECO2800" />
+      </div>
+      <div class="form-group">
+        <label>Short description</label>
+        <textarea class="form-control" ng-model="course.shortDescription"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Website</label>
+        <input type="url" class="form-control" ng-model="course.website" placeholder="URL of your course's website"/>
+      </div>
+      <div class="form-group">
+        <label>Cover image</label>
+        <input type="url" class="form-control" ng-model="course.coverImage" placeholder="URL of a picture to show in the header"/>
+      </div>
+      <div class="form-group">
+        <a class="btn btn-default" href="/">Cancel</a>
+        <button class="btn btn-primary" ng-click="submit(course)">Create</button>
+      </div>
+      
+      <div ng-repeat="error in errors" class="alert alert-danger">
+      {{ error }} 
+      </div>
+      
+    </div>
+  </div>
+
+
+</div>
+

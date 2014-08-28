@@ -1,0 +1,23 @@
+<div class="crit-task">
+
+  <h4>Critiques to complete:</h4>
+
+  <ul class="nav nav-pills">
+      <li ng-repeat="target in myAllocations" ng-class="{ active: selectedTarget == target }">
+        <a ng-click="setSelected(target)">
+          <target-label target="target" index="$index"></target-label>
+        </a>
+      </li>
+  </ul>
+
+  <div ng-if="selectedTarget">
+    <!-- This is where we show the thing that's being reviewed -->
+    <target-info target="selectedTarget"></target-info>
+
+    <h4>Questionnaire for <target-label target="selectedTarget"></target-label></h4>
+
+    <!-- This is where we show the crit form -->
+    <critique-fill task="task" target="selectedTarget"></critique-fill>
+  </div>
+
+</div>

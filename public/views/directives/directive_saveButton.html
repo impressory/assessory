@@ -1,0 +1,12 @@
+<span>
+    <button class="btn btn-primary" ng-click="submit()">{{ text }}</button>
+    <span ng-show="promise">
+        Saving...
+    </span>
+    <span class="text-success" ng-show="success">
+        {{ success }}
+    </span>
+    <span class="text-danger" ng-show="error">
+        {{ error }}
+    </span>
+</span>

@@ -31,15 +31,31 @@ object InterstitialController extends Controller {
     
     val res = for (
       mem <- rur.toRef;
-      user <- optionally(UserDAO.byIdentity(mem.userRecord.service, mem.userRecord.id))
+      user <- optionally(UserDAO.bySocialIdOrUsername(mem.userRecord.service, Some(mem.userRecord.id), mem.userRecord.username))
     ) yield {
       
       user match {
         case Some(u) => {
-          for (
-            updated <- UserDAO.pushSession(u.itself, ActiveSession(request.sessionKey, ip = request.remoteAddress))
-          ) yield Redirect(com.assessory.play.controllers.routes.Application.index)
-        } 
+          for {
+            withSession <- UserDAO.pushSession(u.itself, ActiveSession(request.sessionKey, ip = request.remoteAddress))
+
+            saved <- {
+              // Update any missing user details
+              val updated = withSession.copy(
+                name = u.name orElse mem.userRecord.name,
+                nickname = u.nickname orElse mem.userRecord.nickname,
+                avatar = u.avatar orElse mem.userRecord.avatar
+              )
+
+              if (updated == withSession) {
+                println("not changing anything")
+                withSession.itself
+              } else {
+                UserDAO.saveDetails(updated)
+              }
+            }
+          } yield Redirect(com.assessory.play.controllers.routes.Application.index)
+        }
         case None => {          
           val session = request.session + (InterstitialController.sessionVar ->  mem.toJson.toString) - "oauth_state"
           for (u <- optionally(request.user)) yield {
@@ -67,7 +83,7 @@ object InterstitialController extends Controller {
     val resp = for (
       details <- Ref(mem) orIfNone Refused("There appear to be no user details to register");
       user <- {
-        val i = Identity(service=details.service, value=details.id, avatar=details.avatar, username=details.username);
+        val i = Identity(service=details.service, value=Some(details.id), avatar=details.avatar, username=details.username);
         val u = UserDAO.unsaved.copy(
             name=details.name, nickname=details.nickname, avatar=details.avatar,
             identities = Seq(i),
@@ -100,7 +116,7 @@ object InterstitialController extends Controller {
         UserDAO.saveDetails(u)
       };
       pushed <- {
-        val i = Identity(service=details.service, value=details.id, avatar=details.avatar, username=details.username);
+        val i = Identity(service=details.service, value=Some(details.id), avatar=details.avatar, username=details.username);
         UserDAO.pushIdentity(user.itself, i)
       }
     ) yield {

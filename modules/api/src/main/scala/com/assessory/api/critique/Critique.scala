@@ -12,8 +12,8 @@ import com.assessory.api.question.Questionnaire
 
 abstract class CritTarget(val kind: String)
 
-case class CTGroup(g: RefWithId[Group]) extends CritTarget("Group")
-case class CTTaskOutput(t: RefWithId[TaskOutput]) extends CritTarget("TaskOutput")
+case class CTGroup(g: Id[Group, String]) extends CritTarget("Group")
+case class CTTaskOutput(t: Id[TaskOutput, String]) extends CritTarget("TaskOutput")
 
 case class Critique(
   target: CritTarget,

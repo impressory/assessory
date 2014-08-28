@@ -1,0 +1,34 @@
+<div class="edit-questionnaire">
+    <div class="question" ng-repeat="question in questionnaire.questions">
+     <label>{{ question.kind }}</label>
+     <div class="form-group">
+       <label>Prompt</label>
+       <textarea ng-model="question.prompt" class="form-control"></textarea>
+     </div>
+     <div ng-switch="question.kind">
+       <div ng-switch-when="Short text">
+         <div class="form-group">
+           <label>Max length</label>
+           <input type="number" ng-model="question.maxLength" class="form-control"/>
+         </div>
+       </div>
+       <div ng-switch-when="Tick box">
+       
+       </div>
+       <div ng-switch-when="Integer">
+         <div class="form-group">
+           <label>Max</label>
+           <input type="number" ng-model="question.max" class="form-control"/>
+         </div>
+         <div class="form-group">
+           <label>Min</label>
+           <input type="number" ng-model="question.min" class="form-control"/>
+         </div>
+       </div>
+     </div> 
+  </div>
+  
+  <button class="btn btn-default btn-sm" ng-click="addQuestion('Short text')">+ Short text</button>
+  <button class="btn btn-default btn-sm" ng-click="addQuestion('Tick box')">+ Tick box</button>
+  <button class="btn btn-default btn-sm" ng-click="addQuestion('Integer')">+ Integer</button>
+</div>

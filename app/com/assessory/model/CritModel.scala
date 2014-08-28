@@ -1,5 +1,6 @@
 package com.assessory.model
 
+import com.assessory.api.wiring.Lookups
 import play.api.mvc.{Action, Controller}
 import com.assessory.reactivemongo._
 import com.assessory.play.json._
@@ -14,14 +15,16 @@ import com.wbillingsley.handy.Ref._
 import com.assessory.reactivemongo.CritAllocationDAO
 import Ref._
 
+import Lookups._
+
 object CritModel {
 
 
   def allocateGroups(groups:Seq[Group], num:Int, task:RefWithId[Task]):RefMany[CritAllocation] = {
 
     for {
-      (rParent, groups) <- groups.groupBy(_.parent).toRefMany
-      parent <- rParent
+      (rParent, groups) <- groups.groupBy(_.parent.getId).toRefMany
+      parent <- groups(0).parent
       alloc <- {
         val shuffled = scala.util.Random.shuffle(groups)
         var reverse = (for (g <- shuffled) yield g -> Set.empty[User]).toMap
@@ -46,7 +49,7 @@ object CritModel {
               val g = pick(reverse, student)
               reverse = reverse.updated(g, reverse(g) + student)
               AllocatedCrit(
-                target = CTGroup(g.itself)
+                target = CTGroup(g.id)
               )
             }
           }
@@ -104,9 +107,9 @@ object CritModel {
             group <- GroupModel.myGroups(a, t.course)
             output <- {
               println(group)
-              TaskOutputDAO.byPartialBody(mos.task, Critique(CTGroup(group.itself), Seq.empty), Seq("answers"))
+              TaskOutputDAO.byPartialBody(mos.task, Critique(CTGroup(group.id), Seq.empty), Seq("answers"))
             }
-          } yield CTTaskOutput(output.itself)
+          } yield CTTaskOutput(output.id)
         }
       }
     } yield target
@@ -191,11 +194,11 @@ object CritModel {
           allocation <- alloc.allocation.toRefMany
           targ <- allocation.target match {
             case CTTaskOutput(t) => {
-              t.refId
+              t.itself
             }
             case CTGroup(g) => {
               for {
-                group <- g
+                group <- g.lazily
               } yield group.name.getOrElse(group.id)
             }
           }

@@ -1,0 +1,13 @@
+<div class="target-info">
+  <div ng-switch="target.kind">
+    <div ng-switch-when="Group">
+
+    </div>
+    <div ng-switch-when="TaskOutput">
+      <div class="well">
+        <h4>What they wrote:</h4>
+        <task-output-info task-output-id="target.ref"></task-output-info>
+      </div>
+    </div>
+  </div>
+</div>

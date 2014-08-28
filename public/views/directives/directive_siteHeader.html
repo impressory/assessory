@@ -1,0 +1,22 @@
+<div class="site-header">
+	<div class="navbar navbar-static-top">
+	  <div class="container">
+	    <a href="/" class="navbar-brand">Assessory</a>
+	
+	    <ul class="nav navbar-nav">
+	    </ul> 
+	
+	    <ul class="nav navbar-nav pull-right" ng-hide="user">
+	        <li><a href="/logIn">Log in</a></li>
+	        <li><a href="/signUp">Sign up</a></li>
+	    </ul>
+	    
+	    <ul class="nav navbar-nav pull-right" ng-show="user">
+	        <li><a href="#" ng-click="logOut()">Log out</a></li>
+	        <li><a href="/self">{{ user.nickname || 'Anonymous' }}</a></li>
+	        <li>{{ user.error }}</li>
+	    </ul> 
+	     
+	  </div>
+	</div>
+</div>

@@ -34,6 +34,7 @@ object GroupSetDAO extends DAO {
         id = doc.getAs[Id[GroupSet,String]]("_id").get,
         name = doc.getAs[String]("name"),
         description = doc.getAs[String]("description"),
+        parent = doc.getAs[RefWithId[GroupSet]]("parent").getOrElse(RefNone),
         course = doc.getAs[RefWithId[Course]]("course").getOrElse(RefNone),
         preenrol = doc.getAs[RefWithId[GPreenrol]]("preenrol").getOrElse(RefNone),
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis())
@@ -60,6 +61,7 @@ object GroupSetDAO extends DAO {
     BSONDocument(
       idIs(g.id),
       "name" -> g.name,
+      "parent" -> g.parent,
       "description" -> g.description,
       "course" -> g.course,
       "created" -> g.created

@@ -1,0 +1,47 @@
+
+  <h2>Create Critique Task</h2>
+  
+    <div class="form">
+      <div class="form-group">
+        <label>Name</label>
+        <input ng-model="task.details.name" type="text" class="form-control" placeholder="eg, project critique" />
+      </div>  
+      <div class="form-group">
+        <label>Description</label>
+        <textarea ng-model="task.details.description" type="text" class="form-control" placeholder="eg, project critique" ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Strategy</label>
+        <select ng-model="task.body.strategy.kind">
+            <option value="group">Critique a number of other groups</option>
+            <option value="critiques of my groups">Review critiques of my group</option>
+        </select>
+      </div>
+
+      {{ task }}
+
+      <div ng-switch="task.body.strategy.kind">
+          <div ng-switch-when="group">
+            <strategy-group-edit course="course" strategy="task.body.strategy"></strategy-group-edit>
+          </div>
+          <div ng-switch-when="critiques of my groups">
+            <strategy-of-my-group-edit course="course" strategy="task.body.strategy"></strategy-of-my-group-edit>
+          </div>
+      </div>
+
+      <h3>Questionnaire</h3>
+      
+      <questionnaire-edit questionnaire="task.body.questionnaire"></questionnaire-edit>
+
+      <hr />
+      <div ng-repeat="error in errors" class="alert alert-danger">
+      {{ error }} 
+      </div>
+
+      <div class="form-group">
+        <a class="btn btn-default" ui-sref="course.admin.view({ courseId: course.id })">Cancel</a>
+        <button class="btn btn-primary" ng-click="submit()">Create</a>
+      </div>
+
+    </div>

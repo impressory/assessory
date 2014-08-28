@@ -1,0 +1,50 @@
+<!doctype html>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Assessory</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+
+  <!-- Boostrap 3 -->
+  <link rel='stylesheet' href='@routes.WebJarAssets.at(WebJarAssets.locate("css/bootstrap.min.css"))'>
+  <link rel='stylesheet' href='@routes.WebJarAssets.at(WebJarAssets.locate("css/font-awesome.min.css"))'>
+
+  <div class="full-height" ng-controller="ErrorController">
+    <div ng-show="false">
+        This site requires Javascript.
+    </div>
+
+    <div ng-show="error">
+        <ng-include src="'client-error-template'"></ng-include>
+    </div>
+    <div ng-hide="error" class="full-height">
+        <div ui-view class="full-height"></div>
+    </div>
+  </div>
+
+  <!-- JQuery, required for Bootstrap -->
+  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))'></script>
+
+  <!-- Bootstrap -->
+  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("js/bootstrap.min.js"))'></script>
+
+  <!-- Angular.js -->
+  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("angular.min.js"))'></script>
+  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("angular-ui-router.min.js"))'></script>
+  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("angular-sanitize.min.js"))'></script>
+  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("angular-resource.min.js"))'></script>
+  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("angular-cookies.min.js"))'></script>
+
+  <!-- Marked, used for Markdown -->
+  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("marked.js"))'></script>
+
+  <!-- Impressory, via require.js -->
+  <script>
+      @Html(org.webjars.RequireJS.getSetupJavaScript(routes.WebJarAssets.at("").url))
+  </script>
+  <script data-main="@routes.Assets.versioned("javascripts/main.js")" src="@routes.WebJarAssets.at(WebJarAssets.locate("require.min.js"))"></script>
+
+  <link rel="stylesheet" href="styles/main.css">
+
+</html>
