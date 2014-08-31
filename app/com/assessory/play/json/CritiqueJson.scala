@@ -22,7 +22,7 @@ object CritiqueJson {
       (json \ "kind").as[String] match {
         case PreallocateGroupStrategy.kind => JsSuccess(PreallocateGroupStrategy(
           set = (json \ "set").as[RefWithId[GroupSet]],
-          number = (json \ "number").as[Int]
+          number = (json \ "number").as[String].toInt
         ))
         case OfMyGroupsStrategy.kind => JsSuccess(OfMyGroupsStrategy(
           task = (json \ "task").as[RefWithId[Task]]
