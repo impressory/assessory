@@ -1,4 +1,5 @@
 define [
     "./base",
-    "./TaskOutputService"
+    "./TaskOutputService",
+    "./directive-taskOutputInfo"
   ], () -> {}

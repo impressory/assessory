@@ -7,6 +7,7 @@ define([
     "./directive-CritAdmin",
     "./directive-CritFill",
     "./directive-CritInfo",
+    "./directive-TargetInfo",
     "./directive-StrategyOfMyGroupEdit",
     "./directive-StrategyGroupEdit",
     "./view-Create"
