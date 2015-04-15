@@ -3,4 +3,18 @@
     <div ng-switch-when="Critique">
       <critique-admin task="task"></critique-admin>
     </div>
+
+    {{ task.details }}
+
+    <form>
+        <div class="form-group">
+            <label>Published</label>
+            <date-time-picker epoch="task.details.published"></date-time-picker>
+        </div>
+
+        <div class="form-group">
+            <label>Due</label>
+            <date-time-picker epoch="task.details.due"></date-time-picker>
+        </div>
+    </form>
   </div>

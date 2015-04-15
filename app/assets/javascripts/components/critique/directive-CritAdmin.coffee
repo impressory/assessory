@@ -4,7 +4,14 @@ define [ "./module" ], () ->
       restrict: "E"
       scope: { task: "=" }
       template: """
-        <crit-all-allocations task="task"></crit-all-allocations>
+        <div ng-switch="task.body.strategy.kind">
+            <div ng-switch-when="group">
+              <crit-all-allocations task="task"></crit-all-allocations>
+            </div>
+            <div ng-switch-when="critiques of my groups">
+
+            </div>
+        </div>
       """
 
     }
