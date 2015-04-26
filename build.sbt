@@ -22,6 +22,10 @@ lazy val assessoryReactiveMongo = project.in(file("modules/reactivemongo"))
   .settings(commonSettings:_*)
   .dependsOn(assessoryApi)
 
+lazy val reactjs = project.in(file("modules/reactjs"))
+  .settings(commonSettings:_*)
+  .enablePlugins(ScalaJSPlugin)
+
 lazy val assessory = project.in(file("modules/play"))
   .enablePlugins(PlayScala)
   .settings(commonSettings:_*)
@@ -38,3 +42,4 @@ lazy val assessory = project.in(file("modules/play"))
 lazy val aggregate = project.in(file("."))
   .settings(commonSettings:_*)
   .aggregate(assessoryApi, assessoryReactiveMongo, assessory)
+

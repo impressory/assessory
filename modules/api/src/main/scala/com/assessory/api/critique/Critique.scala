@@ -1,39 +1,24 @@
 package com.assessory.api.critique
 
-import com.assessory.api.question.{Answer, Questionnaire}
-import com.assessory.api.group.{Group, GroupSet}
 import com.wbillingsley.handy._
 import com.assessory.api._
-import com.assessory.api.IdentityLookup
-import com.assessory.api.group.GroupSet
-import com.assessory.api.User
 import com.assessory.api.Task
-import com.assessory.api.question.Questionnaire
-
-abstract class CritTarget(val kind: String)
-
-case class CTGroup(g: Id[Group, String]) extends CritTarget("Group")
-case class CTTaskOutput(t: Id[TaskOutput, String]) extends CritTarget("TaskOutput")
+import com.wbillingsley.handy.appbase.{Answer, Question, TaskBody, GroupSet}
 
 case class Critique(
-  target: CritTarget,
+  target: Target[_],
 
-  answers: Seq[Answer]
+  answers: Seq[Answer[_]]
 ) extends TaskOutputBody {
-
-  val kind = Critique.kind
-
-}
-
-object Critique {
   val kind = CritiqueTask.kind
 }
 
 
-abstract class CritTargetStrategy(val kind: String)
+
+abstract class CritTargetStrategy(val kind: String) extends HasKind
 
 case class MyOutputStrategy(
-  task: RefWithId[Task]
+  task: Id[Task,String]
 ) extends CritTargetStrategy("outputs relevant to me")
 
 case class OfMyGroupsStrategy(
@@ -45,7 +30,7 @@ object OfMyGroupsStrategy {
 }
 
 case class PreallocateGroupStrategy(
-  set: RefWithId[GroupSet],
+  set: Id[GroupSet, String],
 
   number: Int
 ) extends CritTargetStrategy(PreallocateGroupStrategy.kind)
@@ -56,7 +41,7 @@ object PreallocateGroupStrategy {
 
 
 case class CritiqueTask (
-  questionnaire: Questionnaire,
+  questionnaire: Seq[Question],
 
   strategy: CritTargetStrategy
 ) extends TaskBody {
@@ -73,9 +58,9 @@ object CritiqueTask {
 
 
 case class AllocatedCrit(
-  target: CritTarget,
+  target: Target[_],
 
-  critique: RefWithId[TaskOutput] = RefNone
+  critique: Option[Id[TaskOutput, String]] = None
 )
 
 
@@ -83,9 +68,9 @@ case class CritAllocation(
 
   id: Id[CritAllocation,String],
 
-  task: RefWithId[Task] = RefNone,
+  task: Id[Task, String],
 
-  user: RefWithId[User] = RefNone,
+  completeBy: Target[_],
 
   allocation: Seq[AllocatedCrit] = Seq.empty
 

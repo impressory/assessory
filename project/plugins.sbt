@@ -23,3 +23,5 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-less" % "1.0.0")
 // Use Twirl for compiling Angular templates together
 addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.0.2")
 
+// Scala.js for client-side components written in Scala
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.2")
