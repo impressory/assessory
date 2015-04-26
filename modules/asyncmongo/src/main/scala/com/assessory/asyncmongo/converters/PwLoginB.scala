@@ -17,9 +17,9 @@ object PwLoginB extends BsonDocumentConverter[PasswordLogin] {
 
   override def read(doc: BsonDocument): Try[PasswordLogin] = Try {
     new PasswordLogin(
-      email = doc.getString("email"),
-      username  = doc.getString("username"),
-      pwhash = doc.getString("pwhash")
+      email = doc.opt[String]("email"),
+      username  = doc.opt[String]("username"),
+      pwhash = doc.opt[String]("pwhash")
     )
   }
 }

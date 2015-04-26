@@ -1,6 +1,7 @@
 package com.assessory.asyncmongo.converters
 
 
+import com.wbillingsley.handy.Id
 import com.wbillingsley.handy.mongodbasync.BsonDocumentConverter
 import com.assessory.api.{ActiveSession, Identity, User}
 import com.wbillingsley.handy.user.PasswordLogin
@@ -25,15 +26,15 @@ object UserB extends BsonDocumentConverter[User] {
 
   override def read(doc: BsonDocument): Try[User] = Try {
     new User(
-      id = doc.getObjectId("_id"),
-      name  = doc.getString("name"),
-      nickname = doc.getString("nickname"),
-      avatar = doc.getString("avatar"),
-      secret = doc.getString("secret"),
+      id = doc.req[Id[User, String]]("_id"),
+      name  = doc.opt[String]("name"),
+      nickname = doc.opt[String]("nickname"),
+      avatar = doc.opt[String]("avatar"),
+      secret = doc.req[String]("secret"),
       activeSessions = doc.getObjSeq[ActiveSession]("activeSessions"),
       pwlogin = doc.getObject[PasswordLogin]("pwlogin"),
       identities = doc.getObjSeq[Identity]("identities"),
-      created = doc.getInt64("created")
+      created = doc.req[Long]("created")
     )
   }
 }

@@ -17,9 +17,9 @@ object ActiveSessionB extends BsonDocumentConverter[ActiveSession] {
 
   override def read(doc: BsonDocument): Try[ActiveSession] = Try {
     new ActiveSession(
-      ip = doc.getString("ip"),
-      key  = doc.getString("key"),
-      since = doc.getInt64("since")
+      ip = doc.req[String]("ip"),
+      key  = doc.req[String]("key"),
+      since = doc.req[Long]("since")
     )
   }
 }

@@ -31,20 +31,16 @@ object Lookups {
 
   implicit var luCritAlloc:LookUp[CritAllocation, String] = LookUp.fails("CritAllocation lookup has not been configured")
 
-  var courseRegistrationProvider:RegistrationProvider[Course, CourseRole] = new NullRegistrationProvider
+  var courseRegistrationProvider:RegistrationProvider[Course, CourseRole, EmptyKind.type] = new NullRegistrationProvider
 
-  var groupRegistrationProvider:RegistrationProvider[Group, GroupRole] = new NullRegistrationProvider
+  var groupRegistrationProvider:RegistrationProvider[Group, GroupRole, EmptyKind.type] = new NullRegistrationProvider
 }
 
-case object DefaultProvenance extends HasKind {
-  val kind = "Default"
+trait RegistrationProvider[T, R, P <: HasKind] {
+  def byUserAndTarget(user:Id[User, String], target:Id[T, String]):Ref[Registration[T, R, P]]
 }
 
-trait RegistrationProvider[T, R] {
-  def byUserAndTarget(user:Id[User, String], target:Id[T, String]):Ref[Registration[T, R, HasKind]]
-}
-
-class NullRegistrationProvider[T, R] extends RegistrationProvider[T, R] {
+class NullRegistrationProvider[T, R, P <: HasKind] extends RegistrationProvider[T, R, P] {
   def byUserAndTarget(user:Id[User, String], target:Id[T, String]) = {
     RefFailed(new IllegalStateException("No registration provider has been wired up"))
   }

@@ -1,13 +1,16 @@
 package com.assessory.asyncmongo.converters
 
 import com.mongodb.client.model.Filters
-import com.wbillingsley.handy.Id
+import com.wbillingsley.handy.{Ids, Id}
 import com.wbillingsley.handy.mongodbasync.BsonDocumentConverter
 import org.bson._
 import org.bson.conversions.Bson
 import org.bson.types.ObjectId
 
 import scala.language.implicitConversions
+import scala.util.Try
+
+import scala.collection.JavaConverters._
 
 /*
   TODO: merge this into handy
@@ -34,6 +37,12 @@ object BsonHelpers {
   implicit val pwLoginB = PwLoginB
   implicit val activeSessionB = ActiveSessionB
   implicit val userB = UserB
+  implicit val courseB = CourseB
+  implicit val groupSetB = GroupSetB
+  implicit val groupB = GroupB
+  implicit val courseRegB = RegistrationB.courseRegB
+  implicit val groupRegB = RegistrationB.groupRegB
+  implicit val identityLookupB = IdentityLookupB
 
 
   /*
@@ -41,10 +50,19 @@ object BsonHelpers {
    */
   implicit def toBson[T](item:T)(implicit tb:ToBson[T]):BsonValue = tb.toBson(item)
 
-  implicit def toBsonDoc[T](item:T)(implicit w:com.wbillingsley.handy.mongodbasync.BsonDocumentConverter[T]):BsonValue = w.write(item)
+  implicit def toBsonSeq[T](items:Seq[T])(implicit tb:ToBson[T]):BsonValue = {
+    val a = items.map(tb.toBson(_))
+    new BsonArray(a.asJava)
+  }
 
-  implicit def toBsonSeq[T](item:Seq[T])(implicit w:com.wbillingsley.handy.mongodbasync.BsonDocumentConverter[T]):BsonValue = {
-    import scala.collection.JavaConverters._
+  implicit def toBsonDoc[T](item:T)(implicit w:BsonDocumentConverter[T]):BsonValue = w.write(item)
+
+  implicit def toBsonDocOpt[T](o:Option[T])(implicit w:BsonDocumentConverter[T]):BsonValue = o match {
+    case Some(i) => w.write(i)
+    case _ => new BsonNull
+  }
+
+  implicit def toBsonDocSeq[T](item:Seq[T])(implicit w:BsonDocumentConverter[T]):BsonValue = {
     val items = item.map(w.write(_))
     new BsonArray(items.asJava)
   }
@@ -53,8 +71,19 @@ object BsonHelpers {
     def toBson(i:Id[T, String]) = new BsonObjectId(new ObjectId(i.id))
   }
 
+  implicit def IdsToBson[T]:ToBson[Ids[T,String]] = new ToBson[Ids[T, String]] {
+    def toBson(i:Ids[T, String]) = {
+      val ids = for { id <- i.ids } yield new BsonObjectId(new ObjectId(id))
+      new BsonArray(ids.asJava)
+    }
+  }
+
   implicit object StringToBson extends ToBson[String] {
     def toBson(s:String) = new BsonString(s)
+  }
+
+  implicit object BoolToBson extends ToBson[Boolean] {
+    def toBson(s:Boolean) = new BsonBoolean(s)
   }
 
   implicit object LongToBson extends ToBson[Long] {
@@ -74,34 +103,45 @@ object BsonHelpers {
 
 
 
-  implicit def fromBson[B <: BsonValue, T](b:B)(implicit f:FromBson[B, T]):T = f.fromBson(b)
+  implicit def fromBson[T](b:BsonValue)(implicit f:FromBson[T]):T = f.fromBson(b)
 
-  implicit def optFromBson[B <: BsonValue, T](b:B)(implicit f:FromBson[B, T]):Option[T] = {
+  implicit def optFromBson[T](b:BsonValue)(implicit f:FromBson[T]):Option[T] = {
     Option(b).map(f.fromBson(_))
   }
 
-  implicit def DocToObj[T](implicit r:BsonDocumentConverter[T]):FromBson[BsonDocument, T] = {
-    new FromBson[BsonDocument, T] {
-      def fromBson(d:BsonDocument) = r.read(d).get
+  implicit def DocToObj[T](implicit r:BsonDocumentConverter[T]):FromBson[T] = {
+    new FromBson[T] {
+      def fromBson(d:BsonValue) = r.read(d.asDocument).get
     }
   }
 
-  implicit def ArrToSeq[B <: BsonValue, T](implicit f:FromBson[B, T]) = new FromBson[BsonArray, Seq[T]] {
-    def fromBson(a:BsonArray):Seq[T] = {
-      a.toArray.toSeq.asInstanceOf[Seq[B]].map(f.fromBson(_))
+  implicit def ArrToSeq[T](implicit f:FromBson[T]) = new FromBson[Seq[T]] {
+    def fromBson(a:BsonValue):Seq[T] = {
+      a.asArray().toArray.toSeq.asInstanceOf[Seq[BsonValue]].map(f.fromBson(_))
     }
   }
 
-  implicit def BsonToObjectId[T] = new FromBson[BsonObjectId, Id[T, String]] {
-    override def fromBson(b: BsonObjectId): Id[T, String] = Id(b.getValue.toHexString)
+  implicit def BsonToObjectId[T] = new FromBson[Id[T, String]] {
+    override def fromBson(b: BsonValue): Id[T, String] = Id(b.asObjectId().getValue.toHexString)
   }
 
-  implicit object BsonToString extends FromBson[BsonString, String] {
-    override def fromBson(b: BsonString): String = b.getValue
+  implicit def BsonToObjectIds[T] = new FromBson[Ids[T, String]] {
+    override def fromBson(b: BsonValue): Ids[T, String] = {
+      Ids(b.asArray().toArray(Array.empty[BsonObjectId]).map(_.getValue.toHexString).toSeq)
+    }
   }
 
-  implicit object BsonToLong extends FromBson[BsonInt64, Long] {
-    override def fromBson(b: BsonInt64): Long = b.getValue
+
+  implicit object BsonToString extends FromBson[String] {
+    override def fromBson(b: BsonValue): String = b.asString().getValue
+  }
+
+  implicit object BsonToLong extends FromBson[Long] {
+    override def fromBson(b: BsonValue): Long = b.asInt64().getValue
+  }
+
+  implicit object BsonToBoolean extends FromBson[Boolean] {
+    override def fromBson(b: BsonValue): Boolean = b.asBoolean().getValue
   }
 
   implicit class docOps(val d:BsonDocument) extends AnyVal {
@@ -111,7 +151,7 @@ object BsonHelpers {
       r.readSeq(d.getArray(k).toArray(Array.empty[BsonDocument]).toSeq).get
     }
 
-    def opt[T](k:String)(implicit f:FromBson[BsonValue, T]):Option[T] = {
+    def opt[T](k:String)(implicit f:FromBson[T]):Option[T] = {
       val v = d.get(k)
       if (v.isNull) {
         None
@@ -120,7 +160,7 @@ object BsonHelpers {
       }
     }
 
-    def req[T](k:String)(implicit f:FromBson[BsonValue, T]):T = {
+    def req[T](k:String)(implicit f:FromBson[T]):T = {
       f.fromBson(d.get(k))
     }
 
@@ -136,6 +176,8 @@ object BsonHelpers {
   def $pull(tuples:(String,BsonValue)*) = bsonDoc("$pull" -> bsonDoc(tuples:_*))
 
   def $push(tuples:(String,BsonValue)*) = bsonDoc("$push" -> bsonDoc(tuples:_*))
+
+  def $addToSet(tuples:(String,BsonValue)*) = bsonDoc("$addToSet" -> bsonDoc(tuples:_*))
 
   implicit class keyOps(val s:String) extends AnyVal {
     def $eq(bson:BsonValue) = Filters.eq(s, bson)
@@ -153,6 +195,10 @@ trait ToBson[T] {
   def toBson(i:T):BsonValue
 }
 
-trait FromBson[B <: BsonValue, T] {
-  def fromBson(b:B):T
+trait FromBson[T] {
+  def fromBson(b:BsonValue):T
+
+  def tryFromBson(b:BsonValue) = Try { fromBson(b) }
 }
+
+trait ToFromBson[T] extends ToBson[T] with FromBson[T]

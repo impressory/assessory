@@ -6,9 +6,10 @@ lazy val commonSettings = Seq(
   version := "0.2-SNAPSHOT",
   scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
   resolvers ++= Seq(
+    Resolver.file("Local repo", file("/home/user/.ivy2/local")),
+    "sonatype snaps" at "https://oss.sonatype.org/content/repositories/snapshots/",
     "typesafe snaps" at "http://repo.typesafe.com/typesafe/snapshots/",
     "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/",
-    "sonatype snaps" at "https://oss.sonatype.org/content/repositories/snapshots/",
     "sonatype releases" at "https://oss.sonatype.org/content/repositories/releases/",
     "bintrayW" at "http://dl.bintray.com/wbillingsley/maven",
     DefaultMavenRepository

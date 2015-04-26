@@ -28,6 +28,9 @@ package object api {
   type Identity = com.wbillingsley.handy.user.Identity
   val Identity = com.wbillingsley.handy.user.Identity
 
+  type IdentityLookup = com.wbillingsley.handy.appbase.IdentityLookup
+  val IdentityLookup = com.wbillingsley.handy.appbase.IdentityLookup
+
   type ActiveSession = com.wbillingsley.handy.user.ActiveSession
   val ActiveSession = com.wbillingsley.handy.user.ActiveSession
 

@@ -3,7 +3,7 @@ package com.assessory.api.critique
 import com.wbillingsley.handy._
 import com.assessory.api._
 import com.assessory.api.Task
-import com.wbillingsley.handy.appbase.{Answer, Question, TaskBody, GroupSet}
+import com.wbillingsley.handy.appbase.{Answer, Question, GroupSet}
 
 case class Critique(
   target: Target[_],
