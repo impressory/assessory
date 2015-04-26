@@ -22,6 +22,10 @@ lazy val assessoryReactiveMongo = project.in(file("modules/reactivemongo"))
   .settings(commonSettings:_*)
   .dependsOn(assessoryApi)
 
+lazy val assessoryAsyncMongo = project.in(file("modules/asyncmongo"))
+  .settings(commonSettings:_*)
+  .dependsOn(assessoryApi)
+
 lazy val reactjs = project.in(file("modules/reactjs"))
   .settings(commonSettings:_*)
   .enablePlugins(ScalaJSPlugin)
