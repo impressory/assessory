@@ -14,14 +14,14 @@ import com.assessory.api.wiring.Lookups._
 object CourseDAO extends DAO {
 
   type DataT = Course
-  
+
   val clazz = classOf[Course]
-  
+
   val collName = "course"
-    
+
   val db = DBConnector
-  
-  def unsaved = Course(id = allocateId.asId[Course])
+
+  def unsaved = new Course(id = allocateId.asId[Course])
 
   val executionContext = play.api.libs.concurrent.Execution.Implicits.defaultContext
 
@@ -38,13 +38,13 @@ object CourseDAO extends DAO {
         created = doc.getAs[Long]("created").getOrElse(System.currentTimeMillis())
       )
     }
-  }  
-  
+  }
+
   /**
    * Saves the user's details
    */
   def saveDetails(c:Course) = updateAndFetch(
-    query=BSONDocument(idIs(c.id)), 
+    query=BSONDocument(idIs(c.id)),
     update=BSONDocument("$set" -> BSONDocument(
       "title" -> c.title,
       "shortName" -> c.shortName,
@@ -71,6 +71,6 @@ object CourseDAO extends DAO {
     ),
     c
   )
-  
-  
+
+
 }

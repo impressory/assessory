@@ -1,12 +1,9 @@
 package com.assessory.asyncmongo
 
-import com.assessory.api._
+import com.assessory.asyncmongo.converters.BsonHelpers._
 import com.wbillingsley.handy._
+import com.wbillingsley.handy.appbase.{Course, Group, GroupSet}
 import com.wbillingsley.handy.mongodbasync.DAO
-
-import converters.BsonHelpers._
-
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 object GroupSetDAO extends DAO(DB, classOf[GroupSet], "groupSet") {
 
@@ -33,7 +30,7 @@ object GroupSetDAO extends DAO(DB, classOf[GroupSet], "groupSet") {
       gsid <- gs.refId
       gpid <- gp.refId
       gs <- updateAndFetch(
-        query=("_id" $eq gsid),
+        query="_id" $eq gsid,
         update=$set("preenrol" -> gpid)
       )
     } yield gs

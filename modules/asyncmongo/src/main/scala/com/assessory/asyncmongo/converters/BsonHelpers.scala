@@ -34,6 +34,7 @@ object BsonHelpers {
    * Object converters
    */
   implicit val identityB = IdentityB
+  implicit val identityLookupB = IdentityLookupB
   implicit val pwLoginB = PwLoginB
   implicit val activeSessionB = ActiveSessionB
   implicit val userB = UserB
@@ -42,8 +43,14 @@ object BsonHelpers {
   implicit val groupB = GroupB
   implicit val courseRegB = RegistrationB.courseRegB
   implicit val groupRegB = RegistrationB.groupRegB
-  implicit val identityLookupB = IdentityLookupB
-
+  implicit val coursePreenrolB = PreenrolmentB.course
+  implicit val groupPreenrolB = PreenrolmentB.group
+  implicit val targetB = TargetB
+  implicit val taskB = TaskB
+  implicit val taskBodyB = TaskBodyB
+  implicit val taskOutputB = TaskOutputB
+  implicit val taskOutputBodyB = TaskOutputBodyB
+  implicit val critAllocationB = CritAllocationB
 
   /*
    * To BSON
@@ -71,13 +78,6 @@ object BsonHelpers {
     def toBson(i:Id[T, String]) = new BsonObjectId(new ObjectId(i.id))
   }
 
-  implicit def IdsToBson[T]:ToBson[Ids[T,String]] = new ToBson[Ids[T, String]] {
-    def toBson(i:Ids[T, String]) = {
-      val ids = for { id <- i.ids } yield new BsonObjectId(new ObjectId(id))
-      new BsonArray(ids.asJava)
-    }
-  }
-
   implicit object StringToBson extends ToBson[String] {
     def toBson(s:String) = new BsonString(s)
   }
@@ -86,8 +86,8 @@ object BsonHelpers {
     def toBson(s:Boolean) = new BsonBoolean(s)
   }
 
-  implicit object LongToBson extends ToBson[Long] {
-    def toBson(s:Long) = new BsonInt64(s)
+  implicit object IntToBson extends ToBson[Int] {
+    def toBson(s:Int) = new BsonInt32(s)
   }
 
   implicit def optToBson[T](implicit tb:ToBson[T]):ToBson[Option[T]] = new ToBson[Option[T]] {
@@ -102,7 +102,6 @@ object BsonHelpers {
    */
 
 
-
   implicit def fromBson[T](b:BsonValue)(implicit f:FromBson[T]):T = f.fromBson(b)
 
   implicit def optFromBson[T](b:BsonValue)(implicit f:FromBson[T]):Option[T] = {
@@ -115,17 +114,22 @@ object BsonHelpers {
     }
   }
 
-  implicit def ArrToSeq[T](implicit f:FromBson[T]) = new FromBson[Seq[T]] {
+  implicit def ArrToSeq[T](implicit f:FromBson[T]):FromBson[Seq[T]] = new FromBson[Seq[T]] {
     def fromBson(a:BsonValue):Seq[T] = {
       a.asArray().toArray.toSeq.asInstanceOf[Seq[BsonValue]].map(f.fromBson(_))
     }
   }
 
-  implicit def BsonToObjectId[T] = new FromBson[Id[T, String]] {
+  implicit def BsonToObjectId[T]:FromBson[Id[T, String]] = new FromBson[Id[T, String]] {
     override def fromBson(b: BsonValue): Id[T, String] = Id(b.asObjectId().getValue.toHexString)
   }
 
-  implicit def BsonToObjectIds[T] = new FromBson[Ids[T, String]] {
+  implicit def BsonToObjectIds[T]:ToFromBson[Ids[T, String]] = new ToFromBson[Ids[T, String]] {
+    def toBson(i:Ids[T, String]) = {
+      val ids = for { id <- i.ids } yield new BsonObjectId(new ObjectId(id))
+      new BsonArray(ids.asJava)
+    }
+
     override def fromBson(b: BsonValue): Ids[T, String] = {
       Ids(b.asArray().toArray(Array.empty[BsonObjectId]).map(_.getValue.toHexString).toSeq)
     }
@@ -136,8 +140,13 @@ object BsonHelpers {
     override def fromBson(b: BsonValue): String = b.asString().getValue
   }
 
-  implicit object BsonToLong extends FromBson[Long] {
+  implicit object BsonToLong extends ToFromBson[Long] {
+    def toBson(s:Long) = new BsonInt64(s)
     override def fromBson(b: BsonValue): Long = b.asInt64().getValue
+  }
+
+  implicit object BsonToInt extends FromBson[Int] {
+    override def fromBson(b: BsonValue): Int = b.asInt32().getValue
   }
 
   implicit object BsonToBoolean extends FromBson[Boolean] {
@@ -168,6 +177,16 @@ object BsonHelpers {
 
 
   /*
+   * StringKeys
+   */
+
+  implicit def idToFromSK[T]:ToFromStringKey[Id[T,String]] = new ToFromStringKey[Id[T,String]] {
+    override def toSK(i: Id[T,String]): String = i.id
+
+    override def fromSK(i: String): Id[T, String] = Id(i)
+  }
+
+  /*
    * DSL
    */
 
@@ -185,9 +204,15 @@ object BsonHelpers {
 
   implicit class bsonOps(val b:Bson) extends AnyVal {
     def and(bson:Bson) = Filters.and(b, bson)
+
+    def or(bson:Bson) = Filters.or(b, bson)
   }
 
+  def and(b:Bson*) = Filters.and(b:_*)
 
+  def or(b:Bson*) = Filters.and(b:_*)
+
+  val $null = new BsonNull
 
 }
 
@@ -202,3 +227,13 @@ trait FromBson[T] {
 }
 
 trait ToFromBson[T] extends ToBson[T] with FromBson[T]
+
+trait ToStringKey[K] {
+  def toSK(i:K):String
+}
+
+trait FromStringKey[K] {
+  def fromSK(i:String):K
+}
+
+trait ToFromStringKey[K] extends ToStringKey[K] with FromStringKey[K]

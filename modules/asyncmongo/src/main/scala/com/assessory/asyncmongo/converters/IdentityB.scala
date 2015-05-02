@@ -1,8 +1,8 @@
 package com.assessory.asyncmongo.converters
 
-import com.assessory.api.Identity
-import com.wbillingsley.handy.mongodbasync.{BsonDocumentConverter, BsonDocumentWriter}
-import org.bson.{BsonDocument, BsonValue}
+import com.wbillingsley.handy.mongodbasync.BsonDocumentConverter
+import com.wbillingsley.handy.user.Identity
+import org.bson.BsonDocument
 
 import BsonHelpers._
 

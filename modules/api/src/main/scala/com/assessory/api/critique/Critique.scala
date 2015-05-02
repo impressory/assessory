@@ -6,34 +6,35 @@ import com.assessory.api.Task
 import com.wbillingsley.handy.appbase.{Answer, Question, GroupSet}
 
 case class Critique(
-  target: Target[_],
+  target: Target,
 
   answers: Seq[Answer[_]]
 ) extends TaskOutputBody {
   val kind = CritiqueTask.kind
 }
 
-
-
-abstract class CritTargetStrategy(val kind: String) extends HasKind
+abstract class CritTargetStrategy extends HasKind
 
 case class MyOutputStrategy(
   task: Id[Task,String]
-) extends CritTargetStrategy("outputs relevant to me")
+) extends CritTargetStrategy {
+  val kind = MyOutputStrategy.kind
+}
 
-case class OfMyGroupsStrategy(
-  task: RefWithId[Task]
-) extends CritTargetStrategy(OfMyGroupsStrategy.kind)
+object MyOutputStrategy {
+  val kind = "outputs relevant to me"
+}
 
-object OfMyGroupsStrategy {
+case object OfMyGroupsStrategy extends CritTargetStrategy {
   val kind = "critiques of my groups"
 }
 
 case class PreallocateGroupStrategy(
   set: Id[GroupSet, String],
-
   number: Int
-) extends CritTargetStrategy(PreallocateGroupStrategy.kind)
+) extends CritTargetStrategy {
+  val kind = PreallocateGroupStrategy.kind
+}
 
 object PreallocateGroupStrategy {
   val kind = "group"
@@ -58,7 +59,7 @@ object CritiqueTask {
 
 
 case class AllocatedCrit(
-  target: Target[_],
+  target: Target,
 
   critique: Option[Id[TaskOutput, String]] = None
 )
@@ -70,7 +71,7 @@ case class CritAllocation(
 
   task: Id[Task, String],
 
-  completeBy: Target[_],
+  completeBy: Target,
 
   allocation: Seq[AllocatedCrit] = Seq.empty
 

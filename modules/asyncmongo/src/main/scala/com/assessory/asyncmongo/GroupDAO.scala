@@ -1,15 +1,12 @@
 package com.assessory.asyncmongo
 
-import com.assessory.api._
 import com.assessory.asyncmongo.converters.BsonHelpers._
 import com.wbillingsley.handy._
-import com.wbillingsley.handy.appbase.GroupRole
+import com.wbillingsley.handy.appbase.{Course, Group, GroupRole, GroupSet}
 import com.wbillingsley.handy.mongodbasync.DAO
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import com.wbillingsley.handy.user.User
 
-import Id._
-
-object GroupDAO extends DAO(DB, classOf[Group], "groupSet") {
+object GroupDAO extends DAO(DB, classOf[Group], "assessoryGroup") {
 
   /**
    * Save a new group. This should only be used for new groups because it overwrites
@@ -22,7 +19,7 @@ object GroupDAO extends DAO(DB, classOf[Group], "groupSet") {
       gid <- g.refId
       uid <- u.refId
       reg <- RegistrationDAO.group.register(uid, gid, Set(GroupRole.member), EmptyKind)
-      query = ("_id" $eq gid)
+      query = "_id" $eq gid
       update = $addToSet("members" -> reg.id)
       updated <- updateAndFetch(query, update)
     } yield updated
@@ -50,11 +47,10 @@ object GroupDAO extends DAO(DB, classOf[Group], "groupSet") {
     } yield g
   }
 
-  def bySet(gs:Ref[GroupSet]) = {
-    for {
-      gid <- gs.refId
-      g <- findMany("set" $eq gid)
-    } yield g
+  def bySet(gsId:Id[GroupSet,String]) = findMany("set" $eq gsId)
+
+  def byNames(gsId:Id[GroupSet, String], names:Set[String]) = {
+    findMany(bsonDoc("set" -> gsId, "name" -> bsonDoc("$in" -> names.toSeq)))
   }
 
   def byNames(names:Set[String]) = findMany(bsonDoc("name" -> bsonDoc("$in" -> names.toSeq)))

@@ -1,75 +1,59 @@
 package com.assessory.model
 
-
-import play.api.mvc.{Action, Controller}
-import com.assessory.reactivemongo._
-import com.assessory.play.json._
-import play.api.mvc.AnyContent
 import com.assessory.api._
-import course._
-import group._
-import com.wbillingsley.handy._
-import com.wbillingsley.handy.Ref._
-import com.assessory.api.critique._
-import play.api.libs.iteratee.Enumerator
-import play.api.libs.json.JsValue
-
+import com.assessory.asyncmongo._
 import com.assessory.api.wiring.Lookups._
+import com.wbillingsley.handy.Ref._
+import com.wbillingsley.handy.Id._
+import com.wbillingsley.handy._
+import com.wbillingsley.handy.user.User
 
 object TaskOutputModel {
 
-
-  def relevantToMe(a:Approval[User], rTask:Ref[Task]) = {
-    for (
-      task <- rTask;
-      to <- TaskOutputDAO.relevantTo(task, a.who)
-    ) yield to
-  }
-
   def myOutputs(a:Approval[User], rTask:Ref[Task]) = {
-    for (
-      task <- rTask;
-      to <- TaskOutputDAO.byTaskAndUser(task.itself, a.who)
-    ) yield to
+    for {
+      task <- rTask
+      uid <- a.who.refId
+      to <- TaskOutputDAO.byTaskAndBy(task.id, TargetUser(uid))
+    } yield to
   }
 
-  def create(a:Approval[User], rTask: Ref[Task], json:JsValue) = {
-    for (
-      u <- a.who;
-      task <- rTask;
-      to = TaskOutputDAO.unsaved.copy(byUser=u.itself, task=task.itself);
-      approved <- a ask Permissions.ViewCourse(task.course);
-      saved <- {
-        val updated = TaskOutputToJson.update(to, json);
-        TaskOutputDAO.saveNew(updated)
-      };
-      finalised <- if ((json \ "finalise").asOpt[Boolean].getOrElse(false)) {
+  def create(a:Approval[User], task:Ref[Task], clientTaskOutput:TaskOutput, finalise:Boolean) = {
+    for {
+      u <- a.who
+      t <- task
+      approved <- a ask Permissions.ViewCourse(t.course.lazily)
+      to = clientTaskOutput.copy(
+        id=TaskOutputDAO.allocateId.asId,
+        task=t.id,
+        by=TargetUser(u.id)
+      )
+      saved <- TaskOutputDAO.saveSafe(to)
+      finalised <- if (finalise) {
         // Finalise the task output
         TaskOutputDAO.finalise(saved)
       } else {
         // Don't finalise it; just return the saved item
         saved.itself
       }
-    ) yield finalised
+    } yield finalised
   }
 
-  def updateBody(a:Approval[User], rTaskOutput:Ref[TaskOutput], json:JsValue):Ref[JsValue] = {
-    for (
-      output <- rTaskOutput;
-      approved <- a ask Permissions.EditOutput(output.itself);
-      updated = TaskOutputToJson.update(output, json);
-      saved <- TaskOutputDAO.updateBody(updated);
-      finalised <- if ((json \ "finalise").asOpt[Boolean].getOrElse(false)) {
+  def updateBody(a:Approval[User], clientTaskOutput:TaskOutput, finalise:Boolean) = {
+    for {
+      approved <- a ask Permissions.EditOutput(clientTaskOutput.id.lazily)
+      saved <- TaskOutputDAO.updateBody(clientTaskOutput)
+      finalised <- if (finalise) {
         // Finalise the task output
         TaskOutputDAO.finalise(saved)
       } else {
         // Don't finalise it; just return the saved item
         saved.itself
-      };
-      j <-TaskOutputToJson.toJsonFor(finalised, new Approval(a.who))
-    ) yield j
+      }
+    } yield finalised
   }
 
+  /*
   def asCsv(a:Approval[User], rTask:Ref[Task]) = {
     val header = for (
       task <- a.cache(rTask);
@@ -124,11 +108,10 @@ object TaskOutputModel {
     } yield line
 
     val enum = for (h <- header) yield {
-      import com.wbillingsley.handyplay.RefConversions._
-      import play.api.libs.concurrent.Execution.Implicits.defaultContext
       Enumerator(h) andThen body.enumerate
     }
     enum
   }
+  */
 
 }

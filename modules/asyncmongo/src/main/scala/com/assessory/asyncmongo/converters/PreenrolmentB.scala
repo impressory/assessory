@@ -1,22 +1,20 @@
 package com.assessory.asyncmongo.converters
 
 
+import com.assessory.asyncmongo.converters.BsonHelpers._
+import com.assessory.asyncmongo.converters.RegistrationB._
 import com.wbillingsley.handy.Id
-import com.wbillingsley.handy.appbase.{GroupRole, Used}
+import com.wbillingsley.handy.appbase._
 import com.wbillingsley.handy.mongodbasync.BsonDocumentConverter
-import com.assessory.api._
-import org.bson.{BsonDocument, BsonValue}
-
-import BsonHelpers._
-import RegistrationB._
+import org.bson.BsonDocument
 
 import scala.util.Try
 
-class PreenrolmentB[T,R,UT](implicit r:ToFromBson[R]) extends BsonDocumentConverter[Preenrolment[T,R,UT]] {
+class PreenrolmentB[W, T,R,RT](implicit r:ToFromBson[R]) extends BsonDocumentConverter[Preenrolment[W, T,R,RT]] {
 
-  implicit val prb = new PreenrolmentRowB[T,R,UT]
+  implicit val prb = new PreenrolmentRowB[T,R,RT]
 
-  override def write(i: Preenrolment[T,R,UT]) = bsonDoc(
+  override def write(i: Preenrolment[W,T,R,RT]) = bsonDoc(
     "_id" -> i.id,
     "name" -> i.name,
     "rows" -> i.rows,
@@ -24,11 +22,11 @@ class PreenrolmentB[T,R,UT](implicit r:ToFromBson[R]) extends BsonDocumentConver
     "created" -> i.created
   )
 
-  override def read(doc: BsonDocument): Try[Preenrolment[T,R,UT]] = Try {
-    new Preenrolment[T,R,UT](
-      id = doc.req[Id[Preenrolment[T,R,UT], String]]("_id"),
+  override def read(doc: BsonDocument): Try[Preenrolment[W,T,R,RT]] = Try {
+    new Preenrolment[W,T,R,RT](
+      id = doc.req[Id[Preenrolment[W,T,R,RT], String]]("_id"),
       name = doc.opt[String]("name"),
-      rows = doc.req[Seq[Preenrolment.Row[T,R,UT]]]("rows"),
+      rows = doc.req[Seq[Preenrolment.Row[T,R,RT]]]("rows"),
       modified = doc.req[Long]("modified"),
       created = doc.req[Long]("created")
     )
@@ -36,8 +34,8 @@ class PreenrolmentB[T,R,UT](implicit r:ToFromBson[R]) extends BsonDocumentConver
 }
 
 object PreenrolmentB {
-  implicit val group = new PreenrolmentB[Group, GroupRole, Group.Reg]
-  implicit val course = new PreenrolmentB[Course, CourseRole, Course.Reg]
+  implicit val group:PreenrolmentB[GroupSet, Group, GroupRole, Group.Reg] = new PreenrolmentB
+  implicit val course:PreenrolmentB[Course, Course, CourseRole, Course.Reg] = new PreenrolmentB
 }
 
 class PreenrolmentRowB[T,R,UT](implicit r:ToFromBson[R]) extends BsonDocumentConverter[Preenrolment.Row[T,R,UT]] {

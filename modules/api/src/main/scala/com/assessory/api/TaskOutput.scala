@@ -10,19 +10,19 @@ object EmptyTaskOutputBody extends TaskOutputBody {
 
 case class TaskOutput (
 
-  val id:Id[TaskOutput, String],
+  id:Id[TaskOutput, String],
 
-  val task:Id[Task, String],
+  task:Id[Task, String],
 
-  val by:Target[_],
+  by:Target,
 
-  val attn:Targets[_] = new NoTargets,
+  attn:Seq[Target] = Seq.empty,
 
-  val body: TaskOutputBody = EmptyTaskOutputBody,
+  body: TaskOutputBody = EmptyTaskOutputBody,
 
-  val created:Long = System.currentTimeMillis,
+  created:Long = System.currentTimeMillis,
 
-  val finalised:Option[Long] = None,
+  finalised:Option[Long] = None,
 
-  val updated:Long = System.currentTimeMillis
+  updated:Long = System.currentTimeMillis
 ) extends HasStringId[TaskOutput]

@@ -1,29 +1,21 @@
 package com.assessory.api
 
-import com.wbillingsley.handy.{Ids, Id, HasKind}
+import com.wbillingsley.handy.{Id, HasKind}
+import com.wbillingsley.handy.appbase._
 
-abstract class Target[T](val kind:String) extends HasKind {
-  val id: Id[T, String]
+abstract class Target extends HasKind {
+  val id: Id[_, String]
 }
 
-abstract class Targets[T](val kind:String) extends HasKind {
-  val ids: Ids[T, String]
-}
+case class UnrecognisedT(id:Id[Nothing, String], original:String) extends Target { val kind = original }
 
-case class UnrecognisedT(id:Id[Nothing, String], original:String) extends Target(original)
+case class TargetUser(id:Id[User, String]) extends Target { val kind = "User" }
 
-class NoTargets extends Targets[Nothing]("Empty") {
-  val ids = Ids.empty[Nothing, String]
-}
+case class TargetCourseReg(id:Id[Course.Reg, String]) extends Target{ val kind = "CourseReg" }
 
+case class TargetGroup(id:Id[Group, String]) extends Target{ val kind = "Group" }
 
-case class TargetUser(id:Id[User, String]) extends Target[User]("User")
-
-case class TargetCourseReg(id:Id[Course.Reg, String]) extends Target[Course.Reg]("CourseReg")
-
-case class TargetGroup(id:Id[Group, String]) extends Target[Group]("Group")
-
-case class TargetTaskOutput(id:Id[TaskOutput, String]) extends Target[TaskOutput]("TaskOutput")
+case class TargetTaskOutput(id:Id[TaskOutput, String]) extends Target{ val kind = "TaskOutput" }
 
 
 object Target {

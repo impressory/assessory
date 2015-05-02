@@ -1,10 +1,9 @@
 package com.assessory.asyncmongo.converters
 
+import com.wbillingsley.handy.appbase.{GroupSet, Course, Group}
 import com.wbillingsley.handy.{Ids, Id}
 import com.wbillingsley.handy.mongodbasync.BsonDocumentConverter
-import com.assessory.api._
-import com.wbillingsley.handy.user.PasswordLogin
-import org.bson.{BsonDocument, BsonValue}
+import org.bson.BsonDocument
 
 import BsonHelpers._
 

@@ -19,13 +19,13 @@ lazy val commonSettings = Seq(
 lazy val assessoryApi = project.in(file("modules/api"))
   .settings(commonSettings:_*)
 
-lazy val assessoryReactiveMongo = project.in(file("modules/reactivemongo"))
-  .settings(commonSettings:_*)
-  .dependsOn(assessoryApi)
-
 lazy val assessoryAsyncMongo = project.in(file("modules/asyncmongo"))
   .settings(commonSettings:_*)
   .dependsOn(assessoryApi)
+
+lazy val assessoryModel = project.in(file("modules/model"))
+  .settings(commonSettings:_*)
+  .dependsOn(assessoryApi, assessoryAsyncMongo)
 
 lazy val reactjs = project.in(file("modules/reactjs"))
   .settings(commonSettings:_*)
@@ -34,7 +34,7 @@ lazy val reactjs = project.in(file("modules/reactjs"))
 lazy val assessory = project.in(file("modules/play"))
   .enablePlugins(PlayScala)
   .settings(commonSettings:_*)
-  .dependsOn(assessoryApi, assessoryReactiveMongo)
+  .dependsOn(assessoryApi, assessoryModel, assessoryAsyncMongo)
   .settings(
     PlayKeys.routesImport ++= Seq(
       "com.wbillingsley.handy._",
@@ -46,5 +46,5 @@ lazy val assessory = project.in(file("modules/play"))
 
 lazy val aggregate = project.in(file("."))
   .settings(commonSettings:_*)
-  .aggregate(assessoryApi, assessoryReactiveMongo, assessory)
+  .aggregate(assessoryApi, assessoryAsyncMongo, assessoryModel)
 

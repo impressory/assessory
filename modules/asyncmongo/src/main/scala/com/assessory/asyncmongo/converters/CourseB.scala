@@ -1,12 +1,10 @@
 package com.assessory.asyncmongo.converters
 
+import com.assessory.asyncmongo.converters.BsonHelpers._
 import com.wbillingsley.handy.Id
+import com.wbillingsley.handy.appbase.Course
 import com.wbillingsley.handy.mongodbasync.BsonDocumentConverter
-import com.assessory.api.{Course, ActiveSession, Identity, User}
-import com.wbillingsley.handy.user.PasswordLogin
-import org.bson.{BsonDocument, BsonValue}
-
-import BsonHelpers._
+import org.bson.BsonDocument
 
 import scala.util.Try
 

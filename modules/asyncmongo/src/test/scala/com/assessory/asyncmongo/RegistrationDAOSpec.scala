@@ -1,19 +1,19 @@
 package com.assessory.asyncmongo
 
+import com.wbillingsley.handy.Id._
+import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy._
+import com.wbillingsley.handy.appbase.{Group, GroupSet, CourseRole, Course}
+import com.wbillingsley.handy.user._
 import com.wbillingsley.handy.mongodbasync.FuturifySRC
 import org.specs2.mutable.Specification
-
-import com.assessory.api._
-import Ref._
-import Id._
 
 
 class RegistrationDAOSpec extends Specification {
 
   sequential
 
-  def dropDB() = FuturifySRC.void(DB.db.drop).toRef
+  def dropDB() = FuturifySRC.void(DB.db.drop).toRef(DB.executionContext)
 
   "RegistrationDAO" should {
 

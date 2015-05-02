@@ -1,11 +1,11 @@
 package com.assessory.asyncmongo.converters
 
-import com.assessory.api._
 import com.assessory.asyncmongo.converters.BsonHelpers._
-import com.wbillingsley.handy.appbase.GroupRole
-import com.wbillingsley.handy.{HasKind, Id, EmptyKind}
+import com.wbillingsley.handy.appbase._
 import com.wbillingsley.handy.mongodbasync.BsonDocumentConverter
-import org.bson.{BsonString, BsonValue, BsonDocument}
+import com.wbillingsley.handy.user.User
+import com.wbillingsley.handy.{EmptyKind, HasKind, Id}
+import org.bson.{BsonDocument, BsonString, BsonValue}
 
 import scala.util.Try
 

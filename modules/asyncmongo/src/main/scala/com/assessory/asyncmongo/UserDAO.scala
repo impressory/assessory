@@ -1,28 +1,25 @@
 package com.assessory.asyncmongo
 
-import com.assessory.api._
+import com.assessory.asyncmongo.converters.BsonHelpers._
+import com.wbillingsley.handy.Id._
 import com.wbillingsley.handy.Ref._
-import com.wbillingsley.handy.{Id, LazyId, Ref, Refused}
-import Id._
-import com.wbillingsley.handyplay.UserProvider
+import com.wbillingsley.handy.appbase.Course
 import com.wbillingsley.handy.mongodbasync.DAO
+import com.wbillingsley.handy.user.{ActiveSession, Identity, User}
+import com.wbillingsley.handy.{LazyId, Ref, Refused}
+import com.wbillingsley.handyplay.UserProvider
 import play.api.mvc.RequestHeader
-
-import converters.BsonHelpers._
-
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 object UserDAO extends DAO(DB, classOf[User], "assessoryUser") with UserProvider[User] {
 
   override def user(r:RequestHeader):Ref[User] = {
     r.headers.get("Authorization") match {
-      case Some(auth) if (auth.trim.startsWith("Bearer")) => {
+      case Some(auth) if auth.trim.startsWith("Bearer") =>
         val trimmed = auth.trim.drop(6).trim
         val Array(userId, secret) = trimmed.split(" ")
         (for {
-          u <- LazyId(userId).of(LookUp) if (u.secret == secret)
+          u <- LazyId(userId).of(LookUp) if u.secret == secret
         } yield u) orIfNone Refused("Incorrect ID or secret")
-      }
       case _ => super.user(r)
     }
   }
@@ -56,7 +53,7 @@ object UserDAO extends DAO(DB, classOf[User], "assessoryUser") with UserProvider
     for {
       uid <- ru.refId
       u <- updateAndFetch(
-        query = ("_id" $eq uid),
+        query = "_id" $eq uid,
         update = $push("identities" -> toBsonDoc(i))
       )
     } yield u
@@ -67,7 +64,7 @@ object UserDAO extends DAO(DB, classOf[User], "assessoryUser") with UserProvider
     for {
       uid <- ru.refId
       u <- updateAndFetch(
-        query = ("_id" $eq uid),
+        query = "_id" $eq uid,
         update = $push("activeSessions" -> toBsonDoc(as))
       )
     } yield u
@@ -114,7 +111,7 @@ object UserDAO extends DAO(DB, classOf[User], "assessoryUser") with UserProvider
     for (
       user <- byUsername(username) if {
        val hash = user.pwlogin.hash(password)
-       hash == user.pwlogin.pwhash
+       Some(hash) == user.pwlogin.pwhash
       }
     ) yield user
   }

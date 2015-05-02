@@ -1,17 +1,13 @@
 package com.assessory.asyncmongo
 
-import com.assessory.api._
 import com.assessory.api.wiring.RegistrationProvider
+import com.assessory.asyncmongo.converters.BsonHelpers._
 import com.assessory.asyncmongo.converters.RegistrationB
-import com.wbillingsley.handy.appbase.GroupRole
-import com.wbillingsley.handy.{EmptyKind, Ref, Id, HasKind}
-
+import com.wbillingsley.handy.Id._
+import com.wbillingsley.handy._
+import com.wbillingsley.handy.appbase._
 import com.wbillingsley.handy.mongodbasync.DAO
-
-import converters.BsonHelpers._
-import Id._
-
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import com.wbillingsley.handy.user.User
 
 class RegistrationDAO[T, R, P <: HasKind](collName:String)(implicit r:RegistrationB[T, R, P])
   extends DAO(DB, classOf[Registration[T,R,P]], collName)
@@ -22,6 +18,10 @@ class RegistrationDAO[T, R, P <: HasKind](collName:String)(implicit r:Registrati
   }
 
   def byTarget(target:Id[T, String]) = findMany("target" $eq target)
+
+  def byTargets(targets:Ids[T, String]) = findMany(bsonDoc("target" -> bsonDoc("$in" -> targets)))
+
+  def byTargets(targets:Seq[Id[T, String]]) = findMany(bsonDoc("target" -> bsonDoc("$in" -> targets)))
 
   def byUser(user:Id[User, String]) = findMany("user" $eq user)
 

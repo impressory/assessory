@@ -1,12 +1,8 @@
 package com.assessory.asyncmongo
 
-import com.assessory.api._
-import com.wbillingsley.handy._
+import com.assessory.asyncmongo.converters.BsonHelpers._
+import com.wbillingsley.handy.appbase.Course
 import com.wbillingsley.handy.mongodbasync.DAO
-
-import converters.BsonHelpers._
-
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 object CourseDAO extends DAO(DB, classOf[Course], "course") {
 

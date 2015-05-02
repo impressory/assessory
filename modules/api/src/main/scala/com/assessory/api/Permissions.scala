@@ -2,6 +2,7 @@ package com.assessory.api
 
 import com.assessory.api.wiring.Lookups
 import com.wbillingsley.handy._
+import com.wbillingsley.handy.appbase._
 import Ref._
 import critique._
 
@@ -19,7 +20,7 @@ object Permissions {
   }
 
   val ViewCourse = Perm.onId[User, Course, String] { case (prior, course) =>
-    hasRole(course, prior.who, CourseRole.student, prior.cache)
+    hasAnyRole(course, prior.who, CourseRole.roles, prior.cache)
   }
 
   val EditCourse = Perm.onId[User, Course, String] { case (prior, rCourse) =>
@@ -68,7 +69,7 @@ object Permissions {
     ) yield a
   }
 
-  def isOwn(prior:Approval[User], who:User, t:Target[_]) = {
+  def isOwn(prior:Approval[User], who:User, t:Target) = {
     t match {
       case TargetUser(uid) => {
         if (uid != who.id) {
@@ -118,5 +119,13 @@ object Permissions {
         roles <- getRoles(course, user) if roles.contains(role)
       ) yield Approved(s"You have role $role for this course")
     ) orIfNone Refused(s"You do not have role $role for this course")
+  }
+
+  def hasAnyRole(course:Ref[Course], user:Ref[User], roles:Set[CourseRole], cache:LookUpCache):Ref[Approved] = {
+    (
+      for (
+        savedRoles <- getRoles(course, user) if roles.intersect(savedRoles).nonEmpty
+      ) yield Approved(s"You have any of these roles $roles for this course")
+      ) orIfNone Refused(s"You do not have any of these roles $roles for this course")
   }
 }

@@ -1,12 +1,11 @@
 package com.assessory.model
 
-import com.assessory.reactivemongo._
-
-import com.assessory.api._
-import com.wbillingsley.handy._
-import com.wbillingsley.handy.Ref._
-
 import com.assessory.api.wiring.Lookups._
+import com.assessory.asyncmongo._
+import com.wbillingsley.handy.Ref._
+import com.wbillingsley.handy._
+import com.wbillingsley.handy.appbase.UserError
+import com.wbillingsley.handy.user.{ActiveSession, User}
 
 object UserModel {
 
@@ -34,9 +33,9 @@ object UserModel {
    */
   def logIn(oEmail:Option[String], oPassword:Option[String], session:ActiveSession) = {
     for {
-      email <- Ref(oEmail) orIfNone UserError("Email must not be blank");
-      password <- Ref(oPassword) orIfNone UserError("Password must not be blank");
-      user <- UserDAO.byEmailAndPassword(email, password);
+      email <- Ref(oEmail) orIfNone UserError("Email must not be blank")
+      password <- Ref(oPassword) orIfNone UserError("Password must not be blank")
+      user <- UserDAO.byEmailAndPassword(email, password)
       updated <- UserDAO.pushSession(user.itself, session)
     } yield updated
   }
@@ -47,7 +46,7 @@ object UserModel {
   def secretLogIn(ru:Ref[User], secret:String, activeSession:ActiveSession) = {
     for {
       oldUser <- optionally(UserDAO.deleteSession(ru, activeSession))
-      u <- ru if (u.secret == secret)
+      u <- ru if u.secret == secret
       pushed <- UserDAO.pushSession(u.itself, activeSession)
     } yield pushed
   }

@@ -1,6 +1,7 @@
 package com.assessory.api
 
 import com.wbillingsley.handy.{Id, HasStringId, HasKind}
+import com.wbillingsley.handy.appbase._
 
 trait TaskBody extends HasKind
 
@@ -10,13 +11,13 @@ object EmptyTaskBody extends TaskBody {
 
 case class Task(
 
-   id: Id[Task,String],
+  id: Id[Task,String],
 
-   course: Id[Course, String],
+  course: Id[Course, String],
 
-   details: TaskDetails = new TaskDetails(),
+  details: TaskDetails = new TaskDetails(),
 
-   body: TaskBody = EmptyTaskBody
+  body: TaskBody = EmptyTaskBody
 
 ) extends HasStringId[Task] {
 
@@ -26,28 +27,38 @@ case class Task(
 
 case class TaskDetails (
 
-   name:Option[String] = None,
+  name:Option[String] = None,
 
-   description:Option[String] = None,
+  description:Option[String] = None,
 
-   created: Long = System.currentTimeMillis,
+  created: Long = System.currentTimeMillis,
 
-   published: Option[Long] = Some(System.currentTimeMillis),
+  groupSet: Option[Id[GroupSet, String]] = None,
 
-   due: Option[Long] = None
- )
+  individual: Boolean = true,
+
+  published: Due = NoDue,
+
+  due: Due = NoDue
+)
 
 trait Due extends HasKind
 
 case class DueDate(time:Long) extends Due {
-   val kind = "date"
+  val kind = DueDate.kind
+}
+object DueDate {
+  val kind = "date"
 }
 
-case class DuePerGroup(dates:Map[Id[Group, String], Long]) extends Due {
-   val kind = "per group"
+case class DuePerGroup(times:Map[Id[Group, String], Long]) extends Due {
+  val kind = DuePerGroup.kind
+}
+object DuePerGroup {
+  val kind = "per group"
 }
 
 case object NoDue extends Due {
-   val kind = "none"
+  val kind = "none"
 }
 

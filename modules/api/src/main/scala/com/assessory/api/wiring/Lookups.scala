@@ -2,6 +2,7 @@ package com.assessory.api.wiring
 
 import com.assessory.api.critique.CritAllocation
 import com.wbillingsley.handy._
+import appbase._
 import com.assessory.api._
 import com.wbillingsley.handy.appbase.GroupRole
 
@@ -31,9 +32,9 @@ object Lookups {
 
   implicit var luCritAlloc:LookUp[CritAllocation, String] = LookUp.fails("CritAllocation lookup has not been configured")
 
-  var courseRegistrationProvider:RegistrationProvider[Course, CourseRole, EmptyKind.type] = new NullRegistrationProvider
+  var courseRegistrationProvider:RegistrationProvider[Course, CourseRole, HasKind] = new NullRegistrationProvider
 
-  var groupRegistrationProvider:RegistrationProvider[Group, GroupRole, EmptyKind.type] = new NullRegistrationProvider
+  var groupRegistrationProvider:RegistrationProvider[Group, GroupRole, HasKind] = new NullRegistrationProvider
 }
 
 trait RegistrationProvider[T, R, P <: HasKind] {
