@@ -9,6 +9,10 @@ libraryDependencies ++= Seq(
   "com.wbillingsley" %% "handy-play" % "0.7.0-SNAPSHOT",
   "com.wbillingsley" %% "handy-play-oauth" % "0.3.0-SNAPSHOT",
   "net.sf.opencsv" % "opencsv" % "2.0",
+
+  // Pickling
+  "com.lihaoyi" %% "upickle" % "0.2.8",
+
   // JavaScript
   "org.webjars" %% "webjars-play" % "2.3.0",
   "org.webjars" % "bootstrap" % "3.1.1-2",

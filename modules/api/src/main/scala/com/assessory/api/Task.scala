@@ -42,7 +42,7 @@ case class TaskDetails (
   due: Due = NoDue
 )
 
-trait Due extends HasKind
+sealed trait Due extends HasKind
 
 case class DueDate(time:Long) extends Due {
   val kind = DueDate.kind

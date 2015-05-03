@@ -1,10 +1,10 @@
 package com.assessory.play.controllers
 
-import com.wbillingsley.handy.appbase.{User, UserError}
-import play.api.mvc.{Action, Controller}
-import com.wbillingsley.handyplay.{HeaderInfo, WithHeaderInfo, DataAction}
+import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy._
-import Ref._
+import com.wbillingsley.handy.appbase.UserError
+import com.wbillingsley.handyplay.{DataAction, HeaderInfo, WithHeaderInfo}
+import play.api.mvc.{Action, Controller}
 
 object Application extends Controller {
 
@@ -46,20 +46,8 @@ object Application extends Controller {
 
   def notFound = DataAction.returning.result { RefNone }
 
-  implicit val utj = com.assessory.play.json.UserToJson
-
-  def userError = DataAction.returning.one { implicit request =>
-
-    import play.api.libs.concurrent.Execution.Implicits.defaultContext
-
-    import com.wbillingsley.handy._
-    def fut = new RefFuture[User](
-      scala.concurrent.Future {
-        throw new UserError("Testing a user error")
-      }
-    )
-    val fail1 = fut
-    for (s <- fail1; q <- fut; r <- fail1) yield r
+  def userError = DataAction.returning.result { implicit request =>
+    RefFailed(UserError("Testing a user error"))
   }
 
 }

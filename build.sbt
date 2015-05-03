@@ -16,16 +16,44 @@ lazy val commonSettings = Seq(
   )
 )
 
-lazy val assessoryApi = project.in(file("modules/api"))
+lazy val assessoryApi = (crossProject.crossType(CrossType.Pure) in file("modules/api"))
   .settings(commonSettings:_*)
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.wbillingsley" %%% "handy" % "0.7.0-SNAPSHOT",
+      "com.wbillingsley" %%% "handy-appbase" % "0.7.0-SNAPSHOT"
+    )
+  )
+
+lazy val assessoryApiJVM = assessoryApi.jvm
+lazy val assessoryApiJS = assessoryApi.js
+
+lazy val clientPickle = (crossProject.crossType(CrossType.Pure) in file("modules/clientPickle"))
+  .settings(commonSettings:_*)
+  .settings(
+    libraryDependencies ++= Seq(
+      // Pickling
+      "com.lihaoyi" %%% "upickle" % "0.2.8"
+    )
+  )
+  .dependsOn(assessoryApi)
+
+lazy val clientPickleJVM = clientPickle.jvm
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.specs2" %% "specs2" % "2.3.12" % "test"
+    )
+  )
+
+lazy val clientPickleJS = clientPickle.js
 
 lazy val assessoryAsyncMongo = project.in(file("modules/asyncmongo"))
   .settings(commonSettings:_*)
-  .dependsOn(assessoryApi)
+  .dependsOn(assessoryApiJVM)
 
 lazy val assessoryModel = project.in(file("modules/model"))
   .settings(commonSettings:_*)
-  .dependsOn(assessoryApi, assessoryAsyncMongo)
+  .dependsOn(assessoryApiJVM, assessoryAsyncMongo)
 
 lazy val reactjs = project.in(file("modules/reactjs"))
   .settings(commonSettings:_*)
@@ -34,7 +62,7 @@ lazy val reactjs = project.in(file("modules/reactjs"))
 lazy val assessory = project.in(file("modules/play"))
   .enablePlugins(PlayScala)
   .settings(commonSettings:_*)
-  .dependsOn(assessoryApi, assessoryModel, assessoryAsyncMongo)
+  .dependsOn(assessoryApiJVM, clientPickleJVM, assessoryModel, assessoryAsyncMongo)
   .settings(
     PlayKeys.routesImport ++= Seq(
       "com.wbillingsley.handy._",
@@ -46,5 +74,5 @@ lazy val assessory = project.in(file("modules/play"))
 
 lazy val aggregate = project.in(file("."))
   .settings(commonSettings:_*)
-  .aggregate(assessoryApi, assessoryAsyncMongo, assessoryModel, assessory)
+  .aggregate(assessoryApiJVM, clientPickleJVM, assessoryAsyncMongo, assessoryModel, assessory)
 

@@ -2,9 +2,7 @@ package com.assessory.play.controllers
 
 import com.wbillingsley.handy.appbase.Course
 import com.wbillingsley.handy.appbase.Course.Preenrol
-import play.api.mvc.{Action, Controller}
-import com.assessory.play.json._
-import play.api.mvc.AnyContent
+import play.api.mvc.{Results, Action, Controller}
 
 import com.assessory.api._
 import com.wbillingsley.handy._
@@ -15,6 +13,7 @@ import com.assessory.model._
 import com.assessory.api.wiring.Lookups._
 
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.mvc.Result
 
 object CourseController extends Controller {
 
@@ -25,9 +24,9 @@ object CourseController extends Controller {
   /**
    * Retrieves a course
    */
-  def get(id:String) = DataAction.returning.oneWH { implicit request =>
+  def get(id:String) = DataAction.returning.resultWH { implicit request =>
     WithHeaderInfo(
-      LazyId(id).of[Course],
+      LazyId(id).of[Course].map(c => Results.Ok(upickle.write(c)).as("application/json")),
       headerInfo
     )
   }
