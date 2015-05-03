@@ -57,10 +57,19 @@ object CourseModel {
   /**
    * Retrieves a course
    */
-  def findMany(oIds:Option[Set[String]]) = {
+  def byId(a:Approval[User], id:Id[Course,String]) = {
     for {
-      ids <- Ref(oIds) orIfNone UserError("ids were missing")
-      course <- RefManyById(ids.toSeq).of[Course]
+      c <- a.cache(id.lazily)
+      wp <- withPerms(a, c) // Ask for edit first, as it will default view
+    } yield wp
+  }
+
+  /**
+   * Retrieves a course
+   */
+  def findMany(a:Approval[User], ids:Ids[Course,String]) = {
+    for {
+      course <- ids.lookUp
     } yield course
   }
 
@@ -119,11 +128,10 @@ object CourseModel {
 
   /**
    * Fetches the courses this user is registered with.
-   * Note that this also performs the pre-enrolments
    */
-  def myCourses(rUser:Ref[User]) = {
+  def myCourses(a:Approval[User]) = {
     for {
-      u <- rUser
+      u <- a.who
       courseIds <- RegistrationDAO.course.byUser(u.id).map(_.target).toIds
       c <- courseIds.lookUp
     } yield c

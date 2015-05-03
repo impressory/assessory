@@ -46,6 +46,36 @@ class PickleSpec extends Specification {
       unpickled must beEqualTo(made)
     }
 
+    "Pickle and unpickle Course Role" in  {
+      val made = CourseRole.staff
+      val pickled = upickle.write(made)
+      val unpickled = upickle.read[CourseRole](pickled)
+
+      unpickled must beEqualTo(made)
+    }
+
+    "Pickle and unpickle Course Preenrolment Row" in  {
+      val made = new Course.PreenrolRow(
+        target = invalidId,
+        roles = CourseRole.roles,
+        identity = IdentityLookup("foo", Some("bar"), Some("baz"))
+      )
+      val pickled = upickle.write(made)
+      val unpickled = upickle.read[Course.PreenrolRow](pickled)
+
+      unpickled must beEqualTo(made)
+    }
+
+    "Pickle and unpickle Course Preenrolment" in  {
+      val made = new Course.Preenrol(
+        id = invalidId
+      )
+      val pickled = upickle.write(made)
+      val unpickled = upickle.read[Course.Preenrol](pickled)
+
+      unpickled must beEqualTo(made)
+    }
+
     "Pickle and unpickle GroupSet" in  {
       val made = GroupSet(
         id = invalidId,

@@ -40,7 +40,6 @@ object Pickles {
     case OfMyGroupsStrategy => upickle.json.read(upickle.write(Kinded(OfMyGroupsStrategy.kind, OfMyGroupsStrategy)))
   }
 
-
   implicit val taskBodyWriter = upickle.Writer[TaskBody] {
     case ct:CritiqueTask => upickle.json.read(upickle.write(Kinded(ct.kind, ct)))
     case EmptyTaskBody => upickle.json.read(upickle.write(Kinded(EmptyTaskBody.kind, EmptyTaskBody)))
@@ -53,8 +52,43 @@ object Pickles {
       }
   }
 
+  implicit val coursePreenrolRowReader = upickle.Reader[Course.PreenrolRow] { case o:Js.Obj =>
+    new Course.PreenrolRow(
+      target = upickle.read[Id[Course,String]](upickle.json.write(o("target"))),
+      roles = upickle.read[Set[CourseRole]](upickle.json.write(o("roles"))),
+      identity = upickle.read[IdentityLookup](upickle.json.write(o("identity"))),
+      used = upickle.read[Option[Used[Course.Reg]]](upickle.json.write(o("used")))
+    )
+  }
+  implicit val coursePreenrolRowWriter = upickle.Writer[Course.PreenrolRow] { case row =>
+    Js.Obj(
+      "target" -> upickle.json.read(upickle.write(row.target)),
+      "roles" -> upickle.json.read(upickle.write(row.roles)),
+      "identity" -> upickle.json.read(upickle.write(row.identity)),
+      "used" -> upickle.json.read(upickle.write(row.used))
+    )
+  }
 
-
+  implicit val coursePreenrolReader = upickle.Reader[Course.Preenrol] { case o:Js.Obj =>
+    new Course.Preenrol(
+      id = upickle.read[Id[Course.Preenrol,String]](upickle.json.write(o("id"))),
+      name = upickle.read[Option[String]](upickle.json.write(o("name"))),
+      within = upickle.read[Option[Id[Course,String]]](upickle.json.write(o("within"))),
+      rows = upickle.read[Seq[Course.PreenrolRow]](upickle.json.write(o("rows"))),
+      created = upickle.read[Long](upickle.json.write(o("created"))),
+      modified = upickle.read[Long](upickle.json.write(o("modified")))
+    )
+  }
+  implicit val coursePreenrolWriter = upickle.Writer[Course.Preenrol] { case p =>
+    Js.Obj(
+      "id" -> upickle.json.read(upickle.write(p.id)),
+      "name" -> upickle.json.read(upickle.write(p.name)),
+      "within" -> upickle.json.read(upickle.write(p.within)),
+      "rows" -> upickle.json.read(upickle.write(p.rows)),
+      "created" -> upickle.json.read(upickle.write(p.created)),
+      "modified" -> upickle.json.read(upickle.write(p.modified))
+    )
+  }
 
 
 
