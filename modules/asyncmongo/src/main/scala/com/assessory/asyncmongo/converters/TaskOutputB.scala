@@ -1,12 +1,10 @@
 package com.assessory.asyncmongo.converters
 
-
 import com.assessory.api.critique._
 import com.wbillingsley.handy.Id
-import com.wbillingsley.handy.appbase.{Group, Course, Answer}
+import com.wbillingsley.handy.appbase.{User, Group, Course, Answer}
 import com.wbillingsley.handy.mongodbasync.BsonDocumentConverter
 import com.assessory.api._
-import com.wbillingsley.handy.user.User
 import org.bson.BsonDocument
 
 import BsonHelpers._

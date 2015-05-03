@@ -3,14 +3,13 @@ package com.assessory.asyncmongo
 import com.assessory.asyncmongo.converters.BsonHelpers._
 import com.wbillingsley.handy.Id._
 import com.wbillingsley.handy.Ref._
-import com.wbillingsley.handy.appbase.Course
+import com.wbillingsley.handy.appbase.{ActiveSession, Identity, User, Course}
 import com.wbillingsley.handy.mongodbasync.DAO
-import com.wbillingsley.handy.user.{ActiveSession, Identity, User}
 import com.wbillingsley.handy.{LazyId, Ref, Refused}
 import com.wbillingsley.handyplay.UserProvider
 import play.api.mvc.RequestHeader
 
-object UserDAO extends DAO(DB, classOf[User], "assessoryUser") with UserProvider[User] {
+object UserDAO extends DAO(DB, classOf[User], "assessoryUser") with UserProvider[User] with com.wbillingsley.handy.user.UserDAO[User, Identity] {
 
   override def user(r:RequestHeader):Ref[User] = {
     r.headers.get("Authorization") match {
@@ -88,6 +87,8 @@ object UserDAO extends DAO(DB, classOf[User], "assessoryUser") with UserProvider
     findOne(query=("identities.service" $eq service) and ("identities.value" $eq id))
   }
 
+  def byIdentity(i:Identity):Ref[User] = bySocialIdOrUsername(i.service, i.value, i.username)
+
   def bySocialIdOrUsername(service:String, optId:Option[String], optUserName:Option[String] = None):Ref[User] = {
 
     def byId(service:String, oid:Option[String]) = for {
@@ -109,16 +110,13 @@ object UserDAO extends DAO(DB, classOf[User], "assessoryUser") with UserProvider
 
   def byUsernameAndPassword(username:String, password:String) = {
     for (
-      user <- byUsername(username) if {
-       val hash = user.pwlogin.hash(password)
-       Some(hash) == user.pwlogin.pwhash
-      }
+      user <- byUsername(username) if checkPassword(user.pwlogin, password)
     ) yield user
   }
 
   def byEmailAndPassword(email:String, password:String) = {
     for (
-      user <- byEmail(email) if user.pwlogin.checkPassword(password)
+      user <- byEmail(email) if checkPassword(user.pwlogin, password)
     ) yield user
   }
 
@@ -126,5 +124,19 @@ object UserDAO extends DAO(DB, classOf[User], "assessoryUser") with UserProvider
     c.refId map ("registrations.course" $eq _) flatMap findMany
   }
 
+  override def addSession(user: Ref[User], session: ActiveSession): Ref[User] = pushSession(user, session)
 
+  override def removeIdentity(user: Ref[User], identity: Identity): Ref[User] = {
+    for {
+      uid <- user.refId
+      u <- updateAndFetch(
+        query = "_id" $eq uid,
+        update = $pull("identities" -> identity) // TODO: deal with mismatch id/value
+      )
+    } yield u
+  }
+
+  override def removeSession(user: Ref[User], sessionKey: String): Ref[User] = deleteSession(user, ActiveSession(key=sessionKey, ip=""))
+
+  override def addIdentity(user: Ref[User], identity: Identity): Ref[User] = pushIdentity(user, identity)
 }

@@ -233,8 +233,8 @@ object CritModel {
 
   /** Fetches allocations as a CSV. */
   def allocationsAsCSV(a:Approval[User], rTask:Ref[Task]):Ref[String] = {
-    val sWriter = new StringWriter();
-    val writer = new CSVWriter(sWriter);
+    val sWriter = new StringWriter()
+    val writer = new CSVWriter(sWriter)
 
     val lineArrays = for {
       t <- rTask

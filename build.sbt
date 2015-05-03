@@ -46,5 +46,5 @@ lazy val assessory = project.in(file("modules/play"))
 
 lazy val aggregate = project.in(file("."))
   .settings(commonSettings:_*)
-  .aggregate(assessoryApi, assessoryAsyncMongo, assessoryModel)
+  .aggregate(assessoryApi, assessoryAsyncMongo, assessoryModel, assessory)
 

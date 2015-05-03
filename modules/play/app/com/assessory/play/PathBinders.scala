@@ -1,18 +1,16 @@
 package com.assessory.play
 
-import com.assessory.api._
-import com.assessory.api.group.GroupSet
 import com.assessory.api.wiring.Lookups
-import course._
-import play.api.mvc.PathBindable
+import com.wbillingsley.handy.Id._
 import com.wbillingsley.handy._
-import Id._
+import com.wbillingsley.handy.appbase._
+import play.api.mvc.PathBindable
 
 object PathBinders {
 
   import Lookups._
 
-  implicit def bindableRWI[T <: HasStringId[T]](implicit lu:LookUp[T,String], g:GetsId[T,String]) = new PathBindable[Ref[T]] {
+  implicit def bindableRWI[T <: HasStringId[T]](implicit lu:LookUp[T,String], g:GetsId[T,String]):PathBindable[Ref[T]] = new PathBindable[Ref[T]] {
     def bind(key:String, value:String) = {
       Right(value.asId[T].lazily(lu))
     }
@@ -23,9 +21,7 @@ object PathBinders {
     def unbind(key:String, value:Ref[T]):String = {
       value match {
         case i:IdImmediate[T] => i.getId(g).get.id
-        case _ => {
-          value.fetch.getId(g).get.id
-        }
+        case _ => value.fetch.getId(g).get.id
       }
     }
   }

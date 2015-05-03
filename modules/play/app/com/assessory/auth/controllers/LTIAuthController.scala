@@ -1,31 +1,27 @@
 package com.assessory.auth.controllers
 
-import play.api.mvc.{Controller, Request}
-import com.wbillingsley.handy._
-import Ref._
-import play.api.Play
-import com.assessory.api._
-import course._
-import com.wbillingsley.handy.playoauth._
-import play.api.libs.json.Json
-import scala.util.Success
-import com.wbillingsley.handyplay.DataAction.BodyAction
-import play.api.mvc.BodyParsers
-import play.api.mvc.EssentialAction
-
 import com.assessory.api.wiring.Lookups._
+import com.wbillingsley.handy.Ref._
+import com.wbillingsley.handy._
+import com.wbillingsley.handy.appbase.Course
+import com.wbillingsley.handy.playoauth._
+import com.wbillingsley.handyplay.DataAction.BodyAction
+import play.api.libs.json.Json
+import play.api.mvc.{BodyParsers, Controller, EssentialAction, Request}
+
+import scala.util.Success
 
 
 object LTIAuthController extends Controller {
 
 
   /**
-   * Logs a user in 
+   * Logs a user in
    */
   def ltiLaunch(courseId:String) = EssentialAction { request =>
     ltiBodyAction(courseId).apply(request)
   }
-    
+
   def ltiBodyAction(courseId:String) = new BodyAction(BodyParsers.parse.anyContent)({ implicit request =>
 
     def getParam(params:Map[String, Seq[String]], name:String) = params.get(name).flatMap(_.headOption)
@@ -54,27 +50,27 @@ object LTIAuthController extends Controller {
         ))
       )
       act = PlayAuth.onAuth(Success(oauthDetails))
-      
+
     } yield act(request)
-    
+
+    import play.api.libs.concurrent.Execution.Implicits._
     import play.api.libs.iteratee._
     import play.api.mvc._
-    import play.api.libs.concurrent.Execution.Implicits._
-    
-    val handled:Ref[Iteratee[Array[Byte], SimpleResult]] = resp recoverWith {
+
+    val handled:Ref[Iteratee[Array[Byte], Result]] = resp recoverWith {
       case x:Throwable => Done(Results.Forbidden(x.getMessage), Input.Empty).itself
     }
-    
+
     Iteratee.flatten(handled.toFutOpt.map(_.getOrElse(Done(Results.Forbidden("Computer says no"), Input.Empty))))
   })
-  
-  
+
+
   def validateOAuthSignature(request:Request[_], key:String, secret:String):Ref[String] = {
-    
+
     /*
-     * TODO: Implement this! 
+     * TODO: Implement this!
      */
-    
+
     "not implemented yet".itself  // Very temporary hack -- normally this should be a RefFailed if not implemented!
   }
 

@@ -1,32 +1,28 @@
 package com.assessory.play.json
 
-import com.wbillingsley.handyplay.JsonConverter
-import com.assessory.api._
-import com.wbillingsley.handy.{Approval, RefNone}
 import com.wbillingsley.handy.Ref._
-import play.api.libs.json.Json
-import play.api.libs.json.JsValue
-import play.api.libs.json.Writes
-
-import course._
+import com.wbillingsley.handy.appbase.{ActiveSession, Identity, PasswordLogin, User}
+import com.wbillingsley.handy.{Approval, RefNone}
+import com.wbillingsley.handyplay.JsonConverter
+import play.api.libs.json.{JsValue, Json, Writes}
 
 object UserToJson extends JsonConverter[User, User] {
-  
+
   // TODO: A Json format for identity that does not return all the details (as in time this will include an auth token)
   implicit val identityFormat = Json.format[Identity]
-  
+
   implicit val sessionFormat = Json.format[ActiveSession]
-  
+
   implicit object pwLoginWrites extends Writes[PasswordLogin] {
-    
+
     def writes(pw:PasswordLogin) = Json.obj(
       "email" -> pw.email,
       "username" -> pw.username,
       "passwordSet" -> pw.pwhash.isDefined
     )
-    
+
   }
-  
+
   def toJsonFor(u:User, a:Approval[User]) = {
     for {
       whoId <- a.who.refId
@@ -50,10 +46,10 @@ object UserToJson extends JsonConverter[User, User] {
       }
     }
   }
-  
+
   def toJson(u:User) = toJsonFor(u, Approval(RefNone))
-  
-  
+
+
   def update(u:User, json:JsValue) = {
     u.copy(
         name = (json \ "name").asOpt[String],
@@ -61,8 +57,8 @@ object UserToJson extends JsonConverter[User, User] {
         avatar = (json \ "avatar").asOpt[String]
     )
   }
-  
-  
-  
+
+
+
 
 }

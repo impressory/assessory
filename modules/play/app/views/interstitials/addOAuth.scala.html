@@ -1,4 +1,4 @@
-@(serviceName:Option[String], mem:com.wbillingsley.handy.playoauth.UserRecord, user:com.assessory.api.User)
+@(serviceName:Option[String], mem:com.wbillingsley.handy.playoauth.UserRecord, user:com.wbillingsley.handy.appbase.User)
 
 @template {
 
@@ -7,14 +7,14 @@
   <div class="row">
 
     <h1>Add this to your existing account?</h1>
-  
+
 	<p>
 	Would you like to <strong>add this identity</strong> to your account here?
 
 	(If you want to create a new account instead, log out and try again.)
 	</p>
-	
-  </div>	
+
+  </div>
 
   <div class="row">
     <div class="pull-left" style="margin-right: 30px;">
@@ -22,21 +22,21 @@
       <img class="media-object" src='@mem.avatar.getOrElse("")' />
       <label>@mem.username</label>
     </div>
-    
+
     <div class="pull-left" >
       <h4>Impressory</h4>
       <img class="media-object" src='@user.avatar.getOrElse("")' />
       <label>@user.nickname.orElse(user.pwlogin.username).orElse(user.name)</label>
     </div>
   </div>
-	
+
   <hr />
   <div class="row">
     <form method="POST" action="@com.assessory.auth.controllers.routes.InterstitialController.addIdentity">
       <div class="form-group">
         <a class="btn btn-default" href="/" target="_self">Cancel</a>
         <button type="submit" class="btn btn-primary">Yes, add it</button>
-      </div>		
+      </div>
     </form>
   </div>
 

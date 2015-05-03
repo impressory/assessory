@@ -11,7 +11,6 @@ import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.Id._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.appbase._
-import com.wbillingsley.handy.user.{Identity, User}
 
 import scala.collection.JavaConverters._
 

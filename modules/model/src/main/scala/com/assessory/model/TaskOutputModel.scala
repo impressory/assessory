@@ -6,7 +6,7 @@ import com.assessory.api.wiring.Lookups._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.Id._
 import com.wbillingsley.handy._
-import com.wbillingsley.handy.user.User
+import com.wbillingsley.handy.appbase.User
 
 object TaskOutputModel {
 

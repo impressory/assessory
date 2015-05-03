@@ -1,39 +1,36 @@
 package com.assessory.auth.controllers
 
-import play.api.mvc.{Controller, Action, Request}
-import play.api.libs.ws.WS
-import play.api.libs.json.Json
-import play.api.Play
-import Play.current
+import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.playoauth.{OAuthDetails, UserRecord}
-import Ref._
-import play.api.mvc.AnyContent
-import com.assessory.api._
+import com.wbillingsley.handy.appbase.{Identity, ActiveSession}
 import com.wbillingsley.handyplay.DataAction
+import play.api.libs.json.Json
+import play.api.mvc.Controller
+
 import scala.util.Try
 
 /**
  * Controller for the interstitial form confirming that a new account should be registered
  */
 object InterstitialController extends Controller {
-  
-  implicit val dataActionConfig = com.assessory.config.AssessoryDataActionConfig 
-  
+
+  implicit val dataActionConfig = com.assessory.config.AssessoryDataActionConfig
+
   val sessionVar = "interstitialMemory"
-    
-  implicit val UserDAO = com.assessory.reactivemongo.UserDAO
+
+  implicit val UserDAO = com.assessory.asyncmongo.UserDAO
 
   /**
    * Handles the completion of OAuth authorisations
    */
   def onOAuth(rur:Try[OAuthDetails]) = DataAction.returning.result { implicit request =>
-    
+
     val res = for (
       mem <- rur.toRef;
       user <- optionally(UserDAO.bySocialIdOrUsername(mem.userRecord.service, Some(mem.userRecord.id), mem.userRecord.username))
     ) yield {
-      
+
       user match {
         case Some(u) => {
           for {
@@ -56,23 +53,23 @@ object InterstitialController extends Controller {
             }
           } yield Redirect(com.assessory.play.controllers.routes.Application.index)
         }
-        case None => {          
+        case None => {
           val session = request.session + (InterstitialController.sessionVar ->  mem.toJson.toString) - "oauth_state"
           for (u <- optionally(request.user)) yield {
 		      u match {
 		        case Some(user) => Ok(views.html.interstitials.addOAuth(Some(mem.userRecord.service), mem.userRecord, user)).withSession(session)
 		        case None => Ok(views.html.interstitials.registerOAuth(Some(mem.userRecord.service), mem.userRecord)).withSession(session)
-		      }            
+		      }
           }
         }
       }
     }
-    
-    val flat = res.flatten    
+
+    val flat = res.flatten
     flat
   }
-    
-     
+
+
   /**
    * Register the user as a new user on this system
    */
@@ -91,21 +88,21 @@ object InterstitialController extends Controller {
         )
         UserDAO.saveNew(u)
       }
-    ) yield {      
+    ) yield {
       val session = request.session - InterstitialController.sessionVar
-      Redirect(com.assessory.play.controllers.routes.Application.index).withSession(session)      
+      Redirect(com.assessory.play.controllers.routes.Application.index).withSession(session)
     }
-    
+
     resp
   }
-  
+
   /**
    * Adds the remembered identity to the currently logged in user.
    */
   def addIdentity = DataAction.returning.result { implicit request =>
     val memString = request.session.get(sessionVar)
     val mem = for (s <- memString; m <- Json.parse(s).asOpt[UserRecord]) yield m
-    
+
     val resp = for (
       details <- Ref(mem) orIfNone Refused("There appear to be no user details to register");
       user <- request.user orIfNone Refused("There is no logged in user to add that identity to");
@@ -121,9 +118,9 @@ object InterstitialController extends Controller {
       }
     ) yield {
       val session = request.session - InterstitialController.sessionVar
-      Redirect(com.assessory.play.controllers.routes.Application.index).withSession(session)      
+      Redirect(com.assessory.play.controllers.routes.Application.index).withSession(session)
     }
-    
+
     resp
-  }  
+  }
 }

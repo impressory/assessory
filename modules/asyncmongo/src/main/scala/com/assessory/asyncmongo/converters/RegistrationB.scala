@@ -3,7 +3,6 @@ package com.assessory.asyncmongo.converters
 import com.assessory.asyncmongo.converters.BsonHelpers._
 import com.wbillingsley.handy.appbase._
 import com.wbillingsley.handy.mongodbasync.BsonDocumentConverter
-import com.wbillingsley.handy.user.User
 import com.wbillingsley.handy.{EmptyKind, HasKind, Id}
 import org.bson.{BsonDocument, BsonString, BsonValue}
 

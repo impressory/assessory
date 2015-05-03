@@ -1,12 +1,12 @@
 package com.assessory.play.json
 
-import com.wbillingsley.handyplay.JsonConverter
 import com.assessory.api._
-import course._
+import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy._
-import Ref._
-import play.api.libs.json.Json
-import play.api.libs.json.JsValue
+import com.wbillingsley.handy.appbase.Course
+import com.wbillingsley.handy.user.User
+import com.wbillingsley.handyplay.JsonConverter
+import play.api.libs.json.{JsValue, Json}
 
 object CourseToJson extends JsonConverter[Course, User] {
 
@@ -30,12 +30,12 @@ object CourseToJson extends JsonConverter[Course, User] {
       "view" -> view.isDefined,
       "edit" -> edit.isDefined
     )
-    
+
     for (p <- permissions) yield core(c) ++ Json.obj("permissions" -> p)
   }
-  
+
   def toJson(c:Course) = core(c).itself
-  
+
   /**
    * Produces an update Course object
    */
@@ -47,6 +47,6 @@ object CourseToJson extends JsonConverter[Course, User] {
         coverImage =  (json \ "coverImage").asOpt[String],
         website =  (json \ "website").asOpt[String]
     )
-  }  
+  }
 
 }

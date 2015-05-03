@@ -3,8 +3,8 @@ package com.assessory.asyncmongo.converters
 
 import com.assessory.asyncmongo.converters.BsonHelpers._
 import com.wbillingsley.handy.Id
+import com.wbillingsley.handy.appbase.{Identity, PasswordLogin, ActiveSession, User}
 import com.wbillingsley.handy.mongodbasync.BsonDocumentConverter
-import com.wbillingsley.handy.user.{ActiveSession, Identity, PasswordLogin, User}
 import org.bson.BsonDocument
 
 import scala.util.Try

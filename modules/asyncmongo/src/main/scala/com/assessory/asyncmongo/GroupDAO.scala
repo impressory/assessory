@@ -2,9 +2,8 @@ package com.assessory.asyncmongo
 
 import com.assessory.asyncmongo.converters.BsonHelpers._
 import com.wbillingsley.handy._
-import com.wbillingsley.handy.appbase.{Course, Group, GroupRole, GroupSet}
+import com.wbillingsley.handy.appbase._
 import com.wbillingsley.handy.mongodbasync.DAO
-import com.wbillingsley.handy.user.User
 
 object GroupDAO extends DAO(DB, classOf[Group], "assessoryGroup") {
 

@@ -1,8 +1,8 @@
 package com.assessory.play.controllers
 
+import com.wbillingsley.handy.appbase.{User, UserError}
 import play.api.mvc.{Action, Controller}
 import com.wbillingsley.handyplay.{HeaderInfo, WithHeaderInfo, DataAction}
-import com.assessory.api.UserError
 import com.wbillingsley.handy._
 import Ref._
 
@@ -22,36 +22,36 @@ object Application extends Controller {
       )).itself
     )
   }
-  
+
   /**
    * The HTML and Javascript for the client side of the app.
    * This also ensures the user's Play session cookie includes
    * a value for sessionKey.
    */
   def index = DataAction.forceSession(
-    Action { 
+    Action {
       Ok(views.html.index())
     }
   )
-  
+
   /**
    * As we're using Angular.js, there may be routes (paths) in the browser
    * that don't correspond to routes on the server. In which case, if a user
    * hits refresh, we want to ensure they don't suddenly receive a 404 from the
    * server.
-   * 
+   *
    * Instead, we have a default route that returns the index page.
    */
   def defaultRoute(path:String) = index
-  
+
   def notFound = DataAction.returning.result { RefNone }
-  
+
   implicit val utj = com.assessory.play.json.UserToJson
-  import com.assessory.api.User
-  def userError = DataAction.returning.one { implicit request => 
-    
+
+  def userError = DataAction.returning.one { implicit request =>
+
     import play.api.libs.concurrent.Execution.Implicits.defaultContext
-    
+
     import com.wbillingsley.handy._
     def fut = new RefFuture[User](
       scala.concurrent.Future {
@@ -61,5 +61,5 @@ object Application extends Controller {
     val fail1 = fut
     for (s <- fail1; q <- fut; r <- fail1) yield r
   }
-  
+
 }

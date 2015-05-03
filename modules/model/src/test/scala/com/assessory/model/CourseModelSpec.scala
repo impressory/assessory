@@ -4,9 +4,8 @@ import com.assessory.api.client.invalidId
 import com.assessory.asyncmongo.DB
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy._
-import com.wbillingsley.handy.appbase.Course
+import com.wbillingsley.handy.appbase.{ActiveSession, Course}
 import com.wbillingsley.handy.mongodbasync.FuturifySRC
-import com.wbillingsley.handy.user.ActiveSession
 import org.specs2.mutable.Specification
 import org.specs2.specification.BeforeEach
 

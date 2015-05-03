@@ -7,7 +7,6 @@ import com.wbillingsley.handy.Id._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.appbase._
 import com.wbillingsley.handy.mongodbasync.DAO
-import com.wbillingsley.handy.user.User
 
 class RegistrationDAO[T, R, P <: HasKind](collName:String)(implicit r:RegistrationB[T, R, P])
   extends DAO(DB, classOf[Registration[T,R,P]], collName)

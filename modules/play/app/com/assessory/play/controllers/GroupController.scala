@@ -1,13 +1,12 @@
 package com.assessory.play.controllers
 
+import com.wbillingsley.handy.appbase.{Group, Course, GroupSet}
 import play.api.mvc.{Action, Controller}
 import com.assessory.reactivemongo._
 import com.assessory.play.json._
 import play.api.mvc.AnyContent
 
 import com.assessory.api._
-import course._
-import group._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handyplay.{WithHeaderInfo, DataAction}
@@ -18,11 +17,11 @@ import com.assessory.api.wiring.Lookups._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 object GroupController extends Controller {
-  
+
   implicit val gsToJson = GroupSetToJson
   implicit val gpToJson = GPreenrolToJson
   implicit val groupToJson = GroupToJson
-  
+
 
   def groupSet(id:String) = DataAction.returning.oneWH { implicit request =>
     WithHeaderInfo(
@@ -41,7 +40,7 @@ object GroupController extends Controller {
       headerInfo
     )
   }
-  
+
   def editGroupSet(gsId:String) = DataAction.returning.oneWH(parse.json) { implicit request =>
     WithHeaderInfo(
       GroupModel.editGroupSet(
@@ -65,7 +64,7 @@ object GroupController extends Controller {
       headerInfo
     )
   }
-  
+
   /**
    * Creates a group pre-enrolment from submitted CSV data
    * groupName,service,id,username
@@ -124,7 +123,7 @@ object GroupController extends Controller {
       headerInfo
     )
   }
-  
+
   /**
    * The groups belonging to a particular group set
    */
@@ -137,15 +136,15 @@ object GroupController extends Controller {
       headerInfo
     )
   }
-  
+
   def group(id:String) = DataAction.returning.oneWH { implicit request =>
     WithHeaderInfo(
       LazyId(id).of[Group],
       headerInfo
     )
   }
-  
-  
+
+
   def myGroups(courseId:String) = DataAction.returning.manyWH { implicit request =>
     WithHeaderInfo(
       GroupModel.myGroups(
@@ -155,7 +154,7 @@ object GroupController extends Controller {
       headerInfo
     )
   }
-  
+
   def findMany = DataAction.returning.manyWH(parse.json) { implicit request =>
     WithHeaderInfo(
       GroupModel.findMany(
@@ -164,5 +163,5 @@ object GroupController extends Controller {
       headerInfo
     )
   }
-  
+
 }

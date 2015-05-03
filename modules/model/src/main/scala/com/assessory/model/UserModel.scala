@@ -4,8 +4,7 @@ import com.assessory.api.wiring.Lookups._
 import com.assessory.asyncmongo._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy._
-import com.wbillingsley.handy.appbase.UserError
-import com.wbillingsley.handy.user.{ActiveSession, User}
+import com.wbillingsley.handy.appbase.{User, ActiveSession, UserError}
 
 object UserModel {
 
@@ -19,7 +18,7 @@ object UserModel {
       user <- {
         val u = UserDAO.unsaved
         val set = u.copy(
-          pwlogin=u.pwlogin.copy(email=Some(email), pwhash=Some(u.pwlogin.hash(password))),
+          pwlogin=u.pwlogin.copy(email=Some(email), pwhash=Some(UserDAO.hash(password))),
           activeSessions=Seq(session)
         )
         UserDAO.saveNew(set)

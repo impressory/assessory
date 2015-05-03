@@ -5,14 +5,13 @@ import java.io.StringReader
 import au.com.bytecode.opencsv.CSVReader
 import com.assessory.api._
 import com.assessory.api.client.WithPerms
-import com.assessory.asyncmongo._
 import com.assessory.api.wiring.Lookups._
-import com.wbillingsley.handy._
-import com.wbillingsley.handy.Ref._
+import com.assessory.asyncmongo._
 import com.wbillingsley.handy.Id._
 import com.wbillingsley.handy.Ids._
+import com.wbillingsley.handy.Ref._
+import com.wbillingsley.handy._
 import com.wbillingsley.handy.appbase._
-import com.wbillingsley.handy.user.User
 
 import scala.collection.JavaConverters._
 
@@ -128,6 +127,18 @@ object CourseModel {
       courseIds <- RegistrationDAO.course.byUser(u.id).map(_.target).toIds
       c <- courseIds.lookUp
     } yield c
+  }
+
+  def usersInCourse(a:Approval[User], courseId:Id[Course, String]):RefMany[User] = {
+    def rUserIds = (for {
+      c <- RegistrationDAO.course.byTarget(courseId)
+    } yield c.user).collect
+
+    for {
+      approved <- a ask Permissions.EditCourse(courseId.lazily)
+      userIds <- rUserIds
+      user <- userIds.map(_.id).asIds[User].lookUp
+    } yield user
   }
 
 }

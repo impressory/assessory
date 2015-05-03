@@ -7,8 +7,7 @@ import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.Id._
 import com.wbillingsley.handy._
 import com.assessory.asyncmongo._
-import com.wbillingsley.handy.appbase.Course
-import com.wbillingsley.handy.user.User
+import com.wbillingsley.handy.appbase.{User, Course}
 
 object TaskModel {
 

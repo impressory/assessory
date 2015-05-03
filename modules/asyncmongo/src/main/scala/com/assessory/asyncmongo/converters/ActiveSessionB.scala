@@ -1,8 +1,8 @@
 package com.assessory.asyncmongo.converters
 
 import com.assessory.asyncmongo.converters.BsonHelpers._
+import com.wbillingsley.handy.appbase.ActiveSession
 import com.wbillingsley.handy.mongodbasync.BsonDocumentConverter
-import com.wbillingsley.handy.user.ActiveSession
 import org.bson.BsonDocument
 
 import scala.util.Try

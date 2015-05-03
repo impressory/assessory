@@ -4,8 +4,8 @@ import com.assessory.api._
 import com.assessory.api.critique._
 import com.assessory.asyncmongo.converters.BsonHelpers._
 import com.wbillingsley.handy._
+import com.wbillingsley.handy.appbase.User
 import com.wbillingsley.handy.mongodbasync.DAO
-import com.wbillingsley.handy.user.User
 
 object CritAllocationDAO extends DAO(DB, classOf[CritAllocation], "critAllocation") {
 

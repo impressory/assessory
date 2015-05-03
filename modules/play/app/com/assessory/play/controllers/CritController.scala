@@ -1,13 +1,12 @@
 package com.assessory.play.controllers
 
 import play.api.mvc.Controller
-import com.assessory.reactivemongo._
+import com.assessory.asyncmongo._
 import com.assessory.play.json._
 import com.assessory.api._
 import critique._
 import com.wbillingsley.handy._
 import com.wbillingsley.handyplay.{WithHeaderInfo, DataAction}
-import com.assessory.reactivemongo.CritAllocationDAO
 
 import com.assessory.api.wiring.Lookups._
 

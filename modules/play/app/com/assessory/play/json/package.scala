@@ -1,12 +1,11 @@
 package com.assessory.play
 
-import com.wbillingsley.handy._
-import Id._
-import Ids._
 import com.assessory.api._
-import course._
-import group._
-import play.api.libs.json.{Json, JsValue, Writes, Reads, Format}
+import com.wbillingsley.handy.Id._
+import com.wbillingsley.handy.Ids._
+import com.wbillingsley.handy._
+import com.wbillingsley.handy.appbase.{User, Course, Group, GroupSet}
+import play.api.libs.json.{Format, JsValue, Json, Reads, Writes}
 
 // Imports the lookups
 import com.assessory.api.wiring.Lookups._
@@ -51,7 +50,7 @@ package object json {
   implicit val formatRC = formatRef[Course]
   implicit val formatGS = formatRef[GroupSet]
   implicit val formatG = formatRef[Group]
-  implicit val formatGP = formatRef[GPreenrol]
+  implicit val formatGP = formatRef[Group.Preenrol]
   implicit val formatT = formatRef[Task]
   implicit val formatTO = formatRef[TaskOutput]
 

@@ -1,12 +1,12 @@
 package com.assessory.play.controllers
 
+import com.wbillingsley.handy.appbase.Course
+import com.wbillingsley.handy.appbase.Course.Preenrol
 import play.api.mvc.{Action, Controller}
-import com.assessory.reactivemongo._
 import com.assessory.play.json._
 import play.api.mvc.AnyContent
 
 import com.assessory.api._
-import course._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handyplay.{DataAction, HeaderInfo, WithHeaderInfo}
@@ -17,24 +17,24 @@ import com.assessory.api.wiring.Lookups._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
 object CourseController extends Controller {
-  
+
   implicit val courseToJson = CourseToJson
   implicit val preenrolToJson = PreenrolToJson
-  
+
 
   /**
    * Retrieves a course
-   */  
+   */
   def get(id:String) = DataAction.returning.oneWH { implicit request =>
     WithHeaderInfo(
       LazyId(id).of[Course],
       headerInfo
     )
   }
-  
+
   /**
    * Creates a course
-   */  
+   */
   def create = DataAction.returning.oneWH(parse.json) { implicit request =>
     WithHeaderInfo(
       CourseModel.create(
@@ -44,10 +44,10 @@ object CourseController extends Controller {
       headerInfo
     )
   }
-  
+
   /**
    * Retrieves a course
-   */  
+   */
   def findMany = DataAction.returning.manyWH(parse.json) { implicit request =>
     WithHeaderInfo(
       CourseModel.findMany(
@@ -56,14 +56,14 @@ object CourseController extends Controller {
       headerInfo
     )
   }
-  
+
   def preenrol(preenrolId:String) = DataAction.returning.oneWH { implicit request =>
     WithHeaderInfo(
       LazyId(preenrolId).of[Preenrol],
       headerInfo
     )
   }
-  
+
   def coursePreenrols(courseId:String) = DataAction.returning.manyWH { implicit request =>
     WithHeaderInfo(
       CourseModel.coursePreenrols(
@@ -73,7 +73,7 @@ object CourseController extends Controller {
       headerInfo
     )
   }
-  
+
   def createPreenrol(courseId:String) = DataAction.returning.oneWH(parse.json) { implicit request =>
     WithHeaderInfo(
       CourseModel.createPreenrol(
@@ -84,23 +84,7 @@ object CourseController extends Controller {
       headerInfo
     )
   }
-  
-  /**
-   * Searches for course pre-enrolments, and performs them
-   */
-  def doPreenrolments(user:User)= {
-    val updates = for {
-      i <- user.identities.toRefMany;
-      p <- PreenrolDAO.useRow(service = i.service, value = i.value, username = i.username);
 
-      cId <- p.course.refId
-      reg <- RegistrationDAO.register(user.id, cId, p.roles)
-    } yield user
-    
-    // We want to return the user when they have been registered for everything: ie, the last item in the RefMany
-    updates.fold(user)((last, updated) => updated)
-  }
-  
   /**
    * Fetches the courses this user is registered with.
    * Note that this also performs the pre-enrolments
@@ -120,10 +104,9 @@ object CourseController extends Controller {
    */
   def autolinks(course:Ref[Course]) = DataAction.returning.resultWH { implicit request =>
     val lines = for {
-      c <- course
-      appr <- request.approval ask Permissions.EditCourse(c.itself)
-      u <- UserDAO.byCourse(c.itself)
-      studentIdent <- u.identities.find(_.service == c.id).toRef
+      c <- course.refId
+      u <- CourseModel.usersInCourse(request.approval, c)
+      studentIdent <- u.getIdentity(I_STUDENT_NUMBER).toRef
       url = routes.UserController.autologin(u.itself, u.secret).absoluteURL()
     } yield s"${studentIdent.value},${u.nickname.getOrElse("")},${url}\n"
 
@@ -136,5 +119,5 @@ object CourseController extends Controller {
     )
 
   }
-  
+
 }

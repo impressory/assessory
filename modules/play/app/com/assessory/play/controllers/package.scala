@@ -1,6 +1,6 @@
 package com.assessory.play
 
-import com.assessory.reactivemongo._
+import com.assessory.asyncmongo._
 import com.wbillingsley.handyplay.HeaderInfo
 import com.wbillingsley.handy._
 import Ref._
@@ -10,7 +10,7 @@ package object controllers {
 
   /**
    * DataAction should retrieve user information using the UserDAO
-   * from our database classes. (It includes methods for bySessionKey, etc) 
+   * from our database classes. (It includes methods for bySessionKey, etc)
    */
   implicit val userProvider = UserDAO
 

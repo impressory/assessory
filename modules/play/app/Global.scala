@@ -1,9 +1,9 @@
-import com.wbillingsley.handy._
-import play.api._
-import Play.current
-import play.api.mvc.AcceptExtractors
-import com.wbillingsley.handy.RefFuture
 import com.assessory.asyncmongo._
+import com.assessory.model.DoWiring
+import com.wbillingsley.handy.RefFuture
+import play.api.Play.current
+import play.api._
+import play.api.mvc.AcceptExtractors
 
 object Global extends GlobalSettings with AcceptExtractors {
 
@@ -26,20 +26,8 @@ object Global extends GlobalSettings with AcceptExtractors {
       com.assessory.auth.controllers.InterstitialController.onOAuth(r)
     }
 
-
     // Wire up the lookups
-    import com.assessory.api.wiring.Lookups
-
-    Lookups.luCourse = CourseDAO.LookUp
-    //Lookups.luCritAlloc = CritAllocationDAO.LookUp
-    Lookups.luGPreenrol = GPreenrolDAO.LookUp
-    Lookups.luGroup = GroupDAO.LookUp
-    Lookups.luGroupSet = GroupSetDAO.LookUp
-    Lookups.luPreenrol = PreenrolDAO.LookUp
-    Lookups.luTask = TaskDAO.LookUp
-    Lookups.luTaskOutput = TaskOutputDAO.LookUp
-    Lookups.luUser = UserDAO.LookUp
-    Lookups.registrationProvider = RegistrationDAO
+    DoWiring.doWiring
   }
 
 
@@ -47,9 +35,10 @@ object Global extends GlobalSettings with AcceptExtractors {
    * We have many routes that only exist on the client side.
    */
   override def onHandlerNotFound(request:play.api.mvc.RequestHeader) = {
-    import scala.concurrent.Future
-    import play.api.mvc.Results
     import play.api.libs.json.Json
+    import play.api.mvc.Results
+
+    import scala.concurrent.Future
 
     request match {
       case Accepts.Html() => super.onHandlerNotFound(request)
