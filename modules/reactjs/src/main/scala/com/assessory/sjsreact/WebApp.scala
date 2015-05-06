@@ -1,41 +1,28 @@
 package com.assessory.sjsreact
 
-import com.assessory.sjsreact.Navigation.NCourse
+import com.assessory.api.client.invalidId
+import com.wbillingsley.handy.appbase.Course
+import com.assessory.clientpickle.Pickles._
+import japgolly.scalajs.react.extra.router.{Router, BaseUrl}
+import org.scalajs.dom
 
 import scala.scalajs.js.JSApp
 import scala.scalajs.js.annotation.JSExport
 
-import JSImports._
-import JSReact._
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.prefix_<^._
+
 
 object WebApp extends JSApp {
 
-/*  val c = React.createClass(
-    j(
-      displayName = "CommentBox",
-      render = () => {
-        div("myclass")(
-          "using div func",
-          "far"
-        )
-      }
-    )
-  )
+  val mountNode = dom.document.body
+  val root = React.render(MainRouter.routerComponent(), mountNode)
 
-  val c2 = TypedReact.createClass(component("TypedBox",
-    render = () => div("typedBox")(
-      "using typed functions",
-      "far"
-    )
-  ))*/
+  def rerender() = root.forceUpdate()
 
   @JSExport
   override def main(): Unit = {
 
-    val s = React.renderToStaticMarkup(e(Navigation.BreadCrumbs, null))
-    println(s)
-
-    Navigation.path.value = NCourse("hello") :: Nil
   }
 
 

@@ -21,8 +21,13 @@ object CritModel {
    * @param num
    * @return
    */
-  def allocateTheseGroups(groups:Seq[Group], regs:Seq[Group.Reg], num:Int) = {
+  def allocateTheseGroups(inGroups:Seq[Group], inRegs:Seq[Group.Reg], num:Int) = {
     import scala.collection.mutable
+
+    val groups = inGroups.sortBy(_.name)
+    val regs = inRegs.sortBy(_.user.id)
+
+    println("ALLOCATING " + groups.map(_.name) + s"for ${regs.size} students")
 
     val groupIds = groups.map(_.id)
     val memberMap = for {
@@ -33,12 +38,24 @@ object CritModel {
     val forwardMap = (for (r <- regs; u = r.user) yield u -> mutable.Set.empty[Id[Group,String]]).toMap
 
     def pick(u:Id[User,String]) = {
-      groupIds.filterNot(g => memberMap(g).contains(u) || reverseMap(g).contains(u)).minBy(reverseMap(_).size)
+      val g = groupIds
+      val filtered = groupIds.filterNot(g => memberMap(g).contains(u) || reverseMap(g).contains(u))
+      try {
+        filtered.minBy(reverseMap(_).size)
+      } catch {
+        case x:Throwable =>
+          println("ERRORED FOR" + groups.map(_.name) + s"for ${regs.size} students")
+          throw x
+      }
+
     }
+
+    scala.util.Random.setSeed(2015)
+    val shuffled = regs
 
     for {
       i <- 1 to num
-      reg <- regs
+      reg <- shuffled
     } {
       val g = pick(reg.user)
       reverseMap(g).add(reg.user)
@@ -48,9 +65,9 @@ object CritModel {
     forwardMap
   }
 
-  def allocateGroups(groups:Seq[Group], num:Int, task:Id[Task,String]):RefMany[CritAllocation] = {
+  def allocateGroups(inGroups:Seq[Group], num:Int, task:Id[Task,String]):RefMany[CritAllocation] = {
     for {
-      (rParent, groups) <- groups.groupBy(_.parent).toRefMany
+      (rParent, groups) <- inGroups.groupBy(_.parent).toRefMany
       groupIds = groups.map(_.id)
       registrations <- RegistrationDAO.group.byTargets(groupIds).collect
 
@@ -240,7 +257,11 @@ object CritModel {
       t <- rTask
       c <- a.cache.lookUp(t.course)
       approved <- a ask Permissions.EditCourse(c.itself)
-      alloc <- CritAllocationDAO.byTask(t.itself)
+      allocC <- CritAllocationDAO.byTask(t.itself).collect
+      alloc <- {
+        println(s"THERE ARE ${allocC.size} ALLOCATIONS")
+        allocC.toRefMany
+      }
       by <- targString(a, alloc.completeBy)
       allocLine <- alloc.allocation.toRefMany
       targ <- targString(a, allocLine.target)

@@ -62,11 +62,8 @@ object UserModel {
     }
   }
 
-  def findMany(oIds:Option[Seq[String]]) = {
-    for (
-      ids <- Ref(oIds) orIfNone UserError("No ids requested");
-      u <- RefManyById(ids).of[User]
-    ) yield u
+  def findMany(a:Approval[User], ids:Ids[User,String]) = {
+    ids.lookUp
   }
 
 }

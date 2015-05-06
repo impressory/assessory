@@ -12,11 +12,11 @@
 
   <div class="full-height" ng-controller="ErrorController">
     <div ng-show="false">
-        This site requires Javascript.
+        Loading React.js, Scala.js and all sorts of goodies...
     </div>
 
     <div ng-show="error">
-        
+
     </div>
     <div ng-hide="error" class="full-height">
         <div ui-view class="full-height"></div>
@@ -29,23 +29,20 @@
   <!-- Bootstrap -->
   <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("js/bootstrap.min.js"))'></script>
 
-  <!-- Angular.js -->
-  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("angular.min.js"))'></script>
-  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("angular-ui-router.min.js"))'></script>
-  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("angular-sanitize.min.js"))'></script>
-  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("angular-resource.min.js"))'></script>
-  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("angular-cookies.min.js"))'></script>
-  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("ui-bootstrap.min.js"))'></script>
-  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("ui-bootstrap-tpls.min.js"))'></script>
-
   <!-- Marked, used for Markdown -->
   <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("marked.js"))'></script>
 
-  <!-- Impressory, via require.js -->
+  <!-- React.js -->
+  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("react.min.js"))'></script>
+
+  <!-- Impressory, via require.js
   <script>
       @Html(org.webjars.RequireJS.getSetupJavaScript(routes.WebJarAssets.at("").url))
   </script>
   <script data-main="@routes.Assets.versioned("javascripts/main.js")" src="@routes.WebJarAssets.at(WebJarAssets.locate("require.min.js"))"></script>
+  -->
+
+  @playscalajs.html.scripts("assets", "reactjs")
 
   <!-- link rel="stylesheet" href="styles/main.css" -->
 

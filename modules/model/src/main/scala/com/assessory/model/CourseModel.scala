@@ -129,7 +129,7 @@ object CourseModel {
   /**
    * Fetches the courses this user is registered with.
    */
-  def myCourses(a:Approval[User]) = {
+  def myCourses(a:Approval[User]):RefMany[Course] = {
     for {
       u <- a.who
       courseIds <- RegistrationDAO.course.byUser(u.id).map(_.target).toIds

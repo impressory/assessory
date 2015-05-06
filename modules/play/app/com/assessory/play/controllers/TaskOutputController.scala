@@ -1,44 +1,44 @@
 package com.assessory.play.controllers
 
-
-import play.api.mvc.{Action, Controller}
-import com.assessory.reactivemongo._
-import com.assessory.play.json._
-import play.api.mvc.AnyContent
+import play.api.mvc._
 import com.assessory.api._
-import course._
-import group._
+import com.assessory.clientpickle.Pickles._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handyplay.{WithHeaderInfo, DataAction}
+import com.wbillingsley.handyplay.RefConversions._
 import com.assessory.api.critique._
 import play.api.libs.iteratee.Enumerator
-import com.assessory.model.TaskOutputModel
+import com.assessory.model.{CritModel, TaskOutputModel}
 
 import com.assessory.api.wiring.Lookups._
 
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+
+import scala.language.implicitConversions
+
 object TaskOutputController extends Controller {
 
-  implicit val toToJSON = TaskOutputToJson
-  
-  def get(id:String) = DataAction.returning.oneWH { implicit request =>
+  implicit def taskOutputToResult(rc:Ref[TaskOutput]):Ref[Result] = {
+    rc.map(c => Results.Ok(upickle.write(c)).as("application/json"))
+  }
+
+  implicit def manyTaskOutputToResult(rc:RefMany[TaskOutput]):Ref[Result] = {
+    val strings = rc.map(c => upickle.write(c))
+
+    for {
+      enum <- strings.enumerateR
+    } yield Results.Ok.chunked(enum.stringifyJsArr).as("application/json")
+  }
+
+  def get(id:String) = DataAction.returning.resultWH { implicit request =>
     WithHeaderInfo(
       LazyId(id).of[TaskOutput],
       headerInfo
     )
   }
 
-  def relevantToMe(taskId:String) = DataAction.returning.manyWH { implicit request =>
-    WithHeaderInfo(
-      TaskOutputModel.relevantToMe(
-        a = request.approval,
-        rTask = LazyId(taskId).of[Task]
-      ),
-      headerInfo
-    )
-  }
-  
-  def myOutputs(taskId:String) = DataAction.returning.manyWH { implicit request =>
+  def myOutputs(taskId:String) = DataAction.returning.resultWH { implicit request =>
     WithHeaderInfo(
       TaskOutputModel.myOutputs(
         a = request.approval,
@@ -48,40 +48,33 @@ object TaskOutputController extends Controller {
     )
   }
   
-  def create(taskId:String) = DataAction.returning.oneWH(parse.json) { implicit request =>
-    WithHeaderInfo(
-      TaskOutputModel.create(
+  def create(taskId:String) = DataAction.returning.resultWH { implicit request =>
+    def wp = for {
+      text <- request.body.asText.toRef
+      client = upickle.read[TaskOutput](text)
+      wp <- TaskOutputModel.create(
         a = request.approval,
-        rTask = LazyId(taskId).of[Task],
-        json = request.body
-      ),
-      headerInfo
-    )
+        task = LazyId(taskId).of[Task],
+        clientTaskOutput = client,
+        finalise = false // TODO: allow finalising of tasks
+      )
+    } yield wp
+
+    WithHeaderInfo(wp, headerInfo)
   }
   
-  def updateBody(id:String) = DataAction.returning.jsonWH(parse.json) { implicit request =>
-    WithHeaderInfo(
-      TaskOutputModel.updateBody(
+  def updateBody(id:String) = DataAction.returning.resultWH { implicit request =>
+    def wp = for {
+      text <- request.body.asText.toRef
+      client = upickle.read[TaskOutput](text)
+      wp <- TaskOutputModel.updateBody(
         a = request.approval,
-        rTaskOutput = LazyId(id).of[TaskOutput],
-        json = request.body
-      ),
-      headerInfo
-    )
+        clientTaskOutput = client,
+        finalise = false // TODO: allow finalising of tasks
+      )
+    } yield wp
+
+    WithHeaderInfo(wp, headerInfo)
   }
-  
-  def asCsv(taskId:String) = DataAction.returning.resultWH { implicit request =>
-    WithHeaderInfo(
-      {
-        for {
-          en <- TaskOutputModel.asCsv(
-            a = request.approval,
-            rTask = LazyId(taskId).of[Task]
-          )
-        } yield Ok.chunked(en)
-      },
-      headerInfo
-    )
-  }
-  
+
 }

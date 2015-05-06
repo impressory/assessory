@@ -25,12 +25,13 @@ class CourseModelSpec extends Specification with BeforeEach {
   "CourseModel" should {
 
     "Allow users to create courses" in  {
+      DB.dbName = "testAssessory_courseModel"
       DoWiring.doWiring
 
       val myCoursesAfterSignup = for {
         u <- UserModel.signUp(Some("eg@example.com"), Some("password"), ActiveSession("1234", "127.0.0.1"))
         courseWithPerms <- CourseModel.create(Approval(u.itself), Course(id=invalidId, addedBy=invalidId, title=Some("TestCourse")))
-        course <- CourseModel.myCourses(u.itself)
+        course <- CourseModel.myCourses(Approval(u.itself))
       } yield course.title
 
       myCoursesAfterSignup.collect.toFuture must beEqualTo(Seq(Some("TestCourse"))).await

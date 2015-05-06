@@ -13,8 +13,8 @@ object Global extends GlobalSettings with AcceptExtractors {
 
   def wire() = {
     // Set up the database
-    DB.dbName = Play.configuration.getString("mongo.dbname").getOrElse("assessory")
-    DB.connectionString = Play.configuration.getString("mongo.connection").getOrElse("localhost:27017")
+    DB.dbName = Play.configuration.getString("mongo.dbname").getOrElse("assessory_2015_1")
+    DB.connectionString = Play.configuration.getString("mongo.connection").getOrElse("mongodb://localhost:27017")
     DB.dbUser = Play.configuration.getString("mongo.dbuser")
     DB.dbPwd = Play.configuration.getString("mongo.dbpwd")
 

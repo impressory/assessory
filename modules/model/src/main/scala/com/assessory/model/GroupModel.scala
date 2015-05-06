@@ -9,6 +9,7 @@ import com.assessory.asyncmongo._
 import com.assessory.api.wiring.Lookups._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.Id._
+import com.wbillingsley.handy.Ids._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.appbase._
 
@@ -28,6 +29,13 @@ object GroupModel {
         ),
         gs)
     }
+  }
+
+  def groupSet(a:Approval[User], gsId:Id[GroupSet, String]) = {
+    for {
+      gs <- gsId.lazily
+      wp <- withPerms(a, gs)
+    } yield wp
   }
 
   def createGroupSet(a:Approval[User], clientGS:GroupSet) = {
@@ -73,17 +81,18 @@ object GroupModel {
 
   def myGroups(a:Approval[User], rCourse:Ref[Course]) = {
     for {
+      u <- a.who
       course <- rCourse
-      newlyPreenrolled <- doPreenrolments(course.itself, a.who).toRefOne
-      group <- GroupDAO.byCourseAndUser(course.itself, a.who)
-    } yield group
+      groupRegs <- RegistrationDAO.group.byUser(u.id).collect
+      groupIds = groupRegs.map(_.target.id).asIds[Group]
+      group <- groupIds.lookUp if group.course == Some(course.id)
+    } yield {
+      group
+    }
   }
 
-  def findMany(oIds:Option[Seq[String]]) = {
-    for (
-      ids <- Ref(oIds) orIfNone UserError("No ids requested");
-      g <- RefManyById(ids).of[Group]
-    ) yield g
+  def findMany(a:Approval[User], oIds:Ids[Group,String]) = {
+    oIds.lookUp
   }
 
   /**
@@ -111,6 +120,8 @@ object GroupModel {
   }
 
 
+
+  // student number, name, group name, parent
   private def _importFromCsv(set:GroupSet, roles:Set[GroupRole], csv:String):RefMany[Group.Reg] = {
     val reader = new CSVReader(new StringReader(csv.trim()))
     val lines = reader.readAll().asScala.toSeq.drop(1)
@@ -133,10 +144,11 @@ object GroupModel {
 
         val groupedByParent = lines.groupBy(_(3))
         for {
+          parentGS <- parentGsId.lazily orIfNone UserError("Parent group set was not found")
           studentMap <- rStudentMap
 
           // Create the parent groups if needed
-          parentMap <- ensureGroups(parentGsId, parentGroupNames, None)
+          parentMap <- ensureGroups(parentGS, parentGroupNames, None)
           (p, childLines) <- groupedByParent.toRefMany
 
           // Get the group names
@@ -145,10 +157,12 @@ object GroupModel {
             n <- opt(l(2))
           } yield n).toSet
 
-          groupMap <- ensureGroups(set.id, groupNames, Some(parentMap(p).id))
-          l <- lines.toRefMany
+          groupMap <- ensureGroups(set, groupNames, Some(parentMap(p).id))
+          l <- childLines.toRefMany
           u = studentMap(l(0))
-          g = groupMap(l(1))
+          gn <- opt(l(2)).toRef
+          g = groupMap(gn)
+          reg <- RegistrationDAO.group.register(u.id, parentMap(p).id,roles, EmptyKind)
           reg <- RegistrationDAO.group.register(u.id, g.id,roles, EmptyKind)
         } yield reg
 
@@ -161,7 +175,7 @@ object GroupModel {
           n <- opt(l(2))
         } yield n).toSet
 
-        groupMap <- ensureGroups(set.id, groupNames, None)
+        groupMap <- ensureGroups(set, groupNames, None)
         l <- lines.toRefMany
         u = studentMap(l(0))
         g = groupMap(l(1))
@@ -185,16 +199,16 @@ object GroupModel {
   }
 
   // Map names to groups, making new groups as necessary
-  private def ensureGroups(gsId:Id[GroupSet, String], names:Set[String], parent:Option[Id[Group,String]]) = for {
+  private def ensureGroups(gs:GroupSet, names:Set[String], parent:Option[Id[Group,String]]) = for {
   // Get the existing groups' names, and find which are missing
-    existing <- GroupDAO.byNames(gsId, names).collect
+    existing <- GroupDAO.byNames(gs.id, names).collect
     existingNames = for (g <- existing; n <- g.name) yield n
     missing = names.diff(existingNames.toSet)
 
     // Create groups for the missing names
     created <- (for {
       name <- missing.toRefMany
-      unsaved = new Group(id=GroupDAO.allocateId.asId, set=gsId, parent=parent, name=Some(name))
+      unsaved = new Group(id=GroupDAO.allocateId.asId, set=gs.id, course=Some(gs.course), parent=parent, name=Some(name))
       saved <- GroupDAO.saveNew(unsaved)
     } yield saved).collect
 
@@ -267,7 +281,7 @@ object GroupModel {
 
       // Map names to groups, making new groups as necessary
       // TODO: Deal with parent groups in pre-enrol
-      groupMap <- ensureGroups(gsId, names, None)
+      groupMap <- ensureGroups(gs, names, None)
 
       unsaved = new Group.Preenrol(
         id = PreenrolmentDAO.course.allocateId.asId,

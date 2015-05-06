@@ -9,13 +9,25 @@ abstract class Target extends HasKind {
 
 case class UnrecognisedT(id:Id[Nothing, String], original:String) extends Target { val kind = original }
 
-case class TargetUser(id:Id[User, String]) extends Target { val kind = "User" }
+case class TargetUser(id:Id[User, String]) extends Target { val kind = TargetUser.kind }
+object TargetUser {
+  val kind = "User"
+}
 
-case class TargetCourseReg(id:Id[Course.Reg, String]) extends Target{ val kind = "CourseReg" }
+case class TargetCourseReg(id:Id[Course.Reg, String]) extends Target{ val kind = TargetCourseReg.kind }
+object TargetCourseReg {
+  val kind = "CourseReg"
+}
 
-case class TargetGroup(id:Id[Group, String]) extends Target{ val kind = "Group" }
+case class TargetGroup(id:Id[Group, String]) extends Target{ val kind = TargetGroup.kind }
+object TargetGroup {
+  val kind = "Group"
+}
 
-case class TargetTaskOutput(id:Id[TaskOutput, String]) extends Target{ val kind = "TaskOutput" }
+case class TargetTaskOutput(id:Id[TaskOutput, String]) extends Target{ val kind = TargetTaskOutput.kind }
+object TargetTaskOutput {
+  val kind = "TaskOutput"
+}
 
 
 object Target {

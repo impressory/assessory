@@ -28,6 +28,7 @@ class TaskModelSpec extends Specification with BeforeEach {
   "TaskModel" should {
 
     "Allow users to create tasks in courses" in  {
+      DB.dbName = "testAssessory_courseModel"
       DoWiring.doWiring
 
       val saved = for {
@@ -49,6 +50,7 @@ class TaskModelSpec extends Specification with BeforeEach {
     }
 
     "Return the tasks in a course" in  {
+      DB.dbName = "testAssessory_courseModel"
       DoWiring.doWiring
 
       val saved = for {

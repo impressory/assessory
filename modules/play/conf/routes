@@ -6,22 +6,6 @@ GET     /webjars/*file                    controllers.WebJarAssets.at(file)
 GET     /vassets/*file                    controllers.Assets.versioned(path="/public", file: Asset)
 
 
-# Task Output
-GET     /api/taskoutput/:toId                           com.assessory.play.controllers.TaskOutputController.get(toId)
-POST    /api/taskoutput/:toId                           com.assessory.play.controllers.TaskOutputController.updateBody(toId)
-POST    /api/task/:taskId/newOutput                     com.assessory.play.controllers.TaskOutputController.create(taskId)
-GET     /api/task/:taskId/outputsAsCsv                  com.assessory.play.controllers.TaskOutputController.asCsv(taskId)
-GET     /api/task/:taskId/myOutputs                     com.assessory.play.controllers.TaskOutputController.myOutputs(taskId)
-GET     /api/task/:taskId/relevantToMe                  com.assessory.play.controllers.TaskOutputController.relevantToMe(taskId)
-
-# Group Crits
-GET     /api/critique/:taskId/allocations/csv          com.assessory.play.controllers.CritController.allocationsAsCSV(taskId)
-GET     /api/critique/:taskId/myAllocations            com.assessory.play.controllers.CritController.myAllocation(taskId)
-GET     /api/critique/:taskId/allocations              com.assessory.play.controllers.CritController.allocations(taskId)
-POST    /api/critique/:taskId/allocate                 com.assessory.play.controllers.CritController.allocateTask(taskId)
-POST    /api/critique/:taskId/findOrCreateCrit         com.assessory.play.controllers.CritController.findOrCreateCrit(taskId)
-
-
 # Tasks
 GET     /api/task/:id                              com.assessory.play.controllers.TaskController.get(id)
 POST    /api/course/:courseId/task/create          com.assessory.play.controllers.TaskController.create(courseId)
@@ -32,21 +16,10 @@ POST    /api/task/:id/body                         com.assessory.play.controller
 POST    /api/user/findMany                        com.assessory.play.controllers.UserController.findMany
 
 # Groups
-GET     /api/course/:courseId/group/my          com.assessory.play.controllers.GroupController.myGroups(courseId)
+POST    /api/course/:courseId/group/my          com.assessory.play.controllers.GroupController.myGroups(courseId)
 POST    /api/groupSet/:gsId/groups              com.assessory.play.controllers.GroupController.groupSetGroups(gsId)
 POST    /api/group/findMany                     com.assessory.play.controllers.GroupController.findMany
 GET     /api/group/:id                          com.assessory.play.controllers.GroupController.group(id)
-POST    /api/groupSet/:gsId/importFromCsv       com.assessory.play.controllers.GroupController.importFromCsv(gsId)
-POST    /api/groupSet/:gs/uploadGroups          com.assessory.play.controllers.GroupController.uploadGroups(gs:Ref[com.assessory.api.group.GroupSet])
-
-
-# Group Preenrols
-POST    /api/groupSet/:gsId/createGPreenrol       com.assessory.play.controllers.GroupController.createGroupSetPreenrol(gsId)
-
-# Preenrols
-GET     /api/course/:courseId/preenrols           com.assessory.play.controllers.CourseController.coursePreenrols(courseId)
-GET     /api/preenrol/:gsId                       com.assessory.play.controllers.CourseController.preenrol(gsId)
-POST    /api/course/:courseId/createPreenrol      com.assessory.play.controllers.CourseController.createPreenrol(courseId)
 
 # GroupSets
 GET     /api/course/:courseId/groupSets           com.assessory.play.controllers.GroupController.courseGroupSets(courseId)
@@ -56,10 +29,10 @@ POST    /api/course/:courseId/createGroupSet      com.assessory.play.controllers
 
 # Courses
 POST    /api/course/my                  com.assessory.play.controllers.CourseController.myCourses
-GET     /api/course/:id                 com.assessory.play.controllers.CourseController.get(id)
+GET     /api/course/:id                 com.assessory.play.controllers.CourseController.get(id:Id[Course,String])
 POST    /api/course/create              com.assessory.play.controllers.CourseController.create
 POST    /api/course/findMany            com.assessory.play.controllers.CourseController.findMany
-GET     /api/course/:id/autolinks       com.assessory.play.controllers.CourseController.autolinks(id:Ref[course.Course])
+GET     /api/course/:id/autolinks       com.assessory.play.controllers.CourseController.autolinks(id:Id[Course,String])
 
 # Logged in user
 POST	  /api/self						com.assessory.play.controllers.UserController.self
@@ -68,7 +41,7 @@ POST	  /api/signUp						com.assessory.play.controllers.UserController.signUp
 POST	  /api/logIn 						com.assessory.play.controllers.UserController.logIn
 POST	  /api/logOut						com.assessory.play.controllers.UserController.logOut
 
-GET     /auto/:user/:secret         com.assessory.play.controllers.UserController.autologin(user:Ref[User], secret)
+GET     /auto/:user/:secret         com.assessory.play.controllers.UserController.autologin(user:Id[User,String], secret)
 
 # Auth
 ->      /oauth                  handyplayoauth.Routes
@@ -77,6 +50,7 @@ POST    /auth/interstitial/add      com.assessory.auth.controllers.InterstitialC
 
 # Index
 GET     /                           com.assessory.play.controllers.Application.index
+GET     /client                     com.assessory.play.controllers.Application.index
 
 # Test error conditions
 GET     /notFound                   com.assessory.play.controllers.Application.notFound
@@ -84,8 +58,6 @@ GET     /userError                  com.assessory.play.controllers.Application.u
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
-
-POST    /testCsvReading                     com.assessory.play.controllers.GroupController.testCsv
 
 # Default route
 GET    /course/*path                      com.assessory.play.controllers.Application.defaultRoute(path)

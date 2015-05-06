@@ -8,7 +8,6 @@ import com.assessory.model._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.appbase.Course
-import com.wbillingsley.handy.appbase.Course.Preenrol
 import com.wbillingsley.handyplay.RefConversions._
 import com.wbillingsley.handyplay.{DataAction, WithHeaderInfo}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -32,7 +31,7 @@ object CourseController extends Controller {
 
     for {
       enum <- strings.enumerateR
-    } yield Results.Ok.chunked(enum).as("application/json")
+    } yield Results.Ok.chunked(enum.stringifyJsArr).as("application/json")
   }
 
   implicit def manyWpcToResult(rc:RefMany[WithPerms[Course]]):Ref[Result] = {
@@ -40,7 +39,7 @@ object CourseController extends Controller {
 
     for {
       enum <- strings.enumerateR
-    } yield Results.Ok.chunked(enum).as("application/json")
+    } yield Results.Ok.chunked(enum.stringifyJsArr).as("application/json")
   }
 
   implicit def preenrolToResult(rc:Ref[Course.Preenrol]):Ref[Result] = {
@@ -52,7 +51,7 @@ object CourseController extends Controller {
 
     for {
       enum <- strings.enumerateR
-    } yield Results.Ok.chunked(enum).as("application/json")
+    } yield Results.Ok.chunked(enum.stringifyJsArr).as("application/json")
   }
 
   /**
@@ -91,24 +90,24 @@ object CourseController extends Controller {
     WithHeaderInfo(wp, headerInfo)
   }
 
-  def preenrol(preenrolId:String) = DataAction.returning.resultWH { implicit request =>
+  def preenrol(preenrolId:Id[Course.Preenrol,String]) = DataAction.returning.resultWH { implicit request =>
     WithHeaderInfo(
-      LazyId(preenrolId).of[Preenrol],
+      preenrolId.lazily,
       headerInfo
     )
   }
 
-  def coursePreenrols(courseId:String) = DataAction.returning.resultWH { implicit request =>
+  def coursePreenrols(courseId:Id[Course,String]) = DataAction.returning.resultWH { implicit request =>
     WithHeaderInfo(
       CourseModel.coursePreenrols(
         a = request.approval,
-        rCourse = LazyId(courseId).of[Course]
+        rCourse = courseId.lazily
       ),
       headerInfo
     )
   }
 
-  def createPreenrol(courseId:String) = DataAction.returning.resultWH { implicit request =>
+  def createPreenrol(courseId:Id[Course,String]) = DataAction.returning.resultWH { implicit request =>
     def wp = for {
       text <- request.body.asText.toRef
       data = upickle.read[CreateCoursePreenrolData](text)
@@ -133,12 +132,11 @@ object CourseController extends Controller {
   /**
    * Generates a CSV of the autologin links
    */
-  def autolinks(course:Ref[Course]) = DataAction.returning.resultWH { implicit request =>
+  def autolinks(course:Id[Course,String]) = DataAction.returning.resultWH { implicit request =>
     val lines = for {
-      c <- course.refId
-      u <- CourseModel.usersInCourse(request.approval, c)
+      u <- CourseModel.usersInCourse(request.approval, course)
       studentIdent <- u.getIdentity(I_STUDENT_NUMBER).toRef
-      url = routes.UserController.autologin(u.itself, u.secret).absoluteURL()
+      url = routes.UserController.autologin(u.id, u.secret).absoluteURL()
     } yield s"${studentIdent.value},${u.name.getOrElse("")},$url\n"
 
     import com.wbillingsley.handyplay.RefConversions._

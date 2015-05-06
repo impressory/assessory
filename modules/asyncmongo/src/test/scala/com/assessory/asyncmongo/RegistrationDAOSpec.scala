@@ -3,23 +3,27 @@ package com.assessory.asyncmongo
 import com.wbillingsley.handy.Id._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy._
-import com.wbillingsley.handy.appbase.{Group, GroupSet, CourseRole, Course}
-import com.wbillingsley.handy.user._
+import com.wbillingsley.handy.appbase.{Group, GroupSet, CourseRole, Course, User}
 import com.wbillingsley.handy.mongodbasync.FuturifySRC
 import org.specs2.mutable.Specification
+import org.specs2.specification.BeforeEach
 
 
-class RegistrationDAOSpec extends Specification {
+class RegistrationDAOSpec extends Specification with BeforeEach {
+
+  def before = {
+    //DB.executionContext = scala.concurrent.ExecutionContext.global
+    DB.dbName = "testAssessory_reg"
+    scala.concurrent.blocking {
+      FuturifySRC.void(DB.db.drop)
+    }
+  }
 
   sequential
-
-  def dropDB() = FuturifySRC.void(DB.db.drop).toRef(DB.executionContext)
 
   "RegistrationDAO" should {
 
     "Retrieve course registrations it saves" in  {
-
-      DB.dbName = "testAssessory_reg"
 
       val u = User(
         id = Id(UserDAO.allocateId),
@@ -44,7 +48,6 @@ class RegistrationDAOSpec extends Specification {
       )
 
       (for {
-        dropped <- dropDB()
         savedU <- UserDAO.saveNew(u)
         savedC <- CourseDAO.saveNew(c)
         savedR <- RegistrationDAO.course.saveSafe(r)
@@ -53,8 +56,6 @@ class RegistrationDAOSpec extends Specification {
     }
 
     "Retrieve group registrations it saves" in  {
-
-      DB.dbName = "testAssessory_reg"
 
       val u = User(
         id = Id(UserDAO.allocateId),
@@ -92,7 +93,6 @@ class RegistrationDAOSpec extends Specification {
       )
 
       (for {
-        dropped <- dropDB()
         savedU <- UserDAO.saveNew(u)
         savedC <- CourseDAO.saveNew(c)
         savedR <- RegistrationDAO.course.saveSafe(r)

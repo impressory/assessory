@@ -26,7 +26,7 @@ object CritAllocationB extends BsonDocumentConverter[CritAllocation] {
     new CritAllocation(
       id = doc.req[Id[CritAllocation, String]]("_id"),
       task = doc.req[Id[Task, String]]("task"),
-      completeBy = doc.req[Target]("target"),
+      completeBy = doc.req[Target]("completeBy"),
       allocation = doc.req[Seq[AllocatedCrit]]("allocation")
     )
   }

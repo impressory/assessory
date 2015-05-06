@@ -1,7 +1,4 @@
-pipelineStages := Seq(rjs, digest, gzip)
-
 includeFilter in (Assets, LessKeys.less) := "main.less"
-
 
 libraryDependencies ++= Seq(
   "com.wbillingsley" %% "handy" % "0.7.0-SNAPSHOT",
@@ -14,12 +11,20 @@ libraryDependencies ++= Seq(
   "com.lihaoyi" %% "upickle" % "0.2.8",
 
   // JavaScript
-  "org.webjars" %% "webjars-play" % "2.3.0",
+  "org.webjars" %% "webjars-play" % "2.3.0-2",
   "org.webjars" % "bootstrap" % "3.1.1-2",
   "org.webjars" % "font-awesome" % "4.1.0",
+
+  // React
+  "org.webjars" % "react" % "0.12.1",
+
+  /* angular.js
   "org.webjars" % "angularjs" % "1.2.20",
   "org.webjars" % "angular-ui-router" % "0.2.10-1",
   "org.webjars" % "angular-ui-bootstrap" % "0.11.0-2",
+  */
+
+  // Markdown
   "org.webjars" % "marked" % "0.3.2-1"
 )
 

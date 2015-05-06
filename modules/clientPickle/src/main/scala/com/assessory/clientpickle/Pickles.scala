@@ -1,7 +1,7 @@
 package com.assessory.clientpickle
 
-import com.assessory.api.critique.{CritTargetStrategy, CritiqueTask, OfMyGroupsStrategy}
-import com.assessory.api.{EmptyTaskBody, TaskBody}
+import com.assessory.api.critique._
+import com.assessory.api._
 import com.wbillingsley.handy.{Ids, Id}
 import com.wbillingsley.handy.Id._
 import com.wbillingsley.handy.Ids._
@@ -33,6 +33,30 @@ object Pickles {
     case Js.Str(BooleanQuestion.kind) => upickle.read[Kinded[BooleanQuestion]](upickle.json.write(o)).item
   }}
 
+  implicit val answerWriter = upickle.Writer[Answer[_]] {
+    case st:ShortTextAnswer => upickle.json.read(upickle.write(Kinded(st.kind, st)))
+    case q:BooleanAnswer => upickle.json.read(upickle.write(Kinded(q.kind, q)))
+  }
+  implicit val answerReader = upickle.Reader[Answer[_]] { case o:Js.Obj => o("kind") match {
+    case Js.Str(ShortTextQuestion.kind) => upickle.read[Kinded[ShortTextAnswer]](upickle.json.write(o)).item
+    case Js.Str(BooleanQuestion.kind) => upickle.read[Kinded[BooleanAnswer]](upickle.json.write(o)).item
+  }}
+
+  implicit val targetWriter = upickle.Writer[Target] {
+    case t:TargetUser => upickle.json.read(upickle.write(Kinded(t.kind, t)))
+    case t:TargetGroup => upickle.json.read(upickle.write(Kinded(t.kind, t)))
+    case t:TargetCourseReg => upickle.json.read(upickle.write(Kinded(t.kind, t)))
+    case t:TargetTaskOutput => upickle.json.read(upickle.write(Kinded(t.kind, t)))
+  }
+  implicit val targetReader = upickle.Reader[Target] { case o:Js.Obj => o("kind") match {
+    case Js.Str(TargetUser.kind) => upickle.read[Kinded[TargetUser]](upickle.json.write(o)).item
+    case Js.Str(TargetGroup.kind) => upickle.read[Kinded[TargetGroup]](upickle.json.write(o)).item
+    case Js.Str(TargetCourseReg.kind) => upickle.read[Kinded[TargetCourseReg]](upickle.json.write(o)).item
+    case Js.Str(TargetTaskOutput.kind) => upickle.read[Kinded[TargetTaskOutput]](upickle.json.write(o)).item
+  }}
+
+
+
   implicit val critTargetStrategyReader = upickle.Reader[CritTargetStrategy] { case o:Js.Obj => o("kind") match {
     case Js.Str(OfMyGroupsStrategy.kind) => OfMyGroupsStrategy
   }}
@@ -49,6 +73,18 @@ object Pickles {
       o("kind") match {
         case Js.Str(CritiqueTask.kind) => upickle.read[Kinded[CritiqueTask]](upickle.json.write(o)).item
         case Js.Str(EmptyTaskBody.kind) => EmptyTaskBody
+      }
+  }
+
+  implicit val taskOutputBodyWriter = upickle.Writer[TaskOutputBody] {
+    case ct:Critique => upickle.json.read(upickle.write(Kinded(ct.kind, ct)))
+    case EmptyTaskOutputBody => upickle.json.read(upickle.write(Kinded(EmptyTaskOutputBody.kind, EmptyTaskBody)))
+  }
+  implicit val taskOutputBodyReader = upickle.Reader[TaskOutputBody] {
+    case o:Js.Obj =>
+      o("kind") match {
+        case Js.Str(CritiqueTask.kind) => upickle.read[Kinded[Critique]](upickle.json.write(o)).item
+        case Js.Str(EmptyTaskOutputBody.kind) => EmptyTaskOutputBody
       }
   }
 
@@ -87,6 +123,20 @@ object Pickles {
       "rows" -> upickle.json.read(upickle.write(p.rows)),
       "created" -> upickle.json.read(upickle.write(p.created)),
       "modified" -> upickle.json.read(upickle.write(p.modified))
+    )
+  }
+
+
+  implicit val allocatedCritReader = upickle.Reader[AllocatedCrit] { case o:Js.Obj =>
+    new AllocatedCrit(
+      target = upickle.read[Target](upickle.json.write(o("target"))),
+      critique = upickle.read[Option[Id[TaskOutput,String]]](upickle.json.write(o("critique")))
+    )
+  }
+  implicit val allocatedCritWriter = upickle.Writer[AllocatedCrit] { case row =>
+    Js.Obj(
+      "target" -> upickle.json.read(upickle.write(row.target)),
+      "critique" -> upickle.json.read(upickle.write(row.critique))
     )
   }
 

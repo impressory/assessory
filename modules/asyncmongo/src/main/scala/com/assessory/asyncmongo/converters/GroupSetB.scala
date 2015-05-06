@@ -22,7 +22,7 @@ object GroupSetB extends BsonDocumentConverter[GroupSet] {
   override def read(doc: BsonDocument): Try[GroupSet] = Try {
     new GroupSet(
       id = doc.req[Id[GroupSet, String]]("_id"),
-      course = doc.req[Id[Course, String]]("_id"),
+      course = doc.req[Id[Course, String]]("course"),
       name = doc.opt[String]("name"),
       description = doc.opt[String]("description"),
       parent = doc.opt[Id[GroupSet, String]]("parent"),

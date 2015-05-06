@@ -26,7 +26,11 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.0.2")
 // Scala.js for client-side components written in Scala
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.2")
 
+// Brings the compiled Scala.js JavaScript into the Play project's assets
+addSbtPlugin("com.vmunier" % "sbt-play-scalajs" % "0.2.4")
+
+
+// --- DEV TOOLS ---
+
+// Means sbt can show a tree structure of our dependencies
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.5")
-
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.2")
-
