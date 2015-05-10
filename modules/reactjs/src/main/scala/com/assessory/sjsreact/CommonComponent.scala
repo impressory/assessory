@@ -15,14 +15,11 @@ object CommonComponent {
       .build
 
     ReactComponentB[Latched[T]]("Latched"+name)
-      .render({ value:Latched[T] =>
-        value.request match {
-          case Some(v) => inner(v)
-          case _ =>
-            value.error match {
-              case Some(t) => <.span(^.className := "error", t.getMessage)
-              case _ => <.i(^.className := "fa fa-spinner fa-spin")
-            }
+      .render({ l:Latched[T] =>
+        l.request.value match {
+          case Some(Success(x)) => inner(x)
+          case Some(Failure(x)) => <.span(^.className := "error", x.getMessage)
+          case _ => <.i(^.className := "fa fa-spinner fa-spin")
         }
       })
       .build

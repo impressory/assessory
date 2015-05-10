@@ -2,93 +2,52 @@ package com.assessory.sjsreact
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.mutable
-import scala.util.{Failure, Success}
+import scala.util.{Try, Failure, Success}
 
 /**
- * A clearable future
+ * A lazy, clearable Future.
  */
 class Latched[T](op: => Future[T])(implicit ec:ExecutionContext) {
 
-
   val listeners:mutable.Set[Latched.Listener[T]] = mutable.Set.empty
 
-  var content:Option[T] = None
-
-  var error:Option[Throwable] = None
-
-  var requested:Boolean = false
+  var cached:Option[Future[T]] = None
 
   def clear() = {
-    content = None
-    error = None
-    requested = false
-    listeners.foreach { l => l.onChange(content); l.onClear() }
-    _onChange(content)
-    _onClear()
+    cached = None
+    listeners.foreach { _(None) }
     WebApp.rerender()
   }
 
   def fill(v:T) = {
-    content = Some(v)
-    error = None
-    requested = false
-    listeners.foreach { l => l.onChange(content); l.onSet(v) }
-    _onChange(content)
-    _onSet(v)
+    cached = Some(Future.successful(v))
+    listeners.foreach { _(Some(Success(v))) }
     WebApp.rerender()
   }
 
   def fail(t:Throwable) = {
-    content = None
-    error = Some(t)
-    listeners.foreach { l => l.onChange(content); l.onClear() }
-    _onChange(content)
-    _onClear()
+    cached = Some(Future.failed(t))
+    listeners.foreach { _(Some(Failure(t))) }
     WebApp.rerender()
   }
 
-  def request:Option[T] = {
-    content match {
-      case Some(c) => Some(c)
-      case None =>
-        if (!requested && error.isEmpty) {
-          requested = true
-          // TODO: cache op in a var (can't query op as it's call by name, so need to cache the resulting Future)
-          op.andThen {
-            case Success(x) => fill(x)
-            case Failure(t) => fail(t)
-          }
-        }
-        None
+  def request:Future[T] = {
+    cached match {
+      case Some(x) => x
+      case _ => {
+        val v = op
+        cached = Some(v)
+        v.onComplete(_ => WebApp.rerender())(scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow)
+        v
+      }
     }
-  }
-
-  private var _onSet: T => Unit = { _ => }
-
-  private var _onClear: () => Unit = { () => }
-
-  private var _onChange: Option[T] => Unit = { _ => }
-
-  def onSet(f: T => Unit) = {
-    _onSet = f
-    this
-  }
-
-  def onClear(f: () => Unit) = {
-    _onClear = f
-    this
-  }
-
-  def onChange(f: Option[T] => Unit) = {
-    _onChange = f
-    this
   }
 
 }
 
 object Latched {
 
-  case class Listener[T](onSet: T => Unit = { x:T => }, onClear: () => Unit = { () => }, onChange: Option[T] => Unit = { x:Option[T] => })
+  type Listener[T] = (Option[Try[T]] => Unit)
 
   def immediate[T](op: => T)(implicit ec:ExecutionContext):Latched[T] = new Latched(Future.successful(op))
 

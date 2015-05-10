@@ -19,7 +19,7 @@ object CourseService {
   val myCourses = Latched.future(
     Ajax.post("/api/course/my", headers = Map("Accept" -> "application/json")).responseText.map(upickle.read[Seq[Course]]).optional404
   )
-  UserService.self.listeners.add(Latched.Listener(onClear = () => myCourses.clear()))
+  UserService.self.listeners.add { case _ => myCourses.clear() }
 
   def loadId[KK <: String](id:Id[Course,KK]) = {
     Ajax.get(s"/api/course/${id.id}", headers = Map("Accept" -> "application/json")).responseText.map(upickle.read[WithPerms[Course]])

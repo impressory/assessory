@@ -16,7 +16,7 @@ object UserService {
 
   val self = Latched.future(
     Ajax.post("/api/self", headers = Map("Accept" -> "application/json")).responseText.map(upickle.read[User]).optional404
-  ).onChange(_ => WebApp.rerender())
+  )
 
   def logOut():Unit = {
     Ajax.post("/api/logOut", headers = Map("Accept" -> "application/json")).andThen{ case _ => self.fill(None) }
