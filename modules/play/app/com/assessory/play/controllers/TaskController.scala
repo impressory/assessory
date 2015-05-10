@@ -9,6 +9,7 @@ import com.assessory.api._
 import com.assessory.clientpickle.Pickles._
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.Ref._
+import com.wbillingsley.handy.Id._
 import com.wbillingsley.handyplay.{WithHeaderInfo, DataAction}
 import com.wbillingsley.handyplay.RefConversions._
 
@@ -37,7 +38,7 @@ object TaskController extends Controller {
   }
 
   implicit def manyWptToResult(rc:RefMany[WithPerms[Task]]):Ref[Result] = {
-    val strings = rc.map(c => upickle.write(c))
+    val strings = rc.map({c => upickle.write(c) })
 
     for {
       enum <- strings.enumerateR
@@ -46,7 +47,7 @@ object TaskController extends Controller {
 
   def get(id:String) = DataAction.returning.resultWH { implicit request =>
     WithHeaderInfo(
-      LazyId(id).of[Task],
+      TaskModel.byId(request.approval, id.asId),
       headerInfo
     )
   }

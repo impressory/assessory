@@ -6,6 +6,15 @@ GET     /webjars/*file                    controllers.WebJarAssets.at(file)
 GET     /vassets/*file                    controllers.Assets.versioned(path="/public", file: Asset)
 
 
+# Task Output
+GET     /api/taskoutput/:toId                           com.assessory.play.controllers.TaskOutputController.get(toId)
+POST    /api/taskoutput/:toId                           com.assessory.play.controllers.TaskOutputController.updateBody(toId)
+POST    /api/task/:taskId/newOutput                     com.assessory.play.controllers.TaskOutputController.create(taskId)
+GET     /api/task/:taskId/myOutputs                     com.assessory.play.controllers.TaskOutputController.myOutputs(taskId)
+
+# Critiques
+GET     /api/critique/:id/myAllocations           com.assessory.play.controllers.CritController.myAllocations(id)
+
 # Tasks
 GET     /api/task/:id                              com.assessory.play.controllers.TaskController.get(id)
 POST    /api/course/:courseId/task/create          com.assessory.play.controllers.TaskController.create(courseId)

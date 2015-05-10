@@ -1,6 +1,6 @@
 package com.assessory.model
 
-import com.assessory.api.critique.{OfMyGroupsStrategy, CritiqueTask}
+import com.assessory.api.critique.{PreallocateGroupStrategy, OfMyGroupsStrategy, CritiqueTask}
 import com.assessory.api.{DueDate, TaskDetails, Task}
 import com.assessory.clientpickle.Pickles
 import com.wbillingsley.handy.Id
@@ -121,6 +121,32 @@ class PickleSpec extends Specification {
 
       unpickled must beEqualTo(made)
     }
+
+    "Pickle and unpickle Preallocated Crit Task" in  {
+      val made = Task(
+        id = invalidId,
+        course = invalidId,
+        details = TaskDetails(
+          name = Some("test crit"),
+          description = Some("This is to test critiques can be sent between server and client"),
+          published = DueDate(System.currentTimeMillis())
+        ),
+        body = CritiqueTask(
+          questionnaire = Seq(
+            ShortTextQuestion(id=invalidId, prompt="Hello world"),
+            BooleanQuestion(id=invalidId, prompt="Hello world")
+          ),
+          strategy = PreallocateGroupStrategy(
+            set = invalidId, number = 3
+          )
+        )
+      )
+      val pickled = upickle.write(made)
+      val unpickled = upickle.read[Task](pickled)
+
+      unpickled must beEqualTo(made)
+    }
+
   }
 
 }

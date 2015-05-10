@@ -25,6 +25,7 @@ object CourseService {
     Ajax.get(s"/api/course/${id.id}", headers = Map("Accept" -> "application/json")).responseText.map(upickle.read[WithPerms[Course]])
   }
 
-  def latch(s:String) = cache.getOrElseUpdate(s, Latched.future(loadId(s.asId[Course])))
+  def latch(s:String):Latched[WithPerms[Course]] = cache.getOrElseUpdate(s, Latched.future(loadId(s.asId[Course])))
 
+  def latch(id:Id[Course,String]):Latched[WithPerms[Course]] = cache.getOrElseUpdate(id.id, Latched.future(loadId(id)))
 }

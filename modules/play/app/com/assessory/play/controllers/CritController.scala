@@ -83,7 +83,7 @@ object CritController extends Controller {
   }
 
 
-  def myAllocation(taskId:String) = DataAction.returning.resultWH { implicit request =>
+  def myAllocations(taskId:String) = DataAction.returning.resultWH { implicit request =>
     WithHeaderInfo(
       CritModel.myAllocations(request.approval, LazyId(taskId).of[Task]),
       headerInfo

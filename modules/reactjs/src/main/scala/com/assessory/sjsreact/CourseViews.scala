@@ -26,6 +26,10 @@ object CourseViews {
     })
     .build
 
+  val courseInfoL = CommonComponent.latchedRender[WithPerms[Course]]("CourseInfoL") { wp =>
+    courseInfo(wp.item)
+  }
+
   val courseFront = CommonComponent.latchedRender[WithPerms[Course]]("CourseFront") { wp =>
     <.div(
       Front.siteHeader(""),
@@ -38,7 +42,7 @@ object CourseViews {
             <.div(^.className := "col-sm-8",
               <.h3("Tasks"),
               <.div(
-                // TODO: tasks
+                TaskViews.courseTasks(wp.item.id)
               )
             ),
 

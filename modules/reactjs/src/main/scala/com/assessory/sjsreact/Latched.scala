@@ -4,6 +4,9 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.mutable
 import scala.util.{Failure, Success}
 
+/**
+ * A clearable future
+ */
 class Latched[T](op: => Future[T])(implicit ec:ExecutionContext) {
 
 

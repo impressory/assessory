@@ -20,7 +20,7 @@ object CritAllocationDAO extends DAO(DB, classOf[CritAllocation], "critAllocatio
     for {
       uId <- u.refId
       tId <- t.refId
-      d <- findMany(("task" $eq tId) and ("user" $eq uId))
+      d <- findMany(bsonDoc("task" -> tId, "completeBy.kind" -> TargetUser.kind, "completeBy.id" -> uId))
     } yield d
   }
 

@@ -1,6 +1,7 @@
 package com.assessory.sjsreact
 
-import com.assessory.sjsreact.services.CourseService
+import com.assessory.api.Task
+import com.assessory.sjsreact.services.{TaskService, CourseService}
 import com.wbillingsley.handy.Id
 import Id._
 import com.wbillingsley.handy.appbase.Course
@@ -14,11 +15,20 @@ object MainRouter extends RoutingRules {
 
   val root:MainRouter.Loc = register(rootLocation(Front.front))
 
+  // Register route for viewing courses
   val courseRgx = "^/course/(.+)$".r
   def courseHomeRel(c:Id[Course,String]) = s"/course/${c.id}"
   def courseHome(c:Id[Course,String]) = base + courseHomeRel(c)
   val courseHomeL = dynLink[Id[Course,String]](courseHome)
   register(parser({ case courseRgx(n) => n }).location(n => CourseViews.courseFront(CourseService.latch(n))))
+
+  // Register route for viewing tasks
+  val taskRgx = "^/task/(.+)$".r
+  def taskHomeRel(c:Id[Task,String]) = s"/task/${c.id}"
+  def taskHome(c:Id[Task,String]) = base + taskHomeRel(c)
+  val taskHomeL = dynLink[Id[Task,String]](taskHome)
+  register(parser({ case taskRgx(n) => n }).location(n => TaskViews.taskView(TaskService.latch(n))))
+
 
 
   // functions to provide links (<a href...>) to routes
