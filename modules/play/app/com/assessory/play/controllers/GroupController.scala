@@ -184,7 +184,7 @@ object GroupController extends Controller {
 
   def group(id:String) = DataAction.returning.resultWH { implicit request =>
     WithHeaderInfo(
-      LazyId(id).of[Group],
+      GroupModel.group(request.approval, id.asId),
       headerInfo
     )
   }

@@ -13,7 +13,8 @@ POST    /api/task/:taskId/newOutput                     com.assessory.play.contr
 GET     /api/task/:taskId/myOutputs                     com.assessory.play.controllers.TaskOutputController.myOutputs(taskId)
 
 # Critiques
-GET     /api/critique/:id/myAllocations           com.assessory.play.controllers.CritController.myAllocations(id)
+GET     /api/critique/:id/myAllocations            com.assessory.play.controllers.CritController.myAllocations(id)
+POST    /api/critique/:taskId/findOrCreateCrit     com.assessory.play.controllers.CritController.findOrCreateCrit(taskId)
 
 # Tasks
 GET     /api/task/:id                              com.assessory.play.controllers.TaskController.get(id)

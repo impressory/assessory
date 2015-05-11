@@ -1,5 +1,6 @@
 package com.assessory.play.controllers
 
+import com.assessory.api.client.WithPerms
 import play.api.mvc._
 import com.assessory.api._
 import com.assessory.clientpickle.Pickles._
@@ -20,6 +21,10 @@ import scala.language.implicitConversions
 object TaskOutputController extends Controller {
 
   implicit def taskOutputToResult(rc:Ref[TaskOutput]):Ref[Result] = {
+    rc.map(c => Results.Ok(upickle.write(c)).as("application/json"))
+  }
+
+  implicit def wptoToResult(rc:Ref[WithPerms[TaskOutput]]):Ref[Result] = {
     rc.map(c => Results.Ok(upickle.write(c)).as("application/json"))
   }
 
@@ -47,7 +52,7 @@ object TaskOutputController extends Controller {
       headerInfo
     )
   }
-  
+
   def create(taskId:String) = DataAction.returning.resultWH { implicit request =>
     def wp = for {
       text <- request.body.asText.toRef
@@ -62,7 +67,7 @@ object TaskOutputController extends Controller {
 
     WithHeaderInfo(wp, headerInfo)
   }
-  
+
   def updateBody(id:String) = DataAction.returning.resultWH { implicit request =>
     def wp = for {
       text <- request.body.asText.toRef

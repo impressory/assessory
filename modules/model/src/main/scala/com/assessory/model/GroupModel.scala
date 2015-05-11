@@ -17,7 +17,7 @@ import scala.collection.JavaConverters._
 
 object GroupModel {
 
-  def withPerms(a:Approval[User], gs:GroupSet) = {
+  def withPerms(a:Approval[User], gs:GroupSet):Ref[WithPerms[GroupSet]] = {
     for {
       edit <- a.askBoolean(Permissions.EditGroupSet(gs.itself))
       view <- a.askBoolean(Permissions.ViewGroupSet(gs.itself))
@@ -31,12 +31,34 @@ object GroupModel {
     }
   }
 
+  def withPerms(a:Approval[User], g:Group):Ref[WithPerms[Group]] = {
+    for {
+      edit <- a.askBoolean(Permissions.EditGroup(g.itself))
+      view <- a.askBoolean(Permissions.ViewGroup(g.itself))
+    } yield {
+      WithPerms(
+        Map(
+          "edit" -> edit,
+          "view" -> view
+        ),
+        g)
+    }
+  }
+
   def groupSet(a:Approval[User], gsId:Id[GroupSet, String]) = {
     for {
       gs <- gsId.lazily
       wp <- withPerms(a, gs)
     } yield wp
   }
+
+  def group(a:Approval[User], gsId:Id[Group, String]) = {
+    for {
+      gs <- gsId.lazily
+      wp <- withPerms(a, gs)
+    } yield wp
+  }
+
 
   def createGroupSet(a:Approval[User], clientGS:GroupSet) = {
     for {

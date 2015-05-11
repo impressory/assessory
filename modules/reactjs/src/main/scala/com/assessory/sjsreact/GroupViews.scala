@@ -1,5 +1,6 @@
 package com.assessory.sjsreact
 
+import com.assessory.api.client.WithPerms
 import com.assessory.sjsreact.services.GroupService
 import com.wbillingsley.handy.Id
 import com.wbillingsley.handy.appbase.{Group, Course}
@@ -18,6 +19,10 @@ object GroupViews {
     })
     .build
 
+  val groupName = ReactComponentB[WithPerms[Group]]("GroupName").render(wp => <.span(wp.item.name.getOrElse("Untitled group"):String)).build
+  val groupNameL = CommonComponent.latchedRender[WithPerms[Group]]("GroupNameL") { wp => groupName(wp) }
+
+  val groupNameId = ReactComponentB[Id[Group,String]]("GroupName").render(id => groupNameL(GroupService.latch(id))).build
 
   val groupInfoList = CommonComponent.latchedRender[Seq[Group]]("GroupInfoList") { groups =>
     <.div(

@@ -217,7 +217,8 @@ object CritModel {
         }
       ).collect
       to <- Ref(taskOutputs.headOption) orIfNone createCrit(completeBy, t, target)
-    } yield to
+      wp <- TaskOutputModel.withPerms(a, to)
+    } yield wp
   }
 
   def findCritForAlloc(a:Approval[User], rca:Ref[CritAllocation], target:Target) = {
@@ -226,9 +227,9 @@ object CritModel {
       ca <- rca
       alloc <- ca.allocation.find(_.target == target).toRef orIfNone UserError("This allocation doesn't include that target")
       crit <- alloc.critique.lazily orIfNone (for {
-        crit <- findOrCreateCrit(a, a.cache.lookUp(ca.task), target)
-        updatedAlloc <- CritAllocationDAO.setOutput(ca.id, target, crit.id)
-      } yield crit)
+        wp <- findOrCreateCrit(a, a.cache.lookUp(ca.task), target)
+        updatedAlloc <- CritAllocationDAO.setOutput(ca.id, target, wp.item.id)
+      } yield wp.item)
     } yield crit
   }
 

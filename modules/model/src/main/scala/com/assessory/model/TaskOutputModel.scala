@@ -1,6 +1,7 @@
 package com.assessory.model
 
 import com.assessory.api._
+import com.assessory.api.client.WithPerms
 import com.assessory.asyncmongo._
 import com.assessory.api.wiring.Lookups._
 import com.wbillingsley.handy.Ref._
@@ -9,6 +10,19 @@ import com.wbillingsley.handy._
 import com.wbillingsley.handy.appbase.User
 
 object TaskOutputModel {
+
+  def withPerms(a:Approval[User], t:TaskOutput) = {
+    for {
+      edit <- a.askBoolean(Permissions.EditOutput(t.itself))
+    } yield {
+      WithPerms(
+        Map(
+          "edit" -> edit
+        ),
+        t)
+    }
+  }
+
 
   def myOutputs(a:Approval[User], rTask:Ref[Task]) = {
     for {
@@ -36,7 +50,8 @@ object TaskOutputModel {
         // Don't finalise it; just return the saved item
         saved.itself
       }
-    } yield finalised
+      wp <- withPerms(a, finalised)
+    } yield wp
   }
 
   def updateBody(a:Approval[User], clientTaskOutput:TaskOutput, finalise:Boolean) = {
@@ -50,7 +65,8 @@ object TaskOutputModel {
         // Don't finalise it; just return the saved item
         saved.itself
       }
-    } yield finalised
+      wp <- withPerms(a, finalised)
+    } yield wp
   }
 
   /*

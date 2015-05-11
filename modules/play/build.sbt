@@ -16,7 +16,6 @@ libraryDependencies ++= Seq(
   "org.webjars" % "font-awesome" % "4.1.0",
 
   // React
-  "org.webjars" % "react" % "0.12.1",
 
   /* angular.js
   "org.webjars" % "angularjs" % "1.2.20",

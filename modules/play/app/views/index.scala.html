@@ -32,15 +32,8 @@
   <!-- Marked, used for Markdown -->
   <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("marked.js"))'></script>
 
-  <!-- React.js -->
-  <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("react.min.js"))'></script>
+  <script type='text/javascript' src='//cdn.jsdelivr.net/webjars/org.webjars/react/0.12.1/react.js'></script>
 
-  <!-- Impressory, via require.js
-  <script>
-      @Html(org.webjars.RequireJS.getSetupJavaScript(routes.WebJarAssets.at("").url))
-  </script>
-  <script data-main="@routes.Assets.versioned("javascripts/main.js")" src="@routes.WebJarAssets.at(WebJarAssets.locate("require.min.js"))"></script>
-  -->
 
   @playscalajs.html.scripts("assets", "reactjs")
 

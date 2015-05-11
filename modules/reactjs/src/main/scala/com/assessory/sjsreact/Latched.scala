@@ -1,6 +1,6 @@
 package com.assessory.sjsreact
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Promise, ExecutionContext, Future}
 import scala.collection.mutable
 import scala.util.{Try, Failure, Success}
 
@@ -37,7 +37,9 @@ class Latched[T](op: => Future[T])(implicit ec:ExecutionContext) {
       case _ => {
         val v = op
         cached = Some(v)
-        v.onComplete(_ => WebApp.rerender())(scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow)
+        if (!v.isCompleted) {
+          v.onComplete(_ => WebApp.rerender())(scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow)
+        }
         v
       }
     }
@@ -49,7 +51,11 @@ object Latched {
 
   type Listener[T] = (Option[Try[T]] => Unit)
 
-  def immediate[T](op: => T)(implicit ec:ExecutionContext):Latched[T] = new Latched(Future.successful(op))
+  def immediate[T](op: T)(implicit ec:ExecutionContext):Latched[T] = {
+    val p = Promise[T]()
+    p.success(op)
+    Latched.future(p.future)
+  }
 
   def future[T](op: => Future[T])(implicit ec:ExecutionContext):Latched[T] = new Latched(op)
 }

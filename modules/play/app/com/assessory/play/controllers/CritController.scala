@@ -20,19 +20,16 @@ import com.assessory.model._
 
 object CritController extends Controller {
 
+  import TaskController._
+  import TaskOutputController._
+
   implicit def caToResult(rc:Ref[CritAllocation]):Ref[Result] = {
     rc.map(c => Results.Ok(upickle.write(c)).as("application/json"))
   }
 
-  implicit def taskOutputToResult(rc:Ref[TaskOutput]):Ref[Result] = {
-    rc.map(c => Results.Ok(upickle.write(c)).as("application/json"))
-  }
-
-
   implicit def targetToResult(rc:Ref[Target]):Ref[Result] = {
     rc.map(c => Results.Ok(upickle.write(c)).as("application/json"))
   }
-
 
   implicit def manyCAToResult(rc:RefMany[CritAllocation]):Ref[Result] = {
     val strings = rc.map(c => upickle.write(c))
@@ -49,28 +46,6 @@ object CritController extends Controller {
       enum <- strings.enumerateR
     } yield Results.Ok.chunked(enum.stringifyJsArr).as("application/json")
   }
-
-
-  implicit def wptToResult(rc:Ref[WithPerms[Task]]):Ref[Result] = {
-    rc.map(c => Results.Ok(upickle.write(c)).as("application/json"))
-  }
-
-  implicit def manyTaskToResult(rc:RefMany[Task]):Ref[Result] = {
-    val strings = rc.map(c => upickle.write(c))
-
-    for {
-      enum <- strings.enumerateR
-    } yield Results.Ok.chunked(enum.stringifyJsArr).as("application/json")
-  }
-
-  implicit def manyWptToResult(rc:RefMany[WithPerms[Task]]):Ref[Result] = {
-    val strings = rc.map(c => upickle.write(c))
-
-    for {
-      enum <- strings.enumerateR
-    } yield Results.Ok.chunked(enum.stringifyJsArr).as("application/json")
-  }
-
 
   def allocateTask(taskId:String) = DataAction.returning.resultWH { implicit request =>
     WithHeaderInfo(
