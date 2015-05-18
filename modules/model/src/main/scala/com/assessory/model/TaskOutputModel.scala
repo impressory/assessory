@@ -1,13 +1,17 @@
 package com.assessory.model
 
+import java.io.StringWriter
+
+import au.com.bytecode.opencsv.CSVWriter
 import com.assessory.api._
 import com.assessory.api.client.WithPerms
+import com.assessory.api.critique.{Critique, CritiqueTask}
 import com.assessory.asyncmongo._
 import com.assessory.api.wiring.Lookups._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handy.Id._
 import com.wbillingsley.handy._
-import com.wbillingsley.handy.appbase.User
+import com.wbillingsley.handy.appbase.{BooleanQuestion, ShortTextQuestion, UserError, User}
 
 object TaskOutputModel {
 
@@ -69,65 +73,66 @@ object TaskOutputModel {
     } yield wp
   }
 
-  /*
-  def asCsv(a:Approval[User], rTask:Ref[Task]) = {
-    val header = for (
-      task <- a.cache(rTask);
-      approved <- a ask Permissions.EditCourse(task.course);
-      h <- task.body match {
-        case Some(gct:CritiqueTask) => {
-          val qs =  gct.questionnaire.questions.map { q => "\"" + q.prompt.replace("\"", "\"\"") + "\"," }
-          (qs.fold("student number, nickname, target, ")(_ + _) + "\n").itself
-        }
-        case _ => RefFailed(new IllegalStateException("Unknown task body type"))
-      }
-    ) yield h
-
-    val body = for {
-      h <- header;
-      task <- a.cache(rTask)
-      output <- TaskOutputDAO.byTask(rTask);
-      line <- output.body match {
-        case Some(gc: Critique) => {
-          for {
-            user <- a.cache(output.byUser);
-            sIdentity <- user.getIdentity(I_STUDENT_NUMBER).toRef
-            sId = sIdentity.value
-            userName = user.nickname.getOrElse("Anonymous");
-            targetName <- gc.target match {
-              case CTGroup(rg) => (for {
-                g <- a.cache(rg)
-                n <- g.name
-              } yield n) orIfNone "Unnamed group".itself
-              case CTTaskOutput(rto) => (for {
-                to <- a.cache(rto)
-                u <- a.cache(to.byUser)
-                sIdentity <- u.getIdentity(I_STUDENT_NUMBER).toRef
-                v <- sIdentity.value
-              } yield v) orIfNone "Unnamed user".itself
-            }
-          } yield {
-            def cell(s:String):String = "\"" + s.replace("\"", "\"\"") + "\","
-            def cellO(o:Option[String]):String = o match {
-              case Some(s) => cell(s)
-              case _ => ""
-            }
-
-            val as = gc.answers.map {
-              a => cell(a.answerAsString)
-            }
-            as.fold(cellO(sId) concat cell(userName) concat cell(targetName))(_ + _) + "\n"
-          }
-        }
-        case _ => RefFailed(new IllegalStateException("Unknown task output body type"))
-      }
-    } yield line
-
-    val enum = for (h <- header) yield {
-      Enumerator(h) andThen body.enumerate
+  def targetAsCsvString(a:Approval[User], t:Target):Ref[Seq[String]] = {
+    t match {
+      case TargetUser(id) =>
+        for {
+          u <- a.cache.lookUp(id)
+          id <- u.identities.find(_.service == I_STUDENT_NUMBER).flatMap(_.value)
+        } yield Seq(id, u.name.getOrElse(""))
+      case TargetGroup(id) =>
+        for {
+          g <- a.cache.lookUp(id)
+        } yield Seq(g.name.getOrElse(""))
+      case TargetTaskOutput(id) =>
+        for {
+          to <- a.cache.lookUp(id)
+          by <- targetAsCsvString(a, to.by)
+        } yield by
+      case _ => RefFailed(UserError("Can't represent this target as a string"))
     }
-    enum
   }
-  */
+
+
+  /**
+   * Produces a CSV file of all the outputs for this task
+   * @param a
+   * @param t
+   * @return
+   */
+  def asCsv(a:Approval[User], t:Id[Task,String]) = {
+    val sWriter = new StringWriter()
+    val writer = new CSVWriter(sWriter)
+
+    val rTask = t.lazily
+
+    def outputs = for {
+      task <- rTask
+      approved <- a ask Permissions.EditTask(task.itself)
+      output <- TaskOutputDAO.byTask(task.itself)
+    } yield output
+
+
+    // We don't write a header because we don't know how many columns the "for" or "by" lines should take up.
+
+    def write = (for {
+      output <- outputs
+      by <- targetAsCsvString(a, output.by)
+      line <- output.body match {
+        case c: Critique => for (ofor <- targetAsCsvString(a, c.target)) yield {
+          by ++ ofor ++ (for (answer <- c.answers) yield answer.answer.map(_.toString).getOrElse(""))
+        }
+        case _ => RefFailed(UserError(s"I don't know how to make a CSV for ${output.body.kind}"))
+      }
+    } yield {
+      writer.writeNext(line.toArray)
+      true
+    }).collect
+
+    for (written <- write) yield {
+      writer.close()
+      sWriter.toString
+    }
+  }
 
 }

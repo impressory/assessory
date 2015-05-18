@@ -16,16 +16,16 @@ object CourseService {
 
   val cache = mutable.Map.empty[String, Latched[WithPerms[Course]]]
 
-  val myCourses = Latched.future(
-    Ajax.post("/api/course/my", headers = Map("Accept" -> "application/json")).responseText.map(upickle.read[Seq[Course]]).optional404
+  val myCourses = Latched.lazily(
+    Ajax.post("/api/course/my", headers = Map("Accept" -> "application/json")).responseText.map(upickle.read[Seq[WithPerms[Course]]]).optional404
   )
-  UserService.self.listeners.add { case _ => myCourses.clear() }
+  UserService.self.listeners.add { case _ => myCourses.clear(); cache.clear() }
 
   def loadId[KK <: String](id:Id[Course,KK]) = {
     Ajax.get(s"/api/course/${id.id}", headers = Map("Accept" -> "application/json")).responseText.map(upickle.read[WithPerms[Course]])
   }
 
-  def latch(s:String):Latched[WithPerms[Course]] = cache.getOrElseUpdate(s, Latched.future(loadId(s.asId[Course])))
+  def latch(s:String):Latched[WithPerms[Course]] = cache.getOrElseUpdate(s, Latched.lazily(loadId(s.asId[Course])))
 
-  def latch(id:Id[Course,String]):Latched[WithPerms[Course]] = cache.getOrElseUpdate(id.id, Latched.future(loadId(id)))
+  def latch(id:Id[Course,String]):Latched[WithPerms[Course]] = cache.getOrElseUpdate(id.id, Latched.lazily(loadId(id)))
 }

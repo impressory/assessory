@@ -1,8 +1,8 @@
 package com.assessory.model
 
-import java.io.StringReader
+import java.io.{StringWriter, StringReader}
 
-import au.com.bytecode.opencsv.CSVReader
+import au.com.bytecode.opencsv.{CSVWriter, CSVReader}
 import com.assessory.api._
 import com.assessory.api.client.WithPerms
 import com.assessory.api.wiring.Lookups._
@@ -129,12 +129,13 @@ object CourseModel {
   /**
    * Fetches the courses this user is registered with.
    */
-  def myCourses(a:Approval[User]):RefMany[Course] = {
+  def myCourses(a:Approval[User]):RefMany[WithPerms[Course]] = {
     for {
       u <- a.who
       courseIds <- RegistrationDAO.course.byUser(u.id).map(_.target).toIds
       c <- courseIds.lookUp
-    } yield c
+      wp <- withPerms(a, c)
+    } yield wp
   }
 
   def usersInCourse(a:Approval[User], courseId:Id[Course, String]):RefMany[User] = {

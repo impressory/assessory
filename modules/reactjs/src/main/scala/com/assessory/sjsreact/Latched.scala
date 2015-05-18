@@ -31,6 +31,11 @@ class Latched[T](op: => Future[T])(implicit ec:ExecutionContext) {
     WebApp.rerender()
   }
 
+  def isCompleted = cached match {
+    case Some(f) => f.isCompleted
+    case _ => false
+  }
+
   def request:Future[T] = {
     cached match {
       case Some(x) => x
@@ -54,8 +59,10 @@ object Latched {
   def immediate[T](op: T)(implicit ec:ExecutionContext):Latched[T] = {
     val p = Promise[T]()
     p.success(op)
-    Latched.future(p.future)
+    Latched.lazily(p.future)
   }
 
-  def future[T](op: => Future[T])(implicit ec:ExecutionContext):Latched[T] = new Latched(op)
+  def lazily[T](op: => Future[T])(implicit ec:ExecutionContext):Latched[T] = new Latched(op)
+  
+  def eagerly[T](op: Future[T])(implicit ec:ExecutionContext):Latched[T] = new Latched(op)
 }

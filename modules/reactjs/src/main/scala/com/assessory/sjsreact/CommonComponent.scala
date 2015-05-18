@@ -8,6 +8,7 @@ import scala.util.{Failure, Success}
 
 object CommonComponent {
 
+  case class ActionMessage[T](item: T, l:Latched[String])
 
   def latchedX[T](name:String)(block: ReactComponentB.P[T] => ReactComponentC.ReqProps[T, _, _, _ <: japgolly.scalajs.react.TopNode]) = {
     val inner = block(ReactComponentB[T](name))
@@ -27,8 +28,6 @@ object CommonComponent {
     val inner = ReactComponentB[T](name)
       .render(render)
       .build
-
-    inner
 
     ReactComponentB[Latched[T]]("Latched"+name)
       .render({ l:Latched[T] =>
@@ -56,6 +55,8 @@ object CommonComponent {
       })
       .build
   }
+
+  val latchedString = latchedRender[String]("latchedString") { str:String => <.span(str) }
 
 
 }

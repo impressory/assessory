@@ -16,14 +16,20 @@ object TaskService {
 
   val cache = mutable.Map.empty[String, Latched[WithPerms[Task]]]
 
-  def courseTasks(courseId:Id[Course,String]) = Latched.future(
+  UserService.self.listeners.add { case _ => cache.clear() }
+
+  def courseTasks(courseId:Id[Course,String]) = Latched.lazily(
     Ajax.get(s"/api/course/${courseId.id}/tasks", headers = Map("Accept" -> "application/json")).responseText.map(upickle.read[Seq[WithPerms[Task]]])
   )
 
   def loadId[KK <: String](id:Id[Task,KK]) = {
-    Ajax.get(s"/api/task/${id.id}", headers = Map("Accept" -> "application/json")).responseText.map(upickle.read[WithPerms[Task]])
+    val t = Ajax.get(s"/api/task/${id.id}", headers = Map("Accept" -> "application/json")).responseText
+    //t.onComplete { text => println(text); 1 }
+    t.map(upickle.read[WithPerms[Task]])
   }
 
-  def latch(s:String) = cache.getOrElseUpdate(s, Latched.future(loadId(s.asId[Task])))
+  def latch(s:String):Latched[WithPerms[Task]] = latch(s.asId)
+
+  def latch(id:Id[Task,String]):Latched[WithPerms[Task]] = cache.getOrElseUpdate(id.id, Latched.lazily(loadId(id)))
 
 }

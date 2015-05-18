@@ -5,6 +5,7 @@ import play.api.mvc._
 import com.assessory.api._
 import com.assessory.clientpickle.Pickles._
 import com.wbillingsley.handy._
+import com.wbillingsley.handy.Id._
 import com.wbillingsley.handy.Ref._
 import com.wbillingsley.handyplay.{WithHeaderInfo, DataAction}
 import com.wbillingsley.handyplay.RefConversions._
@@ -82,4 +83,16 @@ object TaskOutputController extends Controller {
     WithHeaderInfo(wp, headerInfo)
   }
 
+  /** Fetches allocations as a CSV. */
+  def outputsAsCSV(taskId:String) = DataAction.returning.resultWH { implicit request =>
+    val lines = TaskOutputModel.asCsv(
+      request.approval,
+      taskId.asId
+    )
+
+    WithHeaderInfo(
+      lines.map(Ok(_).as("application/csv")),
+      headerInfo
+    )
+  }
 }

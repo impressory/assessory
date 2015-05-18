@@ -16,11 +16,11 @@ import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 
 object TaskOutputService {
 
-  val AJAX_HEADERS =  Map("Accept" -> "application/json")
-
   val cache = mutable.Map.empty[String, Future[WithPerms[TaskOutput]]]
 
-  def courseTasks(courseId:Id[Course,String]) = Latched.future(
+  UserService.self.listeners.add { case _ => cache.clear() }
+
+  def courseTasks(courseId:Id[Course,String]) = Latched.lazily(
     Ajax.get(s"/api/course/${courseId.id}/tasks", headers=AJAX_HEADERS).responseText.map(upickle.read[Seq[WithPerms[Task]]])
   )
 
@@ -38,7 +38,7 @@ object TaskOutputService {
   }
 
   def updateBody(to:TaskOutput) = {
-    val fto = Ajax.post(s"/api/taskoutput/${to.id}", upickle.write(to), headers=AJAX_HEADERS).responseText.map(upickle.read[WithPerms[TaskOutput]])
+    val fto = Ajax.post(s"/api/taskoutput/${to.id.id}", upickle.write(to), headers=AJAX_HEADERS).responseText.map(upickle.read[WithPerms[TaskOutput]])
     cache.put(to.id.id, fto)
     fto
   }
@@ -52,7 +52,7 @@ object TaskOutputService {
 
   def latch(s:String):Latched[WithPerms[TaskOutput]] = latch(s.asId)
 
-  def latch(id:Id[TaskOutput,String]):Latched[WithPerms[TaskOutput]] = Latched.future(cache.getOrElseUpdate(id.id, loadId(id)))
+  def latch(id:Id[TaskOutput,String]):Latched[WithPerms[TaskOutput]] = Latched.lazily(cache.getOrElseUpdate(id.id, loadId(id)))
 
   def future(id:Id[TaskOutput,String]) = cache.getOrElseUpdate(id.id, loadId(id))
 

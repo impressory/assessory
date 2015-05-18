@@ -3,15 +3,14 @@ package com.assessory.sjsreact
 import com.assessory.api._
 import com.assessory.api.client.WithPerms
 import com.assessory.api.critique.{CritiqueTask, CritAllocation, Critique}
-import com.assessory.sjsreact.services.TaskOutputService
+import com.assessory.sjsreact.services.{TaskService, TaskOutputService}
 import com.wbillingsley.handy.Id
-import com.wbillingsley.handy.appbase.{ShortTextAnswer, BooleanAnswer, Answer, Question}
+import com.wbillingsley.handy.appbase._
 import japgolly.scalajs.react.{BackendScope, ReactEventI, ReactElement, ReactComponentB}
 import japgolly.scalajs.react.vdom.prefix_<^._
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 
 object CritiqueViews {
 
@@ -45,10 +44,33 @@ object CritiqueViews {
     }
     .build
 
+  val reviewTO = CommonComponent.latchedRender[(Task,TaskOutput)]("reviewOutput") { case (task, taskOutput) =>
+    (task.body, taskOutput.body) match {
+      case (ct:CritiqueTask, c:Critique) =>
+        val qa = ct.questionnaire.zip(c.answers).filter {
+          case (st:ShortTextQuestion, sa:ShortTextAnswer) => true
+          case _ => false
+        }
+
+        <.div(^.className := "panel",
+          <.h3("Their responses"),
+          <.div(
+            QuestionViews.viewQuestionnaireAnswers(qa)
+          )
+        )
+    }
+  }
+
   val reviewTarget = ReactComponentB[Selection[Target,Task]]("reviewTarget")
     .render { sel =>
       sel.selected match {
-        case Some(TargetTaskOutput(to)) => <.div(to.id)
+        case Some(TargetTaskOutput(to)) =>
+          reviewTO(Latched.eagerly {
+            for {
+              taskOutput <- TaskOutputService.latch(to).request
+              task <- TaskService.latch(taskOutput.item.task).request
+            } yield (task.item, taskOutput.item)
+          })
         case _ => <.div()
       }
     }
@@ -58,13 +80,12 @@ object CritiqueViews {
   class CompleteCritBackend($: BackendScope[(Task, WithPerms[TaskOutput]), (Seq[Answer[_]], Latched[String])]) {
 
     def save(e:ReactEventI) = {
-      println("SAVE")
       $.props._2.item.body match {
         case crit:Critique =>
           $.modState { case (answers, latchStr) =>
             val toSave = $.props._2.item.copy(body = crit.copy(answers = answers))
             val f = TaskOutputService.updateBody(toSave)
-            val newLatch = Latched.future(f.map(_ => ""))
+            val newLatch = Latched.lazily(f.map(_ => ""))
             (answers, newLatch)
           }
         case _ => $.modState { case (answers, latchStr) => (answers, Latched.immediate("Case mismatch")) }
@@ -95,7 +116,7 @@ object CritiqueViews {
     .render({ (props, children, state, backend) =>
       <.div(
         props._1.body match {
-          case critTask:CritiqueTask => QuestionViews.questionnaire(critTask.questionnaire.zip(state._1))
+          case critTask:CritiqueTask => QuestionViews.editQuestionnaireAnswers(critTask.questionnaire.zip(state._1))
           case _ => <.div("Unexpected content - didn't seem to be a critique")
         },
         <.button(^.className := "btn btn-primary ", ^.disabled := backend.unchanged, ^.onClick ==> backend.save, "Save"),
@@ -105,7 +126,7 @@ object CritiqueViews {
     .componentWillReceiveProps { case (scope, (task, wp)) =>
       if (scope.props != (task, wp)) {
         scope.setState(wp.item.body match {
-          case c:Critique => (c.answers.map(copyAns), Latched.future(Future.successful("")))
+          case c:Critique => (c.answers.map(copyAns), Latched.lazily(Future.successful("")))
         })
       }
     }
@@ -116,7 +137,7 @@ object CritiqueViews {
   val critFormTargF = CommonComponent.latchedRender[(Task, Id[TaskOutput, String])]("critFormTarg") {
     case (task, id) =>
       val fPair = TaskOutputService.future(id).map((task, _))
-      completeCrit(Latched.future(fPair))
+      completeCrit(Latched.lazily(fPair))
   }
 
 
@@ -130,7 +151,7 @@ object CritiqueViews {
         outputId <- state
       } yield (props._2, outputId)
 
-      critFormTargF(Latched.future(lpair))
+      critFormTargF(Latched.lazily(lpair))
     }
     .componentWillReceiveProps { case (scope, (target, task)) =>
       if (scope.props != (target,task)) {
@@ -155,7 +176,7 @@ object CritiqueViews {
   }
 
   val front = ReactComponentB[Task]("critiqueTaskView")
-    .initialStateP(task => Latched.future{
+    .initialStateP(task => Latched.lazily{
       for (alloc <- TaskOutputService.myAllocations(task.id)) yield new Selection(None, alloc, task)
     })
     .render((a, b, c) => frontInt(c))

@@ -135,9 +135,10 @@ object CourseController extends Controller {
   def autolinks(course:Id[Course,String]) = DataAction.returning.resultWH { implicit request =>
     val lines = for {
       u <- CourseModel.usersInCourse(request.approval, course)
-      studentIdent <- u.getIdentity(I_STUDENT_NUMBER).toRef
+      optStudentIdent <- u.getIdentity(I_STUDENT_NUMBER).toRef
+      studentIdent <- optStudentIdent.value.toRef
       url = routes.UserController.autologin(u.id, u.secret).absoluteURL()
-    } yield s"${studentIdent.value},${u.name.getOrElse("")},$url\n"
+    } yield s"${studentIdent},$url\n"
 
     import com.wbillingsley.handyplay.RefConversions._
     WithHeaderInfo(

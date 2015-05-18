@@ -1,15 +1,54 @@
 package com.assessory.sjsreact
 
-import com.assessory.api.Task
+import com.assessory.api.{Due, Task}
 import com.assessory.api.client.WithPerms
-import com.assessory.api.critique.{CritiqueTask, Critique}
+import com.assessory.api.critique.{PreallocateGroupStrategy, CritiqueTask, Critique}
 import com.assessory.sjsreact.services.{CourseService, TaskService, GroupService}
 import com.wbillingsley.handy.Id
+import com.wbillingsley.handy.Ids._
 import com.wbillingsley.handy.appbase.{Group, Course}
 import japgolly.scalajs.react.ReactComponentB
 import japgolly.scalajs.react.vdom.prefix_<^._
 
+import scala.scalajs.js.Date
+
 object TaskViews {
+
+  val optDateL = CommonComponent.latchedRender[Option[Long]]("date") {
+    case Some(l) => <.span(new Date(l).toLocaleString())
+    case _ => <.span("No date")
+  }
+
+  val due = ReactComponentB[Due]("Due")
+    .initialStateP(due => Latched.lazily(
+      for {
+        groups <- GroupService.myGroups.request
+      } yield {
+        val ids = groups.map(_.item.id.id).asIds[Group]
+        due.due(ids)
+      }
+    ))
+    .render( (a, b, c) => optDateL(c))
+    .build
+
+
+  val taskAdmin = ReactComponentB[WithPerms[Task]]("TaskInfo")
+    .render { wp =>
+      if (wp.perms("edit")) {
+        wp.item.body match {
+          case CritiqueTask(_, p:PreallocateGroupStrategy) =>
+            <.div(
+              <.a(^.href:=s"/api/critique/${wp.item.id.id}/allocations.csv", " allocations.csv "),
+              <.a(^.href:=s"/api/task/${wp.item.id.id}/outputs.csv", " outputs.csv ")
+            )
+          case _ =>
+            <.div(
+              <.a(^.href:=s"/api/task/${wp.item.id.id}/outputs.csv", "outputs.csv")
+            )
+        }
+      } else <.div()
+    }
+    .build
 
   /**
    * Summary information for a task
@@ -23,9 +62,12 @@ object TaskViews {
         <.h3(
           <.a(^.href := MainRouter.taskHome(wp.item.id), name)
         ),
-        <.p((task.details.description.getOrElse(""):String)),
-        <.p(
-          "Published:", task.details.published.toString
+        taskAdmin(wp),
+        <.p(task.details.description.getOrElse(""):String),
+        if (wp.perms("edit")) <.div() else <.div(
+          <.div(^.className:="text-info", "opens: ", due(task.details.open)),
+          <.div(^.className:="text-danger", "closes: ", due(task.details.closed)),
+          <.p()
         )
       )
     })

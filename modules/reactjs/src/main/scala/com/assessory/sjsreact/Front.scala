@@ -1,5 +1,6 @@
 package com.assessory.sjsreact
 
+import com.assessory.api.client.WithPerms
 import com.assessory.sjsreact.services.{CourseService, UserService}
 import com.wbillingsley.handy.appbase.{Course, User}
 import com.wbillingsley.handy.Ref._
@@ -33,7 +34,7 @@ object Front {
     .build
 
 
-  val myCourses = CommonComponent.latchedRender[Option[Seq[Course]]]("MyCourses") {
+  val myCourses = CommonComponent.latchedRender[Option[Seq[WithPerms[Course]]]]("MyCourses") {
     case Some(courses) =>
       <.div(^.className := "container",
         <.h2("My Courses"),
@@ -53,7 +54,7 @@ object Front {
       )
     case _ =>
       <.ul(^.className := "nav navbar-nav pull-right",
-        <.li(<.a("Log in")),
+        <.li(<.a(^.href:=MainRouter.logIn, "Log in")),
         <.li(<.a("Sign up"))
       )
   }

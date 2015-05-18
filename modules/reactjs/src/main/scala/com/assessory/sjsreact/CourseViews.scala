@@ -8,18 +8,27 @@ import japgolly.scalajs.react.vdom.prefix_<^._
 
 object CourseViews {
 
-  val courseInfo = ReactComponentB[Course]("CourseInfo")
-    .render({ course =>
+  val courseAdmin = ReactComponentB[WithPerms[Course]]("CourseAdmin")
+    .render({ wp =>
+      if (wp.perms("edit")) {
+        <.div(<.a(^.href:=s"api/course/${wp.item.id.id}/autolinks.csv", "autolinks.csv"))
+      } else <.div()
+    }).build
+
+
+  val courseInfo = ReactComponentB[WithPerms[Course]]("CourseInfo")
+    .render({ wp =>
       <.div(^.className := "course-info",
         <.div(^.className := "media",
           <.div(^.className := "pull-left",
-            <.span(^.className := "cover-image", <.img(^.src := course.coverImage.getOrElse("http://placehold.it/100x100")))
+            <.span(^.className := "cover-image", <.img(^.src := wp.item.coverImage.getOrElse("http://placehold.it/100x100")))
           )
         ),
         <.div(^.className := "media-body",
-          <.h4(^.className := "media-heading", course.shortName),
-          <.h2(^.className := "media-heading", <.a(^.href := MainRouter.courseHome(course.id), course.title)),
-          <.p(course.shortDescription)
+          <.h4(^.className := "media-heading",  wp.item.shortName),
+          <.h2(^.className := "media-heading", <.a(^.href := MainRouter.courseHome( wp.item.id), wp.item.title)),
+          courseAdmin(wp),
+          <.p(wp.item.shortDescription)
         )
 
       )
@@ -27,7 +36,7 @@ object CourseViews {
     .build
 
   val courseInfoL = CommonComponent.latchedRender[WithPerms[Course]]("CourseInfoL") { wp =>
-    courseInfo(wp.item)
+    courseInfo(wp)
   }
 
   val courseFront = CommonComponent.latchedRender[WithPerms[Course]]("CourseFront") { wp =>
@@ -36,7 +45,7 @@ object CourseViews {
       <.div(^.className := "course-view",
         <.div(^.className := "container",
 
-          courseInfo(wp.item),
+          courseInfo(wp),
 
           <.div(^.className := "row",
             <.div(^.className := "col-sm-8",

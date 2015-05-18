@@ -19,6 +19,7 @@ object DoWiring {
     Lookups.luUser = UserDAO.lookUp
 
     Lookups.courseRegistrationProvider = RegistrationDAO.course
+    Lookups.groupRegistrationProvider = RegistrationDAO.group
   }
 
 }

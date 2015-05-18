@@ -8,12 +8,20 @@ import com.wbillingsley.handy.appbase.Course
 import japgolly.scalajs.react.extra.router.{BaseUrl, Router, RoutingRules}
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.prefix_<^._
+import org.scalajs.dom.window
 
 object MainRouter extends RoutingRules {
 
   val base = "#!"
 
+  implicit val baseUrl:BaseUrl = BaseUrl.fromWindowOrigin / base
+
   val root:MainRouter.Loc = register(rootLocation(Front.front))
+
+  // Register route for log in
+  val logInRel = "/logIn"
+  val logIn = base + logInRel
+  register(location(logInRel, LogInViews.logIn))
 
   // Register route for viewing courses
   val courseRgx = "^/course/(.+)$".r
@@ -35,8 +43,15 @@ object MainRouter extends RoutingRules {
   def rootLink = router.link(root)
   def routerLink(loc: Loc) = router.link(loc)
 
+  def goTo(loc:Loc) = {
+    println("Sync to " + loc)
+    window.location.assign(loc.path.abs(baseUrl).value)
+    WebApp.rerender()
+  }
+
+
   // Set up the router component, assuming / to be the root URL
-  val router = routingEngine(BaseUrl.fromWindowOrigin / base, Router.consoleLogger)
+  val router = routingEngine(baseUrl, Router.consoleLogger)
   val routerComponent = Router.component(router)
 
   override protected val notFound: MainRouter.DynAction = render( <.h1("404, Not Found.") )

@@ -24,8 +24,8 @@ object CritModel {
   def allocateTheseGroups(inGroups:Seq[Group], inRegs:Seq[Group.Reg], num:Int) = {
     import scala.collection.mutable
 
-    val groups = inGroups.sortBy(_.name)
-    val regs = inRegs.sortBy(_.user.id)
+    val groups = inGroups.sortBy(_.id.id)
+    val regs = inRegs
 
     println("ALLOCATING " + groups.map(_.name) + s"for ${regs.size} students")
 
@@ -50,8 +50,7 @@ object CritModel {
 
     }
 
-    scala.util.Random.setSeed(2015)
-    val shuffled = regs
+    val shuffled = scala.util.Random.shuffle(regs)
 
     for {
       i <- 1 to num
@@ -121,7 +120,7 @@ object CritModel {
             } yield ac.target
           case OfMyGroupsStrategy =>
             for {
-              group <- GroupModel.myGroups(a, a.cache(task.course.lazily)) if Some(group.set) == task.details.groupSet
+              group <- GroupModel.myGroupsInCourse(a, a.cache(task.course.lazily)) if Some(group.set) == task.details.groupSet
               to <- TaskOutputDAO.byTaskAndAttn(task.itself, TargetGroup(group.id))
             } yield TargetTaskOutput(to.id)
         }
@@ -147,7 +146,7 @@ object CritModel {
     val groups = for {
       u <- a.who
       gs <- a.cache(t.details.groupSet.lazily) if !t.details.individual
-      g <- GroupModel.myGroups(a, t.course.lazily) if g.set == gs.id
+      g <- GroupModel.myGroupsInCourse(a, t.course.lazily) if g.set == gs.id
     } yield g
 
     // Pick the first group
@@ -234,21 +233,6 @@ object CritModel {
   }
 
 
-  private def targString(a:Approval[User], t:Target) = {
-    t match {
-      case TargetUser(id) =>
-        for {
-          u <- a.cache.lookUp(id)
-         id <- u.identities.find(_.service == I_STUDENT_NUMBER).flatMap(_.value)
-        } yield Seq(id, u.name.getOrElse(""))
-      case TargetGroup(id) =>
-        for {
-          g <- a.cache.lookUp(id)
-        } yield Seq(g.name.getOrElse(""))
-      case _ => RefFailed(UserError("Can't represent this target as a string"))
-    }
-  }
-
   /** Fetches allocations as a CSV. */
   def allocationsAsCSV(a:Approval[User], rTask:Ref[Task]):Ref[String] = {
     val sWriter = new StringWriter()
@@ -259,13 +243,10 @@ object CritModel {
       c <- a.cache.lookUp(t.course)
       approved <- a ask Permissions.EditCourse(c.itself)
       allocC <- CritAllocationDAO.byTask(t.itself).collect
-      alloc <- {
-        println(s"THERE ARE ${allocC.size} ALLOCATIONS")
-        allocC.toRefMany
-      }
-      by <- targString(a, alloc.completeBy)
+      alloc <- allocC.toRefMany
+      by <- TaskOutputModel.targetAsCsvString(a, alloc.completeBy)
       allocLine <- alloc.allocation.toRefMany
-      targ <- targString(a, allocLine.target)
+      targ <- TaskOutputModel.targetAsCsvString(a, allocLine.target)
     } yield (by ++ targ).toArray
 
     for { lines <- lineArrays.collect } yield {

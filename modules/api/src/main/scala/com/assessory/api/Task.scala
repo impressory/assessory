@@ -1,6 +1,6 @@
 package com.assessory.api
 
-import com.wbillingsley.handy.{Id, HasStringId, HasKind}
+import com.wbillingsley.handy.{Ids, Id, HasStringId, HasKind}
 import com.wbillingsley.handy.appbase._
 
 trait TaskBody extends HasKind
@@ -39,13 +39,25 @@ case class TaskDetails (
 
   published: Due = NoDue,
 
-  due: Due = NoDue
+  open: Due = NoDue,
+
+  due: Due = NoDue,
+
+  closed: Due = NoDue
+
 )
 
-sealed trait Due extends HasKind
+sealed trait Due extends HasKind {
+  /**
+   * Given a student's group memberships, when is this due?
+   */
+  def due(groups:Ids[Group,String]):Option[Long]
+}
 
 case class DueDate(time:Long) extends Due {
   val kind = DueDate.kind
+
+  def due(groups:Ids[Group,String]) = Some(time)
 }
 object DueDate {
   val kind = "date"
@@ -53,6 +65,11 @@ object DueDate {
 
 case class DuePerGroup(times:Map[Id[Group, String], Long]) extends Due {
   val kind = DuePerGroup.kind
+
+  def due(groups:Ids[Group,String]) = {
+    val i = times.keySet.intersect(groups.toSeqId.toSet).headOption
+    i.map(times.apply)
+  }
 }
 object DuePerGroup {
   val kind = "per group"
@@ -60,5 +77,7 @@ object DuePerGroup {
 
 case object NoDue extends Due {
   val kind = "none"
+
+  def due(groups:Ids[Group,String]) = None
 }
 

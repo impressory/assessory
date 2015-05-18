@@ -11,9 +11,11 @@ GET     /api/taskoutput/:toId                           com.assessory.play.contr
 POST    /api/taskoutput/:toId                           com.assessory.play.controllers.TaskOutputController.updateBody(toId)
 POST    /api/task/:taskId/newOutput                     com.assessory.play.controllers.TaskOutputController.create(taskId)
 GET     /api/task/:taskId/myOutputs                     com.assessory.play.controllers.TaskOutputController.myOutputs(taskId)
+GET     /api/task/:id/outputs.csv                       com.assessory.play.controllers.TaskOutputController.outputsAsCSV(id)
 
 # Critiques
 GET     /api/critique/:id/myAllocations            com.assessory.play.controllers.CritController.myAllocations(id)
+GET     /api/critique/:id/allocations.csv          com.assessory.play.controllers.CritController.allocationsAsCSV(id)
 POST    /api/critique/:taskId/findOrCreateCrit     com.assessory.play.controllers.CritController.findOrCreateCrit(taskId)
 
 # Tasks
@@ -26,9 +28,10 @@ POST    /api/task/:id/body                         com.assessory.play.controller
 POST    /api/user/findMany                        com.assessory.play.controllers.UserController.findMany
 
 # Groups
-POST    /api/course/:courseId/group/my          com.assessory.play.controllers.GroupController.myGroups(courseId)
+POST    /api/course/:courseId/group/my          com.assessory.play.controllers.GroupController.myGroupsInCourse(courseId)
 POST    /api/groupSet/:gsId/groups              com.assessory.play.controllers.GroupController.groupSetGroups(gsId)
 POST    /api/group/findMany                     com.assessory.play.controllers.GroupController.findMany
+POST    /api/group/my                           com.assessory.play.controllers.GroupController.myGroups
 GET     /api/group/:id                          com.assessory.play.controllers.GroupController.group(id)
 
 # GroupSets
@@ -42,7 +45,7 @@ POST    /api/course/my                  com.assessory.play.controllers.CourseCon
 GET     /api/course/:id                 com.assessory.play.controllers.CourseController.get(id:Id[Course,String])
 POST    /api/course/create              com.assessory.play.controllers.CourseController.create
 POST    /api/course/findMany            com.assessory.play.controllers.CourseController.findMany
-GET     /api/course/:id/autolinks       com.assessory.play.controllers.CourseController.autolinks(id:Id[Course,String])
+GET     /api/course/:id/autolinks.csv   com.assessory.play.controllers.CourseController.autolinks(id:Id[Course,String])
 
 # Logged in user
 POST	  /api/self						com.assessory.play.controllers.UserController.self

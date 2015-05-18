@@ -9,8 +9,9 @@ import japgolly.scalajs.react.vdom.prefix_<^._
 
 object GroupViews {
 
-  val groupInfo = ReactComponentB[Group]("GroupInfo")
-    .render({ group =>
+  val groupInfo = ReactComponentB[WithPerms[Group]]("GroupInfo")
+    .render({ wp =>
+      val group = wp.item
       val name = group.name.getOrElse("Untitled group")
       <.h3(
         <.small(GroupSetViews.groupSetIdName(group.set)), <.br(),
@@ -24,14 +25,14 @@ object GroupViews {
 
   val groupNameId = ReactComponentB[Id[Group,String]]("GroupName").render(id => groupNameL(GroupService.latch(id))).build
 
-  val groupInfoList = CommonComponent.latchedRender[Seq[Group]]("GroupInfoList") { groups =>
+  val groupInfoList = CommonComponent.latchedRender[Seq[WithPerms[Group]]]("GroupInfoList") { groups =>
     <.div(
       for { g <- groups } yield groupInfo(g)
     )
   }
 
   val myGroups = ReactComponentB[Id[Course, String]]("MyGroups")
-    .initialStateP(s => GroupService.myGroups(s))
+    .initialStateP(s => GroupService.myGroupsInCourse(s))
     .render { (a, b, c) => groupInfoList(c) }
     .build
 

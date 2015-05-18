@@ -39,10 +39,16 @@ object Lookups {
 
 trait RegistrationProvider[T, R, P <: HasKind] {
   def byUserAndTarget(user:Id[User, String], target:Id[T, String]):Ref[Registration[T, R, P]]
+
+  def byUser(user:Id[User, String]):RefMany[Registration[T, R, P]]
 }
 
 class NullRegistrationProvider[T, R, P <: HasKind] extends RegistrationProvider[T, R, P] {
   def byUserAndTarget(user:Id[User, String], target:Id[T, String]) = {
+    RefFailed(new IllegalStateException("No registration provider has been wired up"))
+  }
+
+  def byUser(user:Id[User, String]):RefMany[Registration[T, R, P]] = {
     RefFailed(new IllegalStateException("No registration provider has been wired up"))
   }
 }

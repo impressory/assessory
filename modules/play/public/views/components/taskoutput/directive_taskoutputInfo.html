@@ -1,7 +1,0 @@
-<div class="task-output" ng-if="task && taskOutput">
-  <div ng-switch="taskOutput.body.kind">
-    <div ng-switch-when="Critique">
-        <questionnaire-view questionnaire="task.body.questionnaire" answers="taskOutput.body.answers" qfilter="qfilter"></questionnaire-view>
-    </div>
-  </div>
-</div>

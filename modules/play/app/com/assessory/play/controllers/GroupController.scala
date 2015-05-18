@@ -189,10 +189,18 @@ object GroupController extends Controller {
     )
   }
 
-
-  def myGroups(courseId:String) = DataAction.returning.resultWH { implicit request =>
+  def myGroups = DataAction.returning.resultWH { implicit request =>
     WithHeaderInfo(
-      GroupModel.myGroups(
+      GroupModel.myGroupsWP(
+        a=request.approval
+      ),
+      headerInfo
+    )
+  }
+
+  def myGroupsInCourse(courseId:String) = DataAction.returning.resultWH { implicit request =>
+    WithHeaderInfo(
+      GroupModel.myGroupsInCourseWP(
         a=request.approval,
         rCourse=LazyId(courseId).of[Course]
       ),

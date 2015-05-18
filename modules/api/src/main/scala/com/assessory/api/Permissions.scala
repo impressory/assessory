@@ -4,6 +4,7 @@ import com.assessory.api.wiring.Lookups
 import com.wbillingsley.handy._
 import com.wbillingsley.handy.appbase._
 import Ref._
+import Ids._
 import critique._
 
 import wiring.Lookups._
@@ -92,9 +93,27 @@ object Permissions {
       who <- prior.cache(prior.who)
       o <- to
       task <- prior.cache(o.task.lazily)
-      ownWork <- isOwn(prior, who, o.by)
-    // TODO: overdue
+      ownWork <- isOwn(prior, who, o.by) orIfNone UserError("This is not your own work")
+      due <- isOpen(prior, task).withFilter({b:Boolean => b}) orIfNone UserError("This task is closed")
     } yield Approved("You may edit this")
+  }
+
+  def isOpen(a:Approval[User], t:Task) = {
+    for {
+      uId <- a.who.refId
+      groupIds <- Lookups.groupRegistrationProvider.byUser(uId).map(_.target).collect
+    } yield {
+      val now = System.currentTimeMillis()
+      // TODO: should we have a margin?
+      val margin = 300000L
+
+      def after(d:Due) = d.due(groupIds.map(_.id).asIds) match {
+        case Some(l) => now - l
+        case _ => 0L
+      }
+
+      after(t.details.open) > 0 && after(t.details.closed) < margin
+    }
   }
 
   val WriteCritique = Perm.onId[User, CritAllocation, String] { case (prior, gca) =>

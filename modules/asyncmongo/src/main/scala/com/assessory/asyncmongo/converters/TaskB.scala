@@ -37,8 +37,10 @@ object TaskDetailsB extends BsonDocumentConverter[TaskDetails] {
   override def write(i: TaskDetails) = bsonDoc(
     "name" -> i.name,
     "description" -> i.description,
-    "due" -> i.due,
     "published" -> i.published,
+    "open" -> i.open,
+    "due" -> i.due,
+    "closed" -> i.closed,
     "created" -> i.created
   )
 
@@ -46,8 +48,10 @@ object TaskDetailsB extends BsonDocumentConverter[TaskDetails] {
     new TaskDetails(
       name = doc.opt[String]("name"),
       description = doc.opt[String]("description"),
-      due = doc.req[Due]("due"),
       published = doc.req[Due]("published"),
+      open = doc.req[Due]("open"),
+      due = doc.req[Due]("due"),
+      closed = doc.req[Due]("closed"),
       created = doc.req[Long]("created")
     )
   }

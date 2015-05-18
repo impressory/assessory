@@ -101,16 +101,38 @@ object GroupModel {
   }
 
 
-  def myGroups(a:Approval[User], rCourse:Ref[Course]) = {
+  def myGroupsInCourseWP(a:Approval[User], rCourse:Ref[Course]) = {
+    for {
+      g <- myGroupsInCourse(a, rCourse)
+      wp <- withPerms(a, g)
+    } yield wp
+  }
+
+
+  def myGroupsInCourse(a:Approval[User], rCourse:Ref[Course]) = {
     for {
       u <- a.who
       course <- rCourse
       groupRegs <- RegistrationDAO.group.byUser(u.id).collect
       groupIds = groupRegs.map(_.target.id).asIds[Group]
       group <- groupIds.lookUp if group.course == Some(course.id)
-    } yield {
-      group
-    }
+    } yield group
+  }
+
+  def myGroupsWP(a:Approval[User]) = {
+    for {
+      g <- myGroups(a)
+      wp <- withPerms(a, g)
+    } yield wp
+  }
+
+  def myGroups(a:Approval[User]) = {
+    for {
+      u <- a.who
+      groupRegs <- RegistrationDAO.group.byUser(u.id).collect
+      groupIds = groupRegs.map(_.target.id).asIds[Group]
+      group <- groupIds.lookUp
+    } yield group
   }
 
   def findMany(a:Approval[User], oIds:Ids[Group,String]) = {
@@ -146,7 +168,7 @@ object GroupModel {
   // student number, name, group name, parent
   private def _importFromCsv(set:GroupSet, roles:Set[GroupRole], csv:String):RefMany[Group.Reg] = {
     val reader = new CSVReader(new StringReader(csv.trim()))
-    val lines = reader.readAll().asScala.toSeq.drop(1)
+    val lines = reader.readAll().asScala.toSeq
     reader.close()
 
     def opt(s:String) = Option(s).filter(_.trim.nonEmpty)
