@@ -7,7 +7,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 package object services {
 
-  val AJAX_HEADERS =  Map("Accept" -> "application/json")
+  val AJAX_HEADERS =  Map("Accept" -> "application/json", "Content-Type" -> "text/plain; charset=utf-8")
 
   implicit class FXHROps(val fxhr:Future[dom.XMLHttpRequest]) extends AnyVal {
     def responseText(implicit ec:ExecutionContext) = fxhr.map(_.responseText)

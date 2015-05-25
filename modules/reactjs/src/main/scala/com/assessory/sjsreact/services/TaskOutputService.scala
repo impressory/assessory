@@ -45,7 +45,7 @@ object TaskOutputService {
 
 
   def loadId[KK <: String](id:Id[TaskOutput,KK]) = {
-    val fwp = Ajax.get(s"/api/task/${id.id}", headers=AJAX_HEADERS).responseText.map(upickle.read[WithPerms[TaskOutput]])
+    val fwp = Ajax.get(s"/api/taskoutput/${id.id}", headers=AJAX_HEADERS).responseText.map(upickle.read[WithPerms[TaskOutput]])
     fwp.onComplete(_ => WebApp.rerender())
     fwp
   }

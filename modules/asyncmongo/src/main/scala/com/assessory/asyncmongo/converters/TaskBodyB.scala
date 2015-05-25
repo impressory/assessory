@@ -49,7 +49,7 @@ object CritTargetStrategyB extends BsonDocumentConverter[CritTargetStrategy] {
     val doc = bsonDoc("kind" -> i.kind)
     i match {
       case MyOutputStrategy(task) => doc.append("task", task)
-      case OfMyGroupsStrategy => doc
+      case OfMyGroupsStrategy(task) => doc.append("task", task)
       case PreallocateGroupStrategy(set, number) =>
         doc.append("set",set)
           .append("number",number)
@@ -59,7 +59,7 @@ object CritTargetStrategyB extends BsonDocumentConverter[CritTargetStrategy] {
   override def read(doc: BsonDocument): Try[CritTargetStrategy] = {
     doc.req[String]("kind") match {
       case MyOutputStrategy.kind => Try { MyOutputStrategy(task = doc.req[Id[Task,String]]("task")) }
-      case OfMyGroupsStrategy.kind => Try { OfMyGroupsStrategy }
+      case OfMyGroupsStrategy.kind => Try { OfMyGroupsStrategy(task = doc.req[Id[Task,String]]("task")) }
       case PreallocateGroupStrategy.kind => Try { PreallocateGroupStrategy(
         set = doc.req[Id[GroupSet,String]]("set"),
         number = doc.req[Int]("number")

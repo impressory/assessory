@@ -31,7 +31,7 @@ object TaskOutputDAO extends DAO(DB, classOf[TaskOutput], "taskOutput") {
   def byTaskAndAttn(t:Ref[Task], attn:Target) = {
     for {
       tid <- t.refId
-      to <- findMany(("task" $eq tid) and ("attn" $eq attn))
+      to <- findMany(bsonDoc("task" -> tid, "attn" -> attn))
     } yield to
   }
 

@@ -118,10 +118,10 @@ object CritModel {
               alloc <- CritAllocationDAO.byUserAndTask(u.itself, task.itself)
               ac <- alloc.allocation.toRefMany
             } yield ac.target
-          case OfMyGroupsStrategy =>
+          case OfMyGroupsStrategy(inTask) =>
             for {
               group <- GroupModel.myGroupsInCourse(a, a.cache(task.course.lazily)) if Some(group.set) == task.details.groupSet
-              to <- TaskOutputDAO.byTaskAndAttn(task.itself, TargetGroup(group.id))
+              to <- TaskOutputDAO.byTaskAndAttn(inTask.lazily, TargetGroup(group.id))
             } yield TargetTaskOutput(to.id)
         }
     }

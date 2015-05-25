@@ -16,11 +16,13 @@ object TaskModel {
   def withPerms(a:Approval[User], t:Task) = {
     for {
       edit <- a.askBoolean(Permissions.EditTask(t.itself))
+      complete <- a.askBoolean(Permissions.CompleteTask(t.itself))
       view <- a.askBoolean(Permissions.ViewTask(t.itself))
     } yield {
       WithPerms(
         Map(
           "edit" -> edit,
+          "complete" -> complete,
           "view" -> view
         ),
         t)

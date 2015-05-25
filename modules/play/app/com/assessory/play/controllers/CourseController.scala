@@ -11,7 +11,7 @@ import com.wbillingsley.handy.appbase.Course
 import com.wbillingsley.handyplay.RefConversions._
 import com.wbillingsley.handyplay.{DataAction, WithHeaderInfo}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.mvc.{Controller, Result, Results}
+import play.api.mvc.{BodyParsers, Controller, Result, Results}
 
 import scala.language.implicitConversions
 
@@ -121,7 +121,7 @@ object CourseController extends Controller {
    * Fetches the courses this user is registered with.
    * Note that this also performs the pre-enrolments
    */
-  def myCourses = DataAction.returning.resultWH { implicit request =>
+  def myCourses = DataAction.returning.resultWH(BodyParsers.parse.empty) { implicit request =>
     WithHeaderInfo(
       CourseModel.myCourses(request.approval),
       headerInfo

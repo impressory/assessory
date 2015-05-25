@@ -56,13 +56,12 @@ object Pickles {
   }}
 
 
-
   implicit val critTargetStrategyReader = upickle.Reader[CritTargetStrategy] { case o:Js.Obj => o("kind") match {
-    case Js.Str(OfMyGroupsStrategy.kind) => OfMyGroupsStrategy
+    case Js.Str(OfMyGroupsStrategy.kind) => upickle.read[Kinded[OfMyGroupsStrategy]](upickle.json.write(o)).item
     case Js.Str(PreallocateGroupStrategy.kind) => upickle.read[Kinded[PreallocateGroupStrategy]](upickle.json.write(o)).item
   }}
   implicit val critTargetStrategyWriter = upickle.Writer[CritTargetStrategy] {
-    case OfMyGroupsStrategy => upickle.json.read(upickle.write(Kinded(OfMyGroupsStrategy.kind, OfMyGroupsStrategy)))
+    case p:OfMyGroupsStrategy => upickle.json.read(upickle.write(Kinded(p.kind, p)))
     case p:PreallocateGroupStrategy => upickle.json.read(upickle.write(Kinded(p.kind, p)))
   }
 

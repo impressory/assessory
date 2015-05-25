@@ -161,12 +161,14 @@ object BsonHelpers {
     }
 
     def opt[T](k:String)(implicit f:FromBson[T]):Option[T] = {
-      val v = d.get(k)
-      if (v.isNull) {
-        None
-      } else {
-        Some(f.fromBson(v))
-      }
+      if (d.containsKey(k)) {
+        val v = d.get(k)
+        if (v.isNull) {
+          None
+        } else {
+          Some(f.fromBson(v))
+        }
+      } else None
     }
 
     def req[T](k:String)(implicit f:FromBson[T]):T = {

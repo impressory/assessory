@@ -27,6 +27,13 @@ object TaskOutputModel {
     }
   }
 
+  def get(a:Approval[User], t:Id[TaskOutput,String]) = {
+    for {
+      to <- t.lazily
+      wp <- withPerms(a, to)
+    } yield wp
+  }
+
 
   def myOutputs(a:Approval[User], rTask:Ref[Task]) = {
     for {

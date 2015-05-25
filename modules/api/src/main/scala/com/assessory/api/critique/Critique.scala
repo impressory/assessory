@@ -25,7 +25,12 @@ object MyOutputStrategy {
   val kind = "outputs relevant to me"
 }
 
-case object OfMyGroupsStrategy extends CritTargetStrategy {
+case class OfMyGroupsStrategy(
+  task: Id[Task,String]
+) extends CritTargetStrategy {
+  val kind = OfMyGroupsStrategy.kind
+}
+case object OfMyGroupsStrategy {
   val kind = "critiques of my groups"
 }
 

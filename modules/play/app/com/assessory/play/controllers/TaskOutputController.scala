@@ -39,7 +39,10 @@ object TaskOutputController extends Controller {
 
   def get(id:String) = DataAction.returning.resultWH { implicit request =>
     WithHeaderInfo(
-      LazyId(id).of[TaskOutput],
+      TaskOutputModel.get(
+        request.approval,
+        id.asId
+      ),
       headerInfo
     )
   }

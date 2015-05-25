@@ -101,17 +101,21 @@ object TaskViews {
       <.div(^.className := "container",
         CourseViews.courseInfoL(CourseService.latch(wp.item.course)),
         taskInfo(wp),
-        editOutputForTask(wp.item)
+        if (wp.perms("complete")) {
+          editOutputForTask(wp.item)
+        } else {
+          viewOutputForTask(wp.item)
+        }
       )
     )
   }
 
   val viewOutputForTask = ReactComponentB[Task]("viewOutputForTask")
     .render(task =>
-    task.body match {
-      case c:Critique => <.div("This task can no longer be completed.")
-    }
-  )
+      task.body match {
+        case c:CritiqueTask => <.div("Sorry, this task doesn't appear to be open. (If you think it should be open, try refreshing the page -- maybe it's opened since I cached it.)")
+      }
+    ).build
 
 
   val editOutputForTask = ReactComponentB[Task]("taskOutputForTask")

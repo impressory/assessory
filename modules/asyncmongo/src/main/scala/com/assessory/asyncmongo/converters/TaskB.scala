@@ -1,7 +1,7 @@
 package com.assessory.asyncmongo.converters
 
 import com.wbillingsley.handy.Id
-import com.wbillingsley.handy.appbase.{Group, Course}
+import com.wbillingsley.handy.appbase.{GroupSet, Group, Course}
 import com.wbillingsley.handy.mongodbasync.BsonDocumentConverter
 import com.assessory.api._
 import org.bson.BsonDocument
@@ -37,6 +37,8 @@ object TaskDetailsB extends BsonDocumentConverter[TaskDetails] {
   override def write(i: TaskDetails) = bsonDoc(
     "name" -> i.name,
     "description" -> i.description,
+    "groupSet" -> i.groupSet,
+    "individual" -> i.individual,
     "published" -> i.published,
     "open" -> i.open,
     "due" -> i.due,
@@ -48,6 +50,8 @@ object TaskDetailsB extends BsonDocumentConverter[TaskDetails] {
     new TaskDetails(
       name = doc.opt[String]("name"),
       description = doc.opt[String]("description"),
+      groupSet = doc.opt[Id[GroupSet,String]]("groupSet"),
+      individual = doc.opt[Boolean]("individual").getOrElse(true),
       published = doc.req[Due]("published"),
       open = doc.req[Due]("open"),
       due = doc.req[Due]("due"),

@@ -10,7 +10,7 @@ import com.wbillingsley.handy.appbase.{ActiveSession, User, UserError}
 import com.wbillingsley.handyplay.RefConversions._
 import com.wbillingsley.handyplay.{DataAction, WithHeaderInfo}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.mvc.{Controller, Result, Results}
+import play.api.mvc.{BodyParsers, Controller, Result, Results}
 
 import scala.concurrent.Future
 import scala.language.implicitConversions
@@ -34,7 +34,7 @@ object UserController extends Controller {
   }
 
 
-  def self = DataAction.returning.resultWH { implicit request =>
+  def self = DataAction.returning.resultWH(BodyParsers.parse.empty) { implicit request =>
     WithHeaderInfo(request.approval.who, headerInfo)
   }
 
