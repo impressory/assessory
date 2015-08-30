@@ -22,11 +22,18 @@ object UserService {
     Ajax.post("/api/self", headers=AJAX_HEADERS).responseText.map(upickle.read[User]).optional404
   )
 
+  def approval:Ref[Approval[User]] = Approval(
+    for {
+      opt <- self.request.toRef
+      u <- opt.toRef
+    } yield u
+  )
+
   def logOut():Unit = {
     Ajax.post("/api/logOut", headers=AJAX_HEADERS).andThen{
       case _ =>
         self.fill(None)
-        MainRouter.goTo(MainRouter.root)
+        MainRouter.goTo(MainRouter.Home)
         WebApp.rerender()
     }
   }
@@ -35,7 +42,7 @@ object UserService {
     Ajax.post("/api/logIn", upickle.write(ep), headers=AJAX_HEADERS).responseText.map(upickle.read[User]).andThen {
       case Success(u) =>
         self.fill(Some(u))
-        MainRouter.goTo(MainRouter.root)
+        MainRouter.goTo(MainRouter.Home)
         WebApp.rerender()
     }
   }
@@ -44,7 +51,7 @@ object UserService {
     Ajax.post("/api/signUp", upickle.write(ep), headers=AJAX_HEADERS).responseText.map(upickle.read[User]).andThen{
       case Success(u) =>
         self.fill(Some(u))
-        MainRouter.goTo(MainRouter.root)
+        MainRouter.goTo(MainRouter.Home)
         WebApp.rerender()
     }
   }

@@ -22,7 +22,20 @@ object LogInViews {
     }
   }
 
-  val logIn = ReactComponentB[MainRouter.Router]("Front")
+  val socialLogIn = ReactComponentB[Unit]("Social Login")
+    .render(_ =>
+      <.div(^.className := "col-sm-6",
+        <.h1("or"),
+        <.form(^.action := "/oauth/github", ^.method := "POST",
+          <.button(^.className:= "btn btn-default", ^.`type` := "submit",
+            <.i(^.className := "icon-github"), "Sign in with ", <.b("GitHub")
+          )
+        )
+      )
+    )
+    .buildU
+
+  val logIn = ReactComponentB[Unit]("Front")
     .initialState((EmailAndPassword("", ""), Latched.immediate("")))
     .backend(new LogInBackend(_))
     .render({ (props, children, state, backend) =>
@@ -46,48 +59,62 @@ object LogInViews {
                   CommonComponent.latchedString(state._2)
                 )
               )
-            )
+            ),
+
+            socialLogIn()
           )
         )
 
       )
     })
-    .build
+    .buildU
+
+
+  class SignUpBackend($: BackendScope[_, (EmailAndPassword, Latched[String])]) {
+
+    def email(e: ReactEventI) = $.modState { case (ep, ls) => (ep.copy(email = e.target.value), ls) }
+
+    def password(e: ReactEventI) = $.modState { case (ep, ls) => (ep.copy(password = e.target.value), ls) }
+
+    def logIn(e: ReactEventI) = $.modState { case (ep, ls) =>
+      val v = UserService.signUp($.state._1).map(_ => "Logged in").recoverWith { case x => Future.failed(UserError("Sign up failed")) }
+      (ep, Latched.lazily(v))
+    }
+  }
+
+
+  val signUp = ReactComponentB[Unit]("SignUp")
+    .initialState((EmailAndPassword("", ""), Latched.immediate("")))
+    .backend(new SignUpBackend(_))
+    .render({ (props, children, state, backend) =>
+    <.div(
+      Front.siteHeader("Hello"),
+
+      <.div(^.className := "container",
+        <.div(^.className := "row",
+
+          <.div(^.className := "col-sm-6",
+            <.h1("Sign Up"),
+            <.form(^.className := "form",
+              <.div(^.className := "form-group",
+                <.input(^.`type`:="text", ^.placeholder:="Email address", ^.onChange==>backend.email)
+              ),
+              <.div(^.className := "form-group",
+                <.input(^.`type`:="password", ^.placeholder:="Password", ^.onChange==>backend.password)
+              ),
+              <.div(^.className := "form-group",
+                <.button(^.className:="btn btn-primary", ^.disabled := !state._2.isCompleted, ^.onClick==>backend.logIn, "Log In"),
+                CommonComponent.latchedString(state._2)
+              )
+            )
+          ),
+
+          socialLogIn()
+        )
+      )
+
+    )
+  })
+  .buildU
+
 }
-
-/*
-<div class="container">
-<div class="row">
-
-	<div class="col-sm-6">
-		<h1>Log In</h1>
-		  <div class="well">
-		    <form name="signup" role="form" class="form">
-		      <div class="form-group">
-		        <label>Email address</label>
-		        <input type="text" class="form-control" ng-model="user.email" />
-		      </div>
-		      <div class="form-group">
-		        <label>Password</label>
-		        <input type="password" class="form-control" ng-model="user.password" />
-		      </div>
-		      <div ng-repeat="error in errors">
-		        <div class="alert alert-danger">{{ error }}</div>
-		      </div>
-		      <div class="form-group">
-		        <button class="btn btn-primary" ng-click="submit(user)">Log In</button>
-		      </div>
-		    </form>
-		  </div>
-	</div>
-
-	<div class="col-sm-6">
-	  <h1>or</h1>
-
-	  <social-log-in></social-log-in>
-	</div>
-
-</div>
-</div>
-
- */

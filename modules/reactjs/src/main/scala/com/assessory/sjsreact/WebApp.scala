@@ -16,7 +16,7 @@ import japgolly.scalajs.react.vdom.prefix_<^._
 object WebApp extends JSApp {
 
   val mountNode = dom.document.body
-  val root = React.render(MainRouter.routerComponent(), mountNode)
+  val root = React.render(MainRouter.router(), mountNode)
 
   def rerender() = root.forceUpdate()
 

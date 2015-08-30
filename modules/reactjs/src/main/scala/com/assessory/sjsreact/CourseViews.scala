@@ -1,7 +1,8 @@
 package com.assessory.sjsreact
 
 import com.assessory.api.client.WithPerms
-import com.assessory.sjsreact.services.GroupService
+import com.assessory.sjsreact.services.{CourseService, GroupService}
+import com.wbillingsley.handy.Id
 import com.wbillingsley.handy.appbase.Course
 import japgolly.scalajs.react.ReactComponentB
 import japgolly.scalajs.react.vdom.prefix_<^._
@@ -26,7 +27,7 @@ object CourseViews {
         ),
         <.div(^.className := "media-body",
           <.h4(^.className := "media-heading",  wp.item.shortName),
-          <.h2(^.className := "media-heading", <.a(^.href := MainRouter.courseHome( wp.item.id), wp.item.title)),
+          <.h2(^.className := "media-heading", <.a(^.href := MainRouter.CourseP.path( wp.item.id), wp.item.title)),
           courseAdmin(wp),
           <.p(wp.item.shortDescription)
         )
@@ -39,7 +40,7 @@ object CourseViews {
     courseInfo(wp)
   }
 
-  val courseFront = CommonComponent.latchedRender[WithPerms[Course]]("CourseFront") { wp =>
+  val courseFrontL = CommonComponent.latchedRender[WithPerms[Course]]("CourseFront") { wp =>
     <.div(
       Front.siteHeader(""),
       <.div(^.className := "course-view",
@@ -65,5 +66,27 @@ object CourseViews {
       )
     )
   }
+
+  val courseFront = ReactComponentB[Id[Course,String]]("CourseFront")
+    .initialStateP(id => CourseService.latch(id))
+    .render({ (p, r, s) =>
+       courseFrontL(s)
+    })
+    .build
+
+  val createCourse = ReactComponentB[Unit]("CreateCourse")
+    .initialState(Course(id=invalidId, addedBy=invalidId))
+    .render({ (p, c, s) =>
+      <.div(
+        Front.siteHeader(),
+        <.div(^.cls := "container",
+          <.h3("New course"),
+          <.div(^.cls := "form"
+
+          )
+        )
+      )
+    })
+    .buildU
 
 }

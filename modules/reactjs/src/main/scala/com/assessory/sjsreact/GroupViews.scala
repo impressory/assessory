@@ -15,7 +15,7 @@ object GroupViews {
       val name = group.name.getOrElse("Untitled group")
       <.h3(
         <.small(GroupSetViews.groupSetIdName(group.set)), <.br(),
-        <.a(^.href := "TODO", name)
+        <.a(^.href := MainRouter.GroupP.path(group.id), name)
       )
     })
     .build

@@ -1,5 +1,6 @@
 package com.assessory.sjsreact
 
+import com.assessory.api.Permissions
 import com.assessory.api.client.WithPerms
 import com.assessory.sjsreact.services.{CourseService, UserService}
 import com.wbillingsley.handy.appbase.{Course, User}
@@ -15,7 +16,7 @@ object Front {
       <.div(^.className := "site-header",
         <.div(^.className := "navbar navbar-static-top",
           <.div(^.className := "container",
-            MainRouter.rootLink(^.className := "navbar-brand", "Assessory"),
+            <.a(^.className := "navbar-brand", "Assessory", ^.href := MainRouter.Home.path),
             <.ul(^.className := "nav navbar-nav"),
             loginStatus(UserService.self)
           )
@@ -23,15 +24,6 @@ object Front {
       )
     }
     .buildU
-
-  val front = ReactComponentB[MainRouter.Router]("Front")
-    .render({ router =>
-      <.div(
-        siteHeader("Hello"),
-        myCourses(CourseService.myCourses)
-      )
-    })
-    .build
 
 
   val myCourses = CommonComponent.latchedRender[Option[Seq[WithPerms[Course]]]]("MyCourses") {
@@ -44,6 +36,25 @@ object Front {
       <.div(^.className := "container")
   }
 
+
+  val front = ReactComponentB[Unit]("Front")
+    .render({ router =>
+      <.div(
+        siteHeader("Hello"),
+        myCourses(CourseService.myCourses)
+      )
+    })
+    .buildU
+
+
+  def createCourse() = CommonComponent.ifPermitted(Permissions.CreateCourse)(
+    <.div(^.cls := "container",
+      <.a(^.cls := "btn btn-default", ^.href := MainRouter.CreateCourseP.path,
+        "Create a course"
+      )
+    )
+  )
+
   val loginStatus = CommonComponent.latchedRender[Option[User]]("LoginStatus") {
     case Some(u) =>
       val name: String = u.name.getOrElse("Anonymous")
@@ -54,8 +65,8 @@ object Front {
       )
     case _ =>
       <.ul(^.className := "nav navbar-nav pull-right",
-        <.li(<.a(^.href:=MainRouter.logIn, "Log in")),
-        <.li(<.a("Sign up"))
+        <.li(<.a(^.href:=MainRouter.LogIn.path, "Log in")),
+        <.li(<.a(^.href:=MainRouter.SignUp.path,"Sign up"))
       )
   }
 

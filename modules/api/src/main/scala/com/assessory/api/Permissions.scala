@@ -17,7 +17,7 @@ object Permissions {
    * Create a course
    */
   val CreateCourse = Perm.unique[User] { case (prior) =>
-      Approved("Anyone may create a course")
+      for (u <- prior.who) yield Approved("Anyone may create a course")
   }
 
   val ViewCourse = Perm.onId[User, Course, String] { case (prior, course) =>

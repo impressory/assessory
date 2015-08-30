@@ -4,55 +4,81 @@ import com.assessory.api.Task
 import com.assessory.sjsreact.services.{TaskService, CourseService}
 import com.wbillingsley.handy.Id
 import Id._
-import com.wbillingsley.handy.appbase.Course
-import japgolly.scalajs.react.extra.router.{BaseUrl, Router, RoutingRules}
+import com.wbillingsley.handy.appbase.{Group, Course}
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.extra._
+import japgolly.scalajs.react.extra.router2._
 import japgolly.scalajs.react.vdom.prefix_<^._
 import org.scalajs.dom.window
 
-object MainRouter extends RoutingRules {
+import scala.language.implicitConversions
 
-  val base = "#!"
+object MainRouter {
+
+  val base = "#!/"
 
   implicit val baseUrl:BaseUrl = BaseUrl.fromWindowOrigin / base
 
-  val root:MainRouter.Loc = register(rootLocation(Front.front))
 
-  // Register route for log in
-  val logInRel = "/logIn"
-  val logIn = base + logInRel
-  register(location(logInRel, LogInViews.logIn))
+  sealed trait MyPages
+  case object Home                extends MyPages {
+    val path = base
+  }
+  case object LogIn               extends MyPages {
+    val relpath = "logIn"
+    val path = base + relpath
+  }
+  case object SignUp              extends MyPages {
+    val relpath = "signUp"
+    val path = base + relpath
+  }
 
-  // Register route for viewing courses
-  val courseRgx = "^/course/(.+)$".r
-  def courseHomeRel(c:Id[Course,String]) = s"/course/${c.id}"
-  def courseHome(c:Id[Course,String]) = base + courseHomeRel(c)
-  val courseHomeL = dynLink[Id[Course,String]](courseHome)
-  register(parser({ case courseRgx(n) => n }).location(n => CourseViews.courseFront(CourseService.latch(n))))
+  case object CreateCourseP       extends MyPages {
+    val relPath = "createCourse"
+    val path = base + relPath
+  }
 
-  // Register route for viewing tasks
-  val taskRgx = "^/task/(.+)$".r
-  def taskHomeRel(c:Id[Task,String]) = s"/task/${c.id}"
-  def taskHome(c:Id[Task,String]) = base + taskHomeRel(c)
-  val taskHomeL = dynLink[Id[Task,String]](taskHome)
-  register(parser({ case taskRgx(n) => n }).location(n => TaskViews.taskView(TaskService.latch(n))))
+  case class CourseP(id:String)    extends MyPages
+  object CourseP {
+    implicit def toId(c:CourseP):Id[Course,String] = Id(c.id)
+    def pathRel(c:Id[Course,String]) = s"course/${c.id}"
+    def path(c:Id[Course,String]) = base + pathRel(c)
+  }
 
+  case class TaskP(id:String)      extends MyPages
+  object TaskP {
+    implicit def toId(c:TaskP):Id[Task,String] = Id(c.id)
+    def pathRel(c:Id[Task,String]) = s"task/${c.id}"
+    def path(c:Id[Task,String]) = base + pathRel(c)
+  }
 
-
-  // functions to provide links (<a href...>) to routes
-  def rootLink = router.link(root)
-  def routerLink(loc: Loc) = router.link(loc)
-
-  def goTo(loc:Loc) = {
-    println("Sync to " + loc)
-    window.location.assign(loc.path.abs(baseUrl).value)
-    WebApp.rerender()
+  case class GroupP(id:String)      extends MyPages
+  object GroupP {
+    implicit def toId(c:GroupP):Id[Group,String] = Id(c.id)
+    def pathRel(c:Id[Group,String]) = s"group/${c.id}"
+    def path(c:Id[Group,String]) = base + pathRel(c)
   }
 
 
-  // Set up the router component, assuming / to be the root URL
-  val router = routingEngine(baseUrl, Router.consoleLogger)
-  val routerComponent = Router.component(router)
+  val routerConfig = RouterConfigDsl[MyPages].buildConfig { dsl =>
+    import dsl._
 
-  override protected val notFound: MainRouter.DynAction = render( <.h1("404, Not Found.") )
+    val key = string("[a-z0-9]+")
+
+    (
+      emptyRule
+      | staticRoute(root, Home) ~> render(Front.front())
+      | staticRoute(LogIn.relpath, LogIn) ~> render(LogInViews.logIn())
+      | staticRoute(SignUp.relpath, SignUp) ~> render(LogInViews.signUp())
+      | staticRoute(CreateCourseP.relPath, CreateCourseP) ~> render(CourseViews.createCourse())
+      | dynamicRouteCT[CourseP]("course" / key.caseClass[CourseP]) ~> dynRender(CourseViews.courseFront(_))
+      | dynamicRouteCT("task" / key.caseClass[TaskP]) ~> dynRender(TaskViews.taskFront(_))
+
+    ).notFound(redirectToPage(Home)(Redirect.Replace))
+  }
+
+  // Set up the router component, assuming / to be the root URL
+  val (router, logic) = Router.componentAndLogic(baseUrl, routerConfig)
+
+  def goTo(p:MyPages) = logic.ctl.set(p)
 }

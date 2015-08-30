@@ -1,6 +1,9 @@
 package com.assessory.sjsreact
 
-import japgolly.scalajs.react.{ReactComponentC, ReactElement, ReactComponentB}
+import com.assessory.sjsreact.services.UserService
+import com.wbillingsley.handy.appbase.User
+import com.wbillingsley.handy.{Perm, Ref}
+import japgolly.scalajs.react.{ReactNode, ReactComponentC, ReactElement, ReactComponentB}
 import japgolly.scalajs.react.vdom.prefix_<^._
 
 import scala.concurrent.Future
@@ -55,6 +58,24 @@ object CommonComponent {
       })
       .build
   }
+
+  def latchedNode(l: Latched[ReactNode]):ReactNode = l.request.value match {
+    case Some(Success(x)) => x
+    case Some(Failure(x)) => <.span(^.className := "error", x.getMessage)
+    case _ => <.i(^.className := "fa fa-spinner fa-spin")
+  }
+
+  def futureNode(f: Future[ReactNode]):ReactNode = f.value match {
+    case Some(Success(x)) => x
+    case Some(Failure(x)) => <.span(^.className := "error", x.getMessage)
+    case _ => <.i(^.className := "fa fa-spinner fa-spin")
+  }
+
+  def refNode(r: Ref[ReactNode]) = futureNode(r.toFuture)
+
+  def ifPermitted(p:Perm[User])(r: ReactNode) = refNode(for (can <- UserService.approval askBoolean p) yield {
+    if (can) r else <.span().render
+  })
 
   val latchedString = latchedRender[String]("latchedString") { str:String => <.span(str) }
 

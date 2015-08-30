@@ -60,7 +60,7 @@ object TaskViews {
 
       <.div(
         <.h3(
-          <.a(^.href := MainRouter.taskHome(wp.item.id), name)
+          <.a(^.href := MainRouter.TaskP.path(wp.item.id), name)
         ),
         taskAdmin(wp),
         <.p(task.details.description.getOrElse(""):String),
@@ -109,6 +109,13 @@ object TaskViews {
       )
     )
   }
+
+  val taskFront = ReactComponentB[Id[Task,String]]("TaskFront")
+    .initialStateP(id => TaskService.latch(id))
+    .render({ (p, r, s) =>
+    taskView(s)
+  })
+  .build
 
   val viewOutputForTask = ReactComponentB[Task]("viewOutputForTask")
     .render(task =>
