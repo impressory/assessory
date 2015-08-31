@@ -80,5 +80,5 @@ object MainRouter {
   // Set up the router component, assuming / to be the root URL
   val (router, logic) = Router.componentAndLogic(baseUrl, routerConfig)
 
-  def goTo(p:MyPages) = logic.ctl.set(p)
+  def goTo(p:MyPages) = logic.ctl.set(p).unsafePerformIO()
 }
